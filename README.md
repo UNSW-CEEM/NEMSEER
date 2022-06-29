@@ -4,7 +4,7 @@ A package for downloading and handling forecasts for the National Electricity Ma
 
 ## Work in Progress
 
-This package is a work in progress. For a high-level overview of development, check out the [roadmap](roadmap.md)
+This package is a work in progress. For a high-level overview of development, check out the [roadmap](ROADMAP.md).
 
 ## Installation
 
