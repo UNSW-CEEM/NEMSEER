@@ -12,7 +12,7 @@ Two types of functionality would be exposed:
 
 1. Loader is initialised with user input
 2. Then:
-    a) Loader then loads from RawCache (via `RawCacheManager`), or dispatches a Downloader. Generic as well as forecast-specific validators should verify user inputs. Returns `CompiledRawData`.
+    a) Loader then loads from RawCache (via `RawCacheManager`), or dispatches a Downloader. RawCache is a SQLite DB. Generic as well as forecast-specific validators should verify user inputs. Returns `CompiledRawData`.
     b) Loader checks metadata of netCDF from ProcessedCache (via `ProcessedCacheManager`). Returns `CompiledProcessedData`.
 3. If 2(a), then passed to `AggregatedForecastbyType` for data aggregation, filtering and building to processed cache
 4. If 2(b), could then be passed to `AggregatedForecastbyType` for specific filtering?
@@ -62,6 +62,7 @@ classDiagram
       +@classmethod initialise(forecast_type)
       +url_constructor()
       +download_month_year_table()
+      +table_to_dataframe()
       +list_available_yearmonths()
       +list_available_tables(forecast_type)
     }
@@ -77,13 +78,11 @@ classDiagram
       +datetime forecast_times
       +List tables
       +String raw_cache
-      +String cache_formats
       +String desired_cache_format
       +@classmethod create_RawCacheManager()
-      +infer_cache_formats()
       +check_if_downloaded(all except desired_cache_format)
       +load_from_raw_cache(all except desired_cache_format)
-      +convert_to_rawcache_format(all inputs)
+      +write_to_raw_cache(all inputs)
       +delete_rawcache_data(set(cache_formats)-set(desired_cache_format))
     }
 
