@@ -1,7 +1,6 @@
 import requests
 
 from bs4 import BeautifulSoup
-from collections import OrderedDict
 from itertools import cycle
 from nemseer.data import user_agents, urls
 from re import match
@@ -26,8 +25,18 @@ def _build_useragent_generator(n: int) -> Generator:
         yield useragent
 
 
-def _request_content(url:str, useragent: str,
+def _request_content(url: str, useragent: str,
                      additional_header: Dict = {}) -> requests.Response:
+    """Initiates a GET request with header information.
+
+    Args:
+        url: URL for GET request.
+        useragent: User-Agent to use in header.
+        additional_header: Empty dictionary as default. Can be used to add
+            additional header information to GET request.
+    Returns:
+        requests Response object.
+    """
     header = {
         "Host": "www.nemweb.com.au",
         "User-Agent": useragent,
@@ -43,6 +52,30 @@ def _request_content(url:str, useragent: str,
     return r
 
 
+def _rerequest_to_obtain_soup(url: str, useragent: str,
+                              additional_header: Dict = {}) -> BeautifulSoup:
+    """Continually launches requests until a 200 (OK) code is returned.
+
+    Args:
+        url: URL for GET request.
+        useragent: User-Agent to use in header.
+        additional_header: Empty dictionary as default. Can be used to add
+            additional header information to GET request.
+
+    Returns:
+        BeautifulSoup object with parsed HTML.
+   
+    """
+    ok = 0
+    while ok < 1:
+        r = _request_content(url, useragent,
+                             additional_header=additional_header)
+        if r.status_code == requests.status_codes.codes['OK']:
+            ok += 1
+    soup = BeautifulSoup(r.content, 'html.parser')
+    return soup
+
+
 def _get_months(url: str, useragent: str) -> List[int]:
     """Pull months from scraped links with YYYY-MM date format
 
@@ -53,8 +86,8 @@ def _get_months(url: str, useragent: str) -> List[int]:
         List of unique months (as integers).
     """
     referer_header = {"Referer": urls.MMSDM_ARCHIVE_URL}
-    r = _request_content(url, useragent, additional_header=referer_header)
-    soup = BeautifulSoup(r.content, 'html.parser')
+    soup = _rerequest_to_obtain_soup(url, useragent,
+                                     additional_header=referer_header)
     months = []
     for link in soup.find_all("a"):
         url = link.get('href')
@@ -68,15 +101,15 @@ def _get_months(url: str, useragent: str) -> List[int]:
     return unique
 
 
-def _get_years_and_months() -> Dict[int, int]:
+def _get_years_and_months() -> Dict[int, List[int]]:
     """Checks months with data available, for each year from scraped link.
 
     Returns:
-        Months within a year with data available.
+        Months mapped to each year. Data is available for each of these months.
     """
     useragent = next(_build_useragent_generator(1))
-    r = _request_content(urls.MMSDM_ARCHIVE_URL, useragent)
-    links = BeautifulSoup(r.content, 'html.parser').find_all("a")
+    soup = _rerequest_to_obtain_soup(urls.MMSDM_ARCHIVE_URL, useragent)
+    links = soup.find_all("a")
     nlinks = len(links)
     yearmonths = {}
     for useragent, link in zip(_build_useragent_generator(nlinks), links):
@@ -86,14 +119,16 @@ def _get_years_and_months() -> Dict[int, int]:
             continue
         else:
             year = int(findyear.group(1))
-            months = _get_months(urls.MMSDM_ARCHIVE_URL + f'{year}/', useragent)
+            months = _get_months(urls.MMSDM_ARCHIVE_URL + f'{year}/',
+                                 useragent)
             yearmonths[year] = months
     return yearmonths
 
 
-def construct_mmsdm_yearmonth_url(year: int, month: int) -> str:
+def _construct_mmsdm_yearmonth_url(year: int, month: int) -> str:
     url = (
         urls.MMSDM_ARCHIVE_URL + f'{year}/MMSDM_{year}_'
-        + f'{str(month).rjust(2, "0")}/'
+        + f'{str(month).rjust(2, "0")}/MMSDM_Historical_Data_SQLLoader/'
+        + 'DATA/'
            )
     return url
