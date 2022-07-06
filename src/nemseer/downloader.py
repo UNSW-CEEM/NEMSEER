@@ -157,8 +157,23 @@ def _construct_mmsdm_yearmonth_url(year: int, month: int) -> str:
     return url
 
 
-def _get_mmsdm_tables_for_yearmonths(year: int, month: int) -> List[str]:
+def _get_mmsdm_tables_for_yearmonths(year: int, month: int,
+                                     forecast_type: str) -> List[str]:
+    """For a month & year, get available tables for a particular forecast type.
+
+    Args:
+        year: Year
+        month: Month
+        forecast_type: AEMO forecast types (P5MIN, PREDISPATCH, STPASA, MTPASA)
+    Returns:
+        List of tables associated with that forecast type for that period
+    """
     url = _construct_mmsdm_yearmonth_url(year, month)
     soup = _rerequest_to_obtain_soup(url, next(_build_useragent_generator(1)))
     links = [link.get('href') for link in soup.find_all("a")]
-    return links
+    table_capture = f".*/PUBLIC_DVD_{forecast_type}(.*)_[0-9]*.zip"
+    tables = [
+        match(table_capture, link).group(1).lstrip("_")
+        for link in links if match(table_capture, link)
+        ]
+    return tables
