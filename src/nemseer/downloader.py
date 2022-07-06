@@ -1,10 +1,23 @@
 import requests
 
+from attrs import define, Factory
 from bs4 import BeautifulSoup
+from datetime import datetime
 from itertools import cycle
 from nemseer.data import user_agents, urls
 from re import match
 from typing import Dict, List, Generator
+
+
+@define(kw_only=True)
+class ForecastTypeDownloader:
+    forecast_time_start: datetime
+    forecast_time_end: datetime
+    forecasted_time_start: datetime
+    forecasted_time_end: datetime
+    tables: List[str] = Factory(list)
+    raw_path: str
+    forecast_type: str
 
 
 def _build_useragent_generator(n: int) -> Generator:
@@ -64,9 +77,11 @@ def _rerequest_to_obtain_soup(url: str, useragent: str,
 
     Returns:
         BeautifulSoup object with parsed HTML.
-   
+
     """
-    ok = 0
+    r = _request_content(url, useragent,
+                         additional_header=additional_header)
+    ok = (r.status_code == requests.status_codes.codes['OK'])
     while ok < 1:
         r = _request_content(url, useragent,
                              additional_header=additional_header)
@@ -126,9 +141,24 @@ def _get_years_and_months() -> Dict[int, List[int]]:
 
 
 def _construct_mmsdm_yearmonth_url(year: int, month: int) -> str:
+    """Constructs MMSDM Historical Data SQLLoader URL for a given year and month
+
+    Args:
+        year: Year
+        month: Month
+    Returns:
+        Constructed URL as a string.
+    """
     url = (
         urls.MMSDM_ARCHIVE_URL + f'{year}/MMSDM_{year}_'
         + f'{str(month).rjust(2, "0")}/MMSDM_Historical_Data_SQLLoader/'
         + 'DATA/'
            )
     return url
+
+
+def _get_mmsdm_tables_for_yearmonths(year: int, month: int) -> List[str]:
+    url = _construct_mmsdm_yearmonth_url(year, month)
+    soup = _rerequest_to_obtain_soup(url, next(_build_useragent_generator(1)))
+    links = [link.get('href') for link in soup.find_all("a")]
+    return links
