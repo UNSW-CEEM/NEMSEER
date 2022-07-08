@@ -30,7 +30,6 @@ def _build_useragent_generator(n: int) -> Generator:
         n: Number of user agents, i.e. number of GET requests.
     Yields:
         useragent: A user agent.
-
     """
     inf_agents = cycle(user_agents.USER_AGENTS)
     n_iterator = range(n)
