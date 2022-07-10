@@ -95,6 +95,7 @@ class Loader:
     ensures query metadata is constructed approriately.
 
     Loader:
+
     - Validates user input data
         - Checks datetime are dd/mm/yyyy HH:MM
         - Checks datetime chronology (e.g. end is after start)
@@ -117,6 +118,7 @@ class Loader:
         metadata: Metadata dictionary. Constructed by `Loader.initialise()`.
         raw_cache (optional): Path to build or reuse raw cache.
         processed_cache (optional): Path to build or reuse processed cache.
+
     """
     forecast_start: str = field(converter=_dt_converter,
                                 validator=[
@@ -130,8 +132,9 @@ class Loader:
     forecast_type: str = field(validator=validators.in_(
         ['MTPASA', 'STPASA', 'PDPASA', 'PREDISPATCH', 'P5MIN']
         ))
-    tables: List[str] = field(converter=_tablestr_converter,
-                              validator=_validate_tables_on_forecast_start)
+    tables: Union[str, List[str]] = field(
+        converter=_tablestr_converter,
+        validator=_validate_tables_on_forecast_start)
     metadata: Dict
     raw_cache: Optional[str] = field(
         default=None, validator=validators.optional(_validate_path)
@@ -143,10 +146,11 @@ class Loader:
     @classmethod
     def initialise(cls, forecast_start: str, forecast_end: str,
                    forecasted_start: str, forecasted_end: str,
-                   forecast_type: str, tables: List[str],
+                   forecast_type: str, tables: Union[str, List[str]],
                    raw_cache: Optional[str] = None,
                    processed_cache: Optional[str] = None) -> "Loader":
         """Constructor method for Loader. Assembles query metatdata.
+
         """
         metadata = {
             "forecast_start": forecast_start, "forecast_end": forecast_end,
