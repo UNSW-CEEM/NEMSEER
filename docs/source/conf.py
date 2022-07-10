@@ -31,8 +31,9 @@ release = '0.1.0'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
-'sphinx.ext.autodoc', 'sphinx.ext.doctest', 'sphinx.ext.todo', 'sphinx.ext.ifconfig', 
-'sphinx.ext.viewcode', 'sphinx.ext.githubpages', 'sphinx.ext.napoleon', 'sphinx_copybutton'
+    'sphinx.ext.napoleon', 'sphinx.ext.autodoc',
+    'sphinx.ext.intersphinx', 'sphinx.ext.doctest', 'sphinx.ext.todo',
+    'sphinx.ext.viewcode', 'sphinx.ext.githubpages', 'myst_parser'
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -43,9 +44,32 @@ templates_path = ['_templates']
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
 
+
+# -- Formats for MyST --------------------------------------------------------
+source_suffix = ['.rst', '.md']
+
+# --  Napoleon options--------------------------------------------------------
+# use the :param directive
+napoleon_use_param = True
+
 # -- Autodoc options ---------------------------------------------------------
 
-autodoc_mock_imports = ["attrs", "beautifulsoup4", "nemosis", "pandas", "requests", "xarray"]
+# Automatically extract typehints when specified and place them in
+# descriptions of the relevant function/method.
+autodoc_typehints = "both"
+
+# Only insert class docstring
+autoclass_content = "class"
+
+# --  Intersphinx options-----------------------------------------------------
+intersphinx_mapping = {'python': ('https://docs.python.org/3', None)}
+
+# --  MyST options------------------------------------------------------------
+
+myst_enable_extensions = [
+    "colon_fence",
+    "deflist",
+]
 
 # -- Options for HTML output -------------------------------------------------
 
