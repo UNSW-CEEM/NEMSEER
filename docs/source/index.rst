@@ -6,7 +6,7 @@ Welcome to NEMSEER's documentation!
    :maxdepth: 2
    :caption: Contents:
 
-   downloader
+   api.md
 
 Indices and tables
 ==================
