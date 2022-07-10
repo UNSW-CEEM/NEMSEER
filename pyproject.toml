@@ -33,6 +33,8 @@ optional = true
 [tool.poetry.group.debug.dependencies]
 ipdb = "*"
 ipython = "*"
+jupyter = "^1.0.0"
+notebook = "^6.4.12"
 
 [tool.poetry.group.linters]
 optional = true
