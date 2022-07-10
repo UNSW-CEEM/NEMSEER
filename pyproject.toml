@@ -25,8 +25,7 @@ optional = true
 [tool.poetry.group.docs.dependencies]
 Sphinx = "^5.0.2"
 furo = "^2022.6.21"
-sphinx-copybutton = "^0.5.0"
-sphinxcontrib-napoleon = "^0.7"
+myst-parser = "^0.18.0"
 
 [tool.poetry.group.debug]
 optional = true
