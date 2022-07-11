@@ -1,8 +1,6 @@
 name: Build-Publish-Docs
 on:
   push:
-    branches:
-      - master
     tags: '*'
   pull_request:
     branches:
@@ -25,6 +23,7 @@ jobs:
       - name: Build docs
         run: |
           mkdir gh-pages
+          touch gh-pages/.nojekyll
           cd docs/
           poetry run sphinx-build -b html source build
           cp -r build/* ../gh-pages/
