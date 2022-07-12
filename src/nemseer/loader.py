@@ -54,7 +54,7 @@ def _validate_forecasted_chronology(instance, attribute, value):
             + " forecasted start datetime.")
 
 
-def _validate_forecast_forecasted_chronology(instance, attribute, value):
+def _validate_relative_chronology(instance, attribute, value):
     """Validates forecast_start against forecasted_start"""
     if instance.forecasted_start <= value:
         raise ValueError(
@@ -123,11 +123,14 @@ class Loader:
     forecast_start: str = field(converter=_dt_converter,
                                 validator=[
                                     _validate_forecast_chronology,
-                                    _validate_forecast_forecasted_chronology
+                                    _validate_relative_chronology
                                     ])
     forecast_end: str = field(converter=_dt_converter)
     forecasted_start: str = field(converter=_dt_converter,
-                                  validator=_validate_forecasted_chronology)
+                                  validator=[
+                                    _validate_forecasted_chronology,
+                                    _validate_relative_chronology
+                                    ])
     forecasted_end: str = field(converter=_dt_converter)
     forecast_type: str = field(validator=validators.in_(
         ['MTPASA', 'STPASA', 'PDPASA', 'PREDISPATCH', 'P5MIN']
