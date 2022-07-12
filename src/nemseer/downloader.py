@@ -160,6 +160,9 @@ def _get_mmsdm_tables_for_yearmonths(year: int, month: int,
                                      forecast_type: str) -> List[str]:
     """For a month & year, get available tables for a particular forecast type.
 
+    `table_capture` handles P5MIN tables that are spread across multiple files
+      - e.g. CONSTRAINTSOLUTION1, CONSTRAINTSOLUTION2, etc.
+
     Args:
         year: Year
         month: Month
@@ -170,9 +173,9 @@ def _get_mmsdm_tables_for_yearmonths(year: int, month: int,
     url = _construct_mmsdm_yearmonth_url(year, month)
     soup = _rerequest_to_obtain_soup(url, next(_build_useragent_generator(1)))
     links = [link.get('href') for link in soup.find_all("a")]
-    table_capture = f".*/PUBLIC_DVD_{forecast_type}(.*)_[0-9]*.zip"
-    tables = [
+    table_capture = f".*/PUBLIC_DVD_{forecast_type}([A-Z_]*)[0-9]?_[0-9]*.zip"
+    tables = set([
         match(table_capture, link).group(1).lstrip("_")
         for link in links if match(table_capture, link)
-        ]
-    return tables
+        ])
+    return list(tables)
