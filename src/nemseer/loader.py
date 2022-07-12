@@ -24,12 +24,12 @@ def _dt_converter(value: str) -> datetime:
 
 
 def _tablestr_converter(value: Union[str, List[str]]) -> List[str]:
-    """If a single string supplied, converts it to a single element list.
+    """Returns a list of table strings, even if a single string is provided
 
     Args:
-        value: Table string
+        value: Table string or list of table strings
     Returns:
-        Single element list.
+        List of strings
     """
     if type(value) is str:
         return [value]
@@ -112,9 +112,8 @@ class Loader:
         forecasted_end: Forecasts pertaining to times before or at this
             datetime are retaned.
         forecast_type: `MTPASA`, `STPASA`, `PDPASA`, `PREDISPATCH` or `P5MIN`.
-        tables: Table or tables required. Will merge on common datetime column.
-            A single table can be supplied as a string. Multiple tables can be
-            supplied as a list of strings.
+        tables: Table or tables required. A single table can be supplied as 
+            a string. Multiple tables can be supplied as a list of strings.
         metadata: Metadata dictionary. Constructed by `Loader.initialise()`.
         raw_cache (optional): Path to build or reuse raw cache.
         processed_cache (optional): Path to build or reuse processed cache.
