@@ -36,6 +36,7 @@ class ForecastTypeDownloader:
 
     @classmethod
     def from_Loader(cls, loader: Loader):
+        """Constructor method for ForecastTypeDownloader from Loader."""
         tables = loader.tables
         if "CONSTRAINTSOLUTION" in tables:
             tables = _enumerate_tables(tables, "CONSTRAINTSOLUTION", 4)
