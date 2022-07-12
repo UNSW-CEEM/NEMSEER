@@ -4,7 +4,7 @@ from attrs import define, Factory
 from bs4 import BeautifulSoup
 from datetime import datetime
 from itertools import cycle
-from nemseer.data import user_agents, urls
+from .data import user_agents, urls
 from re import match
 from typing import Dict, List, Generator
 

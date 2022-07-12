@@ -2,7 +2,7 @@ import os
 
 from attrs import define, field, validators
 from datetime import datetime
-from nemseer.downloader import _get_mmsdm_tables_for_yearmonths
+from .downloader import _get_mmsdm_tables_for_yearmonths
 from typing import Dict, List, Optional, Union
 
 
