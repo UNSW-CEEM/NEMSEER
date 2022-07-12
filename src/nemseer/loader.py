@@ -40,7 +40,7 @@ def _tablestr_converter(value: Union[str, List[str]]) -> List[str]:
 
 def _validate_forecast_chronology(instance, attribute, value):
     """Validates forecast_start against forecast_end"""
-    if value <= instance.forecast_end:
+    if value > instance.forecast_end:
         raise ValueError(
             "Forecast end datetime must be greater than or equal to"
             + " forecast start datetime.")
@@ -48,7 +48,7 @@ def _validate_forecast_chronology(instance, attribute, value):
 
 def _validate_forecasted_chronology(instance, attribute, value):
     """Validated forecasted_start against forecasted_end"""
-    if value <= instance.forecasted_end:
+    if value > instance.forecasted_end:
         raise ValueError(
             "Forecasted end datetime must be greater than or equal to"
             + " forecasted start datetime.")
@@ -56,7 +56,7 @@ def _validate_forecasted_chronology(instance, attribute, value):
 
 def _validate_relative_chronology(instance, attribute, value):
     """Validates forecast_start against forecasted_start"""
-    if value <= instance.forecasted_start:
+    if value > instance.forecasted_start:
         raise ValueError(
             "Forecasted start datetime should be equal to or after forecast"
             + " start datetime."
