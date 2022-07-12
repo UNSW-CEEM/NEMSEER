@@ -43,10 +43,22 @@ If you are proposing a feature:
 Ready to contribute? Here's how to set up `nemseer` for local development.
 
 1. Download a copy of `nemseer` locally.
-2. Install `nemseer` using `poetry`:
+2. Install `poetry`
+    - `poetry` is changing the way dependencies are managed, so as of July 2022, install `v1.2.0b2` (we will transition to `v1.2.0` once it is released)
+    - The command below applies to UNIX systems. For Windows, refer to the [`poetry` docs](https://python-poetry.org/docs/master/#installation)
+
+        ```console
+        $ curl -sSL https://install.python-poetry.org | python3 - --version 1.2.0b2
+        ```
+4. Install `nemseer` using `poetry`:
+    - Developers should install additional `poetry` groups for development:
+      - `docs` for documentation dependencies
+      - `lint` for linters. `nemseer` uses `flake8` and `mypy` for type annotations
+      - `test` for testing utilities
+      - (optional) `debug` for debugging tools
 
     ```console
-    $ poetry install
+    $ poetry install --with=docs,lint,test
     ```
 
 3. Use `git` (or similar) to create a branch for local development and make your changes:
@@ -70,4 +82,4 @@ Before you submit a pull request, check that it meets these guidelines:
 ## Code of Conduct
 
 Please note that the `nemseer` project is released with a
-Code of Conduct. By contributing to this project you agree to abide by its terms.
+[Code of Conduct](CONDUCT.md). By contributing to this project you agree to abide by its terms.
