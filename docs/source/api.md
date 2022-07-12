@@ -22,6 +22,6 @@ Use the {meth}`from_Loader() <nemseer.downloader.ForecastTypeDownloader.from_Loa
 :::
 
 ```{eval-rst}
-.. autoclass:: nemseer.Downloader.ForecastTypeDownloader
+.. autoclass:: nemseer.downloader.ForecastTypeDownloader
    :members:
 ```
