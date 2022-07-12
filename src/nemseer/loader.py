@@ -4,7 +4,7 @@ from attrs import define, field, validators
 from datetime import datetime
 from typing import Dict, List, Optional, Union
 
-from .downloader import _get_mmsdm_tables_for_yearmonths
+from .dl_helpers.funcs import _get_mmsdm_tables_for_yearmonths
 
 
 def _dt_converter(value: str) -> datetime:
