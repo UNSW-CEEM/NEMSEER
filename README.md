@@ -21,11 +21,11 @@ $ pip install nemseer
 
 ## Contributing
 
-Interested in contributing? Check out the contributing guidelines. Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
+Interested in contributing? Check out the [contributing guidelines](CONTRIBUTING.md). Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
 
 ## License
 
-`nemseer` was created by Abhijith Prakash. It is licensed under the terms of the BSD 3-Clause license.
+`nemseer` was created by Abhijith Prakash. It is licensed under the terms of the [BSD 3-Clause license](LICENSE.md).
 
 ## Credits
 
