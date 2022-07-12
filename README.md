@@ -11,17 +11,15 @@ This package is a work in progress. For a high-level overview of development, ch
 
 - TODO
 
-```bash
-$ pip install nemseer
-```
-
 ## Usage
 
 - TODO
 
 ## Contributing
 
-Interested in contributing? Check out the [contributing guidelines](CONTRIBUTING.md). Please note that this project is released with a Code of Conduct. By contributing to this project, you agree to abide by its terms.
+Interested in contributing? Check out the [contributing guidelines](CONTRIBUTING.md), which also includes steps to install `nemseer` for development. 
+
+Please note that this project is released with a [Code of Conduct](CONDUCT.md). By contributing to this project, you agree to abide by its terms.
 
 ## License
 
