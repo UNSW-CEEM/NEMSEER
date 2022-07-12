@@ -25,7 +25,7 @@ Interested in contributing? Check out the [contributing guidelines](CONTRIBUTING
 
 ## License
 
-`nemseer` was created by Abhijith Prakash. It is licensed under the terms of the [BSD 3-Clause license](LICENSE.md).
+`nemseer` was created by Abhijith Prakash. It is licensed under the terms of the [BSD 3-Clause license](LICENSE).
 
 ## Credits
 
