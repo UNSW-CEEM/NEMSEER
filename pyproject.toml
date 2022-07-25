@@ -16,7 +16,6 @@ numpy = "^1.23.0"
 packaging = "^21.3"
 pandas = "^1"
 requests = "^2"
-SQLAlchemy = "^1.4.39"
 xarray = "^2022"
 
 [tool.poetry.group.docs]
