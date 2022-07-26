@@ -11,6 +11,7 @@ readme = "README.md"
 python = "^3.8"
 attrs = "^21"
 beautifulsoup4 = "^4"
+dask = "^2022.7.1"
 nemosis = "^3"
 netCDF4 = "^1.6.0"
 numpy = "^1.23.0"
@@ -39,14 +40,15 @@ jupyter = "^1.0.0"
 notebook = "^6.4.12"
 
 # Packages for developers for linting/autoformatting
-[tool.poetry.group.linters]
+[tool.poetry.group.style]
 optional = true
 
-[tool.poetry.group.linters.dependencies]
+[tool.poetry.group.style.dependencies]
 flake8 = "*"
 pyproject-flake8 = "^0.0.1a4"
 mypy = "*"
 black = "^22.6.0"
+isort = "^5.10.1"
 
 # Packages for developers for testing
 [tool.poetry.group.test]
