@@ -173,6 +173,14 @@ python-versions = "*"
 pycparser = "*"
 
 [[package]]
+name = "cfgv"
+version = "3.3.1"
+description = "Validate configuration and produce human readable error messages."
+category = "dev"
+optional = false
+python-versions = ">=3.6.1"
+
+[[package]]
 name = "cftime"
 version = "1.6.1"
 description = "Time-handling functionality from netcdf4-python"
@@ -284,6 +292,14 @@ optional = false
 python-versions = ">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*"
 
 [[package]]
+name = "distlib"
+version = "0.3.5"
+description = "Distribution utilities"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "docutils"
 version = "0.18.1"
 description = "Docutils -- Python Documentation Utilities"
@@ -328,6 +344,18 @@ python-versions = "*"
 
 [package.dependencies]
 pyarrow = ">=0.4.0"
+
+[[package]]
+name = "filelock"
+version = "3.7.1"
+description = "A platform independent file lock."
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+docs = ["furo (>=2021.8.17b43)", "sphinx (>=4.1)", "sphinx-autodoc-typehints (>=1.12)"]
+testing = ["covdefaults (>=1.2.0)", "coverage (>=4)", "pytest (>=4)", "pytest-cov", "pytest-timeout (>=1.4.2)"]
 
 [[package]]
 name = "flake8"
@@ -386,6 +414,17 @@ beautifulsoup4 = "*"
 pygments = "*"
 sphinx = ">=4.0,<6.0"
 sphinx-basic-ng = "*"
+
+[[package]]
+name = "identify"
+version = "2.5.2"
+description = "File identification library for Python"
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[package.extras]
+license = ["ukkonen"]
 
 [[package]]
 name = "idna"
@@ -940,6 +979,17 @@ cftime = "*"
 numpy = ">=1.9"
 
 [[package]]
+name = "nodeenv"
+version = "1.7.0"
+description = "Node.js virtual environment builder"
+category = "dev"
+optional = false
+python-versions = ">=2.7,!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,!=3.6.*"
+
+[package.dependencies]
+setuptools = "*"
+
+[[package]]
 name = "notebook"
 version = "6.4.12"
 description = "A web-based notebook environment for interactive computing"
@@ -1096,6 +1146,22 @@ dev = ["pre-commit", "tox"]
 testing = ["pytest", "pytest-benchmark"]
 
 [[package]]
+name = "pre-commit"
+version = "2.20.0"
+description = "A framework for managing and maintaining multi-language pre-commit hooks."
+category = "dev"
+optional = false
+python-versions = ">=3.7"
+
+[package.dependencies]
+cfgv = ">=2.0.0"
+identify = ">=1.0.0"
+nodeenv = ">=0.11.1"
+pyyaml = ">=5.1"
+toml = "*"
+virtualenv = ">=20.0.8"
+
+[[package]]
 name = "prometheus-client"
 version = "0.14.1"
 description = "Python client for the Prometheus monitoring system."
@@ -1208,18 +1274,6 @@ python-versions = ">=3.6.8"
 
 [package.extras]
 diagrams = ["railroad-diagrams", "jinja2"]
-
-[[package]]
-name = "pyproject-flake8"
-version = "0.0.1a4"
-description = "pyproject-flake8 (`pflake8`), a monkey patching wrapper to connect flake8 with pyproject.toml configuration"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-flake8 = "*"
-tomli = {version = "*", markers = "python_version < \"3.11\""}
 
 [[package]]
 name = "pyrsistent"
@@ -1653,6 +1707,23 @@ secure = ["pyOpenSSL (>=0.14)", "cryptography (>=1.3.4)", "idna (>=2.0.0)", "cer
 socks = ["PySocks (>=1.5.6,!=1.5.7,<2.0)"]
 
 [[package]]
+name = "virtualenv"
+version = "20.16.0"
+description = "Virtual Python Environment builder"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+distlib = ">=0.3.1,<1"
+filelock = ">=3.2,<4"
+platformdirs = ">=2,<3"
+
+[package.extras]
+docs = ["proselint (>=0.10.2)", "sphinx (>=3)", "sphinx-argparse (>=0.2.5)", "sphinx-rtd-theme (>=0.4.3)", "towncrier (>=21.3)"]
+testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", "packaging (>=20.0)", "pytest (>=4)", "pytest-env (>=0.6.2)", "pytest-freezegun (>=0.4.1)", "pytest-mock (>=2)", "pytest-randomly (>=1)", "pytest-timeout (>=1)"]
+
+[[package]]
 name = "wcwidth"
 version = "0.2.5"
 description = "Measures the displayed width of unicode strings in a terminal"
@@ -1728,7 +1799,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "6dbad73e454dcf7c375fc56048048de6f2af4b1b1a603400c1416103cb17fc48"
+content-hash = "7f93d2509bd445bea9c124a62c79dd48142a45fd6a910506aa91bfddec143639"
 
 [metadata.files]
 alabaster = []
@@ -1745,6 +1816,7 @@ black = []
 bleach = []
 certifi = []
 cffi = []
+cfgv = []
 cftime = []
 charset-normalizer = []
 click = []
@@ -1755,14 +1827,17 @@ dask = []
 debugpy = []
 decorator = []
 defusedxml = []
+distlib = []
 docutils = []
 entrypoints = []
 executing = []
 fastjsonschema = []
 feather-format = []
+filelock = []
 flake8 = []
 fsspec = []
 furo = []
+identify = []
 idna = []
 imagesize = []
 importlib-metadata = []
@@ -1801,6 +1876,7 @@ nbformat = []
 nemosis = []
 nest-asyncio = []
 netcdf4 = []
+nodeenv = []
 notebook = []
 numpy = []
 packaging = []
@@ -1813,6 +1889,7 @@ pexpect = []
 pickleshare = []
 platformdirs = []
 pluggy = []
+pre-commit = []
 prometheus-client = []
 prompt-toolkit = []
 psutil = []
@@ -1825,7 +1902,6 @@ pycparser = []
 pyflakes = []
 pygments = []
 pyparsing = []
-pyproject-flake8 = []
 pyrsistent = []
 pytest = []
 pytest-cov = []
@@ -1861,6 +1937,7 @@ tornado = []
 traitlets = []
 typing-extensions = []
 urllib3 = []
+virtualenv = []
 wcwidth = []
 webencodings = []
 widgetsnbextension = []
