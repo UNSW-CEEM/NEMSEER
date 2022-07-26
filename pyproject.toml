@@ -6,6 +6,7 @@ authors = ["Abhijith Prakash"]
 license = "BSD 3-Clause"
 readme = "README.md"
 
+# Main dependencies for the package via poetry. Package users will need these dependencies.
 [tool.poetry.dependencies]
 python = "^3.8"
 attrs = "^21"
@@ -18,6 +19,7 @@ pandas = "^1"
 requests = "^2"
 xarray = "^2022"
 
+# Packages for developers for creating documentation
 [tool.poetry.group.docs]
 optional = true
 
@@ -26,6 +28,7 @@ Sphinx = "^5.0.2"
 furo = "^2022.6.21"
 myst-parser = "^0.18.0"
 
+# Packages for developers for debugging
 [tool.poetry.group.debug]
 optional = true
 
@@ -35,6 +38,7 @@ ipython = "*"
 jupyter = "^1.0.0"
 notebook = "^6.4.12"
 
+# Packages for developers for linting/autoformatting
 [tool.poetry.group.linters]
 optional = true
 
@@ -42,12 +46,23 @@ optional = true
 flake8 = "*"
 mypy = "*"
 
+# Packages for developers for testing
 [tool.poetry.group.test]
 optional = true
 
 [tool.poetry.group.test.dependencies]
 pytest = "^7"
 pytest-cov = "^3"
+
+# Options for pytest and pytest-cov
+[tool.pytest.ini_options]
+# path to tests for pytest
+testpaths = ["tests"]
+# -ra means show extra test summary info for all except passed tests
+# --cov points pytest-cov to the src/ dir
+# --cov-branch runs branch coverage. See https://breadcrumbscollector.tech/how-to-use-code-coverage-in-python-with-pytest/
+# --cov-repot html dumps a HTML summary of pytest-cov. .gitignore file should ensure that this is ignored by Git
+addopts = "-ra --cov=src/ --cov-branch --cov-report html"
 
 [build-system]
 requires = ["poetry-core>=1.1.0b2"]
