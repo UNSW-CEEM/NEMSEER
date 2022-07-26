@@ -57,7 +57,7 @@ jobs:
           poetry run black .
       - name: Run flake8
         run: |
-          poetry run flake8 --statistics
+          poetry run flake8 . --statistics
       - name: Run mypy
         run: |
           poetry run mypy -p nemseer
