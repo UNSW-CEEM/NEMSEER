@@ -37,11 +37,13 @@ repos:
     -   id: flake8
 
 # Runs mypy
--   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v0.971
+# Uses local environment as opposed to mypy-mirror to enable access to dependencies
+-   repo: local
     hooks:
     -   id: mypy
-        # language allows mypy to use the virtualenv (i.e. poetry env)
+        name: mypy
         language: system
+        entry: mypy
         # excludes checking files in docs
         exclude: ^(docs/)
+        types: [python]
