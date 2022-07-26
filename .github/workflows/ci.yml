@@ -49,11 +49,17 @@ jobs:
         run: poetry install --with=style
 
       # Run autoformatters
-      - name: Run autoformatters
+      - name: Run isort
         run: |
           poetry run isort .
+      - name: Run black
+        run: |
           poetry run black .
+      - name: Run flake8
+        run: |
           poetry run flake8 --statistics
+      - name: Run mypy
+        run: |
           poetry run mypy -p nemseer
 
   # Second job, which runs tests
