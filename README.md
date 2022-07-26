@@ -17,7 +17,7 @@ This package is a work in progress. For a high-level overview of development, ch
 
 ## Contributing
 
-Interested in contributing? Check out the [contributing guidelines](CONTRIBUTING.md), which also includes steps to install `nemseer` for development. 
+Interested in contributing? Check out the [contributing guidelines](CONTRIBUTING.md), which also includes steps to install `nemseer` for development.
 
 Please note that this project is released with a [Code of Conduct](CONDUCT.md). By contributing to this project, you agree to abide by its terms.
 

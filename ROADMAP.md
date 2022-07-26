@@ -135,4 +135,3 @@ classDiagram
 
     class ForecastActualHandler
 ```
-
