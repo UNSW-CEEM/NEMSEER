@@ -1,0 +1,37 @@
+# Config file for pre-commit, a framework for managing pre-commits
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+    -   id: trailing-whitespace # trims trailing whitespace
+    -   id: end-of-file-fixer # files end with one newline
+    -   id: check-toml # checks toml files
+    -   id: check-yaml # checks yaml files
+    -   id: check-added-large-files # prevents large files from being committed
+
+# Runs isort, which sorts imports
+# Note that it is configured with black-compatible settings
+-   repo: https://github.com/pycqa/isort
+    rev: 5.10.1
+    hooks:
+    -   id: isort
+        args: ["--profile", "black", "--filter-files"]
+
+# Runs black
+-   repo: https://github.com/psf/black
+    rev: 22.6.0
+    hooks:
+    -   id: black
+        # It is recommended to specify the latest version of Python
+        # supported by your project here, or alternatively use
+        # pre-commit's default_language_version, see
+        # https://pre-commit.com/#top_level-default_language_version
+        language_version: python3.10
+
+# Runs flake8
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: 3.9.2
+    hooks:
+    - id: flake8
