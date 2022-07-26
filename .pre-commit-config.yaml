@@ -41,3 +41,7 @@ repos:
     rev: v0.971
     hooks:
     -   id: mypy
+        # language allows mypy to use the virtualenv (i.e. poetry env)
+        language: system
+        # excludes checking files in docs
+        exclude: ^(docs/)
