@@ -1,0 +1,96 @@
+# Based on  the following resources:
+# https://github.com/actions/starter-workflows/blob/main/ci/python-package.yml
+# https://www.marwandebbiche.com/posts/python-package-tooling/
+# https://github.com/marketplace/actions/install-poetry-action
+
+name: Continuous Integration # Pipeline name in GitHub Actions
+
+on: # events that trigger this workflow
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  # First job, which runs linting and autoformatting
+  linting-autoformatting:
+    runs-on: ubuntu-latest
+    steps:
+
+      # Checkout the repo so the workflow can access it
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Set up Python
+      - name: Set up Python
+      - uses: actions/setup-python@v4
+
+      # Install the specified version of poetry
+      - name: Get poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.2.0b1
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      # Load cached poetry env if it exists
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v2
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+
+      # Install poetry env with style group
+      - name: Install poetry env with style
+        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        run: poetry install --with=style
+
+      # Run autoformatters
+      - name: Run autoformatters
+      - run: |
+        poetry run isort .
+        poetry run black .
+        poetry run flake8 --statistics
+        poetry run mypy -p nemseer
+
+  # Second job, which runs tests
+  test:
+    # Linting/autoformatting is a prerequisite
+    needs: linting-autoformatting
+    # Matrix testing allows us to test multiple Python versions
+    # We will also fail-fast - fail the job if it fails for any context
+    strategy:
+      fail-fast: true
+      matrix:
+        os: ["ubuntu-latest", "macos-latest"]
+        python-version: ["3.8", "3.9", "3.10"]
+    runs-on: ${{ matrix.os }}
+    steps:
+
+      # Checkout the repo so the workflow can access it
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      # Install the specified version of poetry
+      - name: Get poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: 1.2.0b1
+
+      # Set up Python, with a cache for poetry deps
+      - name: Set up Python ${{ matrix.python-version }}
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: 'poetry'
+
+      # Install poetry env with test group
+      - name: Install poetry env with test group
+        run: poetry install --with=test
+
+      # Run tests
+      - name: Run tests
+        run: |
+          poetry run pytest
