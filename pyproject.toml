@@ -45,10 +45,10 @@ optional = true
 
 [tool.poetry.group.style.dependencies]
 flake8 = "*"
-pyproject-flake8 = "^0.0.1a4"
 mypy = "*"
 black = "^22.6.0"
 isort = "^5.10.1"
+pre-commit = "^2.20.0"
 
 # Packages for developers for testing
 [tool.poetry.group.test]
@@ -68,11 +68,9 @@ testpaths = ["tests"]
 # --cov-repot html dumps a HTML summary of pytest-cov. .gitignore file should ensure that this is ignored by Git
 addopts = "-ra --cov=src/ --cov-branch --cov-report html"
 
-# Config for flake8, enabled by pyproject-flake8
-[tool.flake8]
-max-line-length = 88
-extend-ignore = "E203,"
-max-complexity = 10
+# Config isort to be compatible with black
+[tool.isort]
+profile = "black"
 
 [build-system]
 requires = ["poetry-core>=1.1.0b2"]
