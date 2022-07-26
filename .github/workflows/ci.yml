@@ -51,10 +51,10 @@ jobs:
       # Run autoformatters
       - name: Run autoformatters
       - run: |
-        poetry run isort .
-        poetry run black .
-        poetry run flake8 --statistics
-        poetry run mypy -p nemseer
+          poetry run isort .
+          poetry run black .
+          poetry run flake8 --statistics
+          poetry run mypy -p nemseer
 
   # Second job, which runs tests
   test:
