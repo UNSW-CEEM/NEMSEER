@@ -12,6 +12,7 @@ on: # events that trigger this workflow
   pull_request:
     branches:
       - master
+  workflow_dispatch: # manual trigger
 jobs:
   # First job, which runs linting and autoformatting
   linting-autoformatting:
