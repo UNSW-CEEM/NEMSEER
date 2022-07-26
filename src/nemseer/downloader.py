@@ -1,18 +1,17 @@
-from attrs import define, field
 from datetime import datetime
 from typing import List, Optional, Union
 
-from .dl_helpers.funcs import _construct_mmsdm_yearmonth_url
-from .dl_helpers.urls import MMSDM_ARCHIVE_URL
+from attrs import define, field
+
 from .loader import Loader
 
 
 def _enumerate_tables(tables: List[str], table_str: str, range_to: int):
-    """ Given a table name, populates a list with enumerated table names
+    """Given a table name, populates a list with enumerated table names
 
     For example, given 'CONSTRAINTSOLUTION' and `range_to`=3, will populate
     `tables` with ['CONSTRAINTSOLUTION1',...,'CONSTRAINTSOLUTION3'].
-    
+
     Args:
         tables: Table list
         table_str: Table string to enumerate
@@ -40,8 +39,10 @@ class ForecastTypeDownloader:
         tables = loader.tables
         if "CONSTRAINTSOLUTION" in tables:
             tables = _enumerate_tables(tables, "CONSTRAINTSOLUTION", 4)
-        return cls(forecast_start=loader.forecast_start,
-                   forecast_end=loader.forecast_end,
-                   forecast_type=loader.forecast_type, tables=tables,
-                   raw_cache=loader.raw_cache)
-    
+        return cls(
+            forecast_start=loader.forecast_start,
+            forecast_end=loader.forecast_end,
+            forecast_type=loader.forecast_type,
+            tables=tables,
+            raw_cache=loader.raw_cache,
+        )
