@@ -111,3 +111,12 @@ jobs:
       - name: Run tests
         run: |
           poetry run pytest
+
+      # Code coverage to codecov.io
+      - uses: codecov/codecov-action@v3
+        with:
+          files: tests/coverage1.xml
+          flags: unittests # optional
+          name: codecov-umbrella # optional
+          fail_ci_if_error: true # optional (default = false)
+          verbose: true # optional (default = false)
