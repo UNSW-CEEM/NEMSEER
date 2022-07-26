@@ -1,8 +1,8 @@
 import os
-
-from attrs import define, field, validators
 from datetime import datetime
 from typing import Dict, List, Optional, Union
+
+from attrs import define, field, validators
 
 from .dl_helpers.funcs import _get_mmsdm_tables_for_yearmonths
 
@@ -19,9 +19,7 @@ def _dt_converter(value: str) -> datetime:
         format = "%d/%m/%Y %H:%M"
         return datetime.strptime(value, format)
     except ValueError:
-        raise ValueError(
-            "Datetime should be provided as follows: dd/mm/yyyy hh:mm"
-            )
+        raise ValueError("Datetime should be provided as follows: dd/mm/yyyy hh:mm")
 
 
 def _tablestr_converter(value: Union[str, List[str]]) -> List[str]:
@@ -43,7 +41,8 @@ def _validate_forecast_chronology(instance, attribute, value):
     if value > instance.forecast_end:
         raise ValueError(
             "Forecast end datetime must be greater than or equal to"
-            + " forecast start datetime.")
+            + " forecast start datetime."
+        )
 
 
 def _validate_forecasted_chronology(instance, attribute, value):
@@ -51,7 +50,8 @@ def _validate_forecasted_chronology(instance, attribute, value):
     if value > instance.forecasted_end:
         raise ValueError(
             "Forecasted end datetime must be greater than or equal to"
-            + " forecasted start datetime.")
+            + " forecasted start datetime."
+        )
 
 
 def _validate_relative_chronology(instance, attribute, value):
@@ -70,8 +70,9 @@ def _validate_tables_on_forecast_start(instance, attribute, value):
     Data SQL Loader for the month and year of forecast_start.
     """
     start_dt = instance.forecast_start
-    tables = _get_mmsdm_tables_for_yearmonths(start_dt.year, start_dt.month,
-                                              instance.forecast_type)
+    tables = _get_mmsdm_tables_for_yearmonths(
+        start_dt.year, start_dt.month, instance.forecast_type
+    )
     if not set(value).issubset(set(tables)):
         raise ValueError(
             "Table not available from MMS Historical Data SQL Loader"
@@ -83,9 +84,7 @@ def _validate_tables_on_forecast_start(instance, attribute, value):
 def _validate_path(instance, attribute, value):
     """Check the path exists."""
     if not os.path.exists(value):
-        raise ValueError(
-            f"{attribute.name} supplied ('{value}') is invalid."
-        )
+        raise ValueError(f"{attribute.name} supplied ('{value}') is invalid.")
 
 
 @define
@@ -113,55 +112,66 @@ class Loader:
         forecasted_end: Forecasts pertaining to times before or at this
             datetime are retaned.
         forecast_type: `MTPASA`, `STPASA`, `PDPASA`, `PREDISPATCH` or `P5MIN`.
-        tables: Table or tables required. A single table can be supplied as 
+        tables: Table or tables required. A single table can be supplied as
             a string. Multiple tables can be supplied as a list of strings.
         metadata: Metadata dictionary. Constructed by `Loader.initialise()`.
         raw_cache (optional): Path to build or reuse raw cache.
         processed_cache (optional): Path to build or reuse processed cache.
 
     """
-    forecast_start: str = field(converter=_dt_converter,
-                                validator=[
-                                    _validate_forecast_chronology,
-                                    _validate_relative_chronology
-                                    ])
-    forecast_end: str = field(converter=_dt_converter)
-    forecasted_start: str = field(converter=_dt_converter,
-                                  validator=[
-                                    _validate_forecasted_chronology
-                                    ])
-    forecasted_end: str = field(converter=_dt_converter)
-    forecast_type: str = field(validator=validators.in_(
-        ['MTPASA', 'STPASA', 'PDPASA', 'PREDISPATCH', 'P5MIN']
-        ))
-    tables: Union[str, List[str]] = field(
-        converter=_tablestr_converter,
-        validator=_validate_tables_on_forecast_start)
+
+    forecast_start: datetime = field(
+        converter=_dt_converter,
+        validator=[_validate_forecast_chronology, _validate_relative_chronology],
+    )
+    forecast_end: datetime = field(converter=_dt_converter)
+    forecasted_start: datetime = field(
+        converter=_dt_converter, validator=[_validate_forecasted_chronology]
+    )
+    forecasted_end: datetime = field(converter=_dt_converter)
+    forecast_type: str = field(
+        validator=validators.in_(["MTPASA", "STPASA", "PDPASA", "PREDISPATCH", "P5MIN"])
+    )
+    tables: List[str] = field(
+        converter=_tablestr_converter, validator=_validate_tables_on_forecast_start
+    )
     metadata: Dict
     raw_cache: Optional[str] = field(
         default=None, validator=validators.optional(_validate_path)
-        )
+    )
     processed_cache: Optional[str] = field(
         default=None, validator=validators.optional(_validate_path)
     )
 
     @classmethod
-    def initialise(cls, forecast_start: str, forecast_end: str,
-                   forecasted_start: str, forecasted_end: str,
-                   forecast_type: str, tables: Union[str, List[str]],
-                   raw_cache: Optional[str] = None,
-                   processed_cache: Optional[str] = None) -> "Loader":
-        """Constructor method for Loader. Assembles query metatdata.
-
-        """
+    def initialise(
+        cls,
+        forecast_start: str,
+        forecast_end: str,
+        forecasted_start: str,
+        forecasted_end: str,
+        forecast_type: str,
+        tables: Union[str, List[str]],
+        raw_cache: Optional[str] = None,
+        processed_cache: Optional[str] = None,
+    ) -> "Loader":
+        """Constructor method for Loader. Assembles query metatdata."""
         metadata = {
-            "forecast_start": forecast_start, "forecast_end": forecast_end,
+            "forecast_start": forecast_start,
+            "forecast_end": forecast_end,
             "forecasted_start": forecasted_start,
-            "forecasted_end": forecasted_end, "forecast_type": forecast_type,
-            "tables": tables
+            "forecasted_end": forecasted_end,
+            "forecast_type": forecast_type,
+            "tables": tables,
         }
-        return cls(forecast_start=forecast_start, forecast_end=forecast_end,
-                   forecasted_start=forecasted_start,
-                   forecasted_end=forecasted_end, forecast_type=forecast_type,
-                   tables=tables, metadata=metadata, raw_cache=raw_cache,
-                   processed_cache=processed_cache)
+        return cls(
+            forecast_start=forecast_start,
+            forecast_end=forecast_end,
+            forecasted_start=forecasted_start,
+            forecasted_end=forecasted_end,
+            forecast_type=forecast_type,
+            tables=tables,
+            metadata=metadata,
+            raw_cache=raw_cache,
+            processed_cache=processed_cache,
+        )
