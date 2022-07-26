@@ -25,7 +25,7 @@ jobs:
 
       # Set up Python
       - name: Set up Python
-      - uses: actions/setup-python@v4
+        uses: actions/setup-python@v4
 
       # Install the specified version of poetry
       - name: Get poetry
@@ -50,7 +50,7 @@ jobs:
 
       # Run autoformatters
       - name: Run autoformatters
-      - run: |
+        run: |
           poetry run isort .
           poetry run black .
           poetry run flake8 --statistics
@@ -82,7 +82,7 @@ jobs:
 
       # Set up Python, with a cache for poetry deps
       - name: Set up Python ${{ matrix.python-version }}
-      - uses: actions/setup-python@v4
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
