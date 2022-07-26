@@ -43,7 +43,7 @@ repos:
     -   id: mypy
         name: mypy
         language: system
-        entry: mypy
+        entry: poetry run mypy
         # excludes checking files in docs
         exclude: ^(docs/)
         types: [python]
