@@ -1686,6 +1686,33 @@ python-versions = ">=3.7"
 test = ["pre-commit", "pytest"]
 
 [[package]]
+name = "types-beautifulsoup4"
+version = "4.11.4"
+description = "Typing stubs for beautifulsoup4"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "types-requests"
+version = "2.28.4"
+description = "Typing stubs for requests"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[package.dependencies]
+types-urllib3 = "<1.27"
+
+[[package]]
+name = "types-urllib3"
+version = "1.26.17"
+description = "Typing stubs for urllib3"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "typing-extensions"
 version = "4.3.0"
 description = "Backported and Experimental Type Hints for Python 3.7+"
@@ -1799,7 +1826,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "7f93d2509bd445bea9c124a62c79dd48142a45fd6a910506aa91bfddec143639"
+content-hash = "96c128e77f7853f7453b97245621d699caca152f8e2103f57674763c34f7ab6e"
 
 [metadata.files]
 alabaster = []
@@ -1935,6 +1962,9 @@ tomli = []
 toolz = []
 tornado = []
 traitlets = []
+types-beautifulsoup4 = []
+types-requests = []
+types-urllib3 = []
 typing-extensions = []
 urllib3 = []
 virtualenv = []

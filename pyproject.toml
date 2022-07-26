@@ -25,6 +25,7 @@ xarray = "^2022"
 optional = true
 
 [tool.poetry.group.docs.dependencies]
+# MyST parser for Sphinx documentation with furo theme
 Sphinx = "^5.0.2"
 furo = "^2022.6.21"
 myst-parser = "^0.18.0"
@@ -44,8 +45,13 @@ notebook = "^6.4.12"
 optional = true
 
 [tool.poetry.group.style.dependencies]
+# static: flake8 (style), mypy (typing), with type stubs for some libraries
+# autoformatter: black (style), isort (import sort)
+# pre-commit: tool to configure and install pre-commit hooks
 flake8 = "*"
 mypy = "*"
+types-requests = "^2.28.4"
+types-beautifulsoup4 = "^4.11.4"
 black = "^22.6.0"
 isort = "^5.10.1"
 pre-commit = "^2.20.0"
@@ -55,6 +61,7 @@ pre-commit = "^2.20.0"
 optional = true
 
 [tool.poetry.group.test.dependencies]
+# pytest and pytest-cov for coverage
 pytest = "^7"
 pytest-cov = "^3"
 
@@ -62,6 +69,7 @@ pytest-cov = "^3"
 [tool.pytest.ini_options]
 # path to tests for pytest
 testpaths = ["tests"]
+# addopts = add options
 # -ra means show extra test summary info for all except passed tests
 # --cov points pytest-cov to the src/ dir
 # --cov-branch runs branch coverage. See https://breadcrumbscollector.tech/how-to-use-code-coverage-in-python-with-pytest/
@@ -71,6 +79,11 @@ addopts = "-ra --cov=src/ --cov-branch --cov-report html"
 # Config isort to be compatible with black
 [tool.isort]
 profile = "black"
+
+# Config for mypy
+[tool.mypy]
+warn_return_any = true
+warn_unused_configs = true
 
 [build-system]
 requires = ["poetry-core>=1.1.0b2"]
