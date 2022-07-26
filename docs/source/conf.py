@@ -31,14 +31,19 @@ release = "0.1.0"
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+
+# autodoc allows docstrings to be pulled straight from your code
+# napoleon supports Google/NumPy style docstrings
+# intersphinx can link to other docs, e.g. standard library docs for try:
+# doctest enables doctesting
+# viewcode adds links to highlighted source code
+# MyST is a CommonMark parser that plugs into Sphinx. Enables you to write docs in md.
 extensions = [
-    "sphinx.ext.napoleon",
     "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "sphinx.ext.doctest",
-    "sphinx.ext.todo",
     "sphinx.ext.viewcode",
-    "sphinx.ext.githubpages",
     "myst_parser",
 ]
 
