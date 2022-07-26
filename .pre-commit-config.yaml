@@ -8,6 +8,7 @@ repos:
     -   id: trailing-whitespace # trims trailing whitespace
     -   id: end-of-file-fixer # files end with one newline
     -   id: check-toml # checks toml files
+    -   id: check-yaml # checks yaml files
     -   id: check-added-large-files # prevents large files from being committed
 
 # Runs isort, which sorts imports
