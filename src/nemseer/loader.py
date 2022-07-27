@@ -4,7 +4,7 @@ from typing import Dict, List, Optional, Union
 
 from attrs import define, field, validators
 
-from .dl_helpers.funcs import _get_mmsdm_tables_for_yearmonths
+from .dl_helpers.funcs import get_tables_for_yearmonths
 
 
 def _dt_converter(value: str) -> datetime:
@@ -56,10 +56,9 @@ def _validate_forecasted_chronology(instance, attribute, value):
 
 def _validate_relative_chronology(instance, attribute, value):
     """Validates forecast_start against forecasted_start"""
-    if value > instance.forecasted_start:
+    if value >= instance.forecasted_start:
         raise ValueError(
-            "Forecasted start datetime should be equal to or after forecast"
-            + " start datetime."
+            "Forecasted start datetime should be after forecast start datetime."
         )
 
 
@@ -70,7 +69,7 @@ def _validate_tables_on_forecast_start(instance, attribute, value):
     Data SQL Loader for the month and year of forecast_start.
     """
     start_dt = instance.forecast_start
-    tables = _get_mmsdm_tables_for_yearmonths(
+    tables = get_tables_for_yearmonths(
         start_dt.year, start_dt.month, instance.forecast_type
     )
     if not set(value).issubset(set(tables)):
