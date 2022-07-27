@@ -6,9 +6,9 @@
 
 ## Loader
 
-:::{note}
+```{note}
 Use the {meth}`initialise() <nemseer.loader.Loader.initialise()>` class method to create an instance of the {class}`Loader <nemseer.loader.Loader>` object, as this method assembles metadata relevant to NEMSEER cache searching.
-:::
+```
 
 ```{eval-rst}
 .. autoclass:: nemseer.loader.Loader
@@ -17,11 +17,17 @@ Use the {meth}`initialise() <nemseer.loader.Loader.initialise()>` class method t
 
 ## Downloader
 
-:::{note}
+```{note}
 Use the {meth}`from_Loader() <nemseer.downloader.ForecastTypeDownloader.from_Loader()>` class method to create an instance of the {class}`ForecastTypeLoader <nemseer.downloader.ForecastTypeDownloader>` object.
-:::
+```
 
 ```{eval-rst}
 .. autoclass:: nemseer.downloader.ForecastTypeDownloader
    :members:
+```
+
+### Downloader Helpers
+
+```{eval-rst}
+.. autofunction:: nemseer.dl_helpers.funcs.get_tables_for_yearmonths
 ```
