@@ -73,37 +73,12 @@ def _rerequest_to_obtain_soup(
 
     """
     r = _request_content(url, useragent, additional_header=additional_header)
-    ok = r.status_code == requests.status_codes.codes["OK"]
-    while ok < 1:
+    while (ok := r.status_code == requests.status_codes.codes["OK"]) < 1:
         r = _request_content(url, useragent, additional_header=additional_header)
         if r.status_code == requests.status_codes.codes["OK"]:
             ok += 1
     soup = BeautifulSoup(r.content, "html.parser")
     return soup
-
-
-def _get_months(url: str, useragent: str) -> List[int]:
-    """Pull months from scraped links with YYYY-MM date format
-
-    Args:
-        url: url for GET request.
-        header: useragent to pass to GET request.
-    Returns:
-        List of unique months (as integers).
-    """
-    referer_header = {"Referer": MMSDM_ARCHIVE_URL}
-    soup = _rerequest_to_obtain_soup(url, useragent, additional_header=referer_header)
-    months = []
-    for link in soup.find_all("a"):
-        url = link.get("href")
-        findmonth = match(r".*[0-9]{4}_([0-9]{2})", url)
-        if not findmonth:
-            continue
-        else:
-            month = findmonth.group(1)
-            months.append(int(month))
-    unique = list(set(months))
-    return unique
 
 
 def _get_years_and_months() -> Dict[int, List[int]]:
@@ -112,6 +87,32 @@ def _get_years_and_months() -> Dict[int, List[int]]:
     Returns:
         Months mapped to each year. Data is available for each of these months.
     """
+
+    def _get_months(url: str, useragent: str) -> List[int]:
+        """Pull months from scraped links with YYYY-MM date format
+
+        Args:
+            url: url for GET request.
+            header: useragent to pass to GET request.
+        Returns:
+            List of unique months (as integers).
+        """
+        referer_header = {"Referer": MMSDM_ARCHIVE_URL}
+        soup = _rerequest_to_obtain_soup(
+            url, useragent, additional_header=referer_header
+        )
+        months = []
+        for link in soup.find_all("a"):
+            url = link.get("href")
+            findmonth = match(r".*[0-9]{4}_([0-9]{2})", url)
+            if not findmonth:
+                continue
+            else:
+                month = findmonth.group(1)
+                months.append(int(month))
+        unique = list(set(months))
+        return unique
+
     useragent = next(_build_useragent_generator(1))
     soup = _rerequest_to_obtain_soup(MMSDM_ARCHIVE_URL, useragent)
     links = soup.find_all("a")
@@ -147,27 +148,37 @@ def _construct_mmsdm_yearmonth_url(year: int, month: int) -> str:
     return url
 
 
-def _get_mmsdm_tables_for_yearmonths(
-    year: int, month: int, forecast_type: str
-) -> List[str]:
+def get_tables_for_yearmonths(year: int, month: int, forecast_type: str) -> List[str]:
     """For a month & year, get available tables for a particular forecast type.
 
-    `table_capture` handles P5MIN tables that are spread across multiple files
-      - e.g. CONSTRAINTSOLUTION1, CONSTRAINTSOLUTION2, etc.
+    Handling of special cases:
+      - Removes numbering from enumerated tables for `P5MIN` (`CONSTRAINTSOLUTION(x)`)
+      ```{todo} Add handling for MTPASA
+      ```
 
     Args:
         year: Year
         month: Month
-        forecast_type: AEMO forecast types (P5MIN, PREDISPATCH, STPASA, MTPASA)
+        forecast_type: AEMO forecast types (`P5MIN`, `PREDISPATCH`, `STPASA`, `MTPASA`)
     Returns:
         List of tables associated with that forecast type for that period
     """
+
+    def _unique_tablename_from_enumerated(links: List[str]) -> List[str]:
+        """Handles enumerated table names
+
+        Handles P5MIN tables that are spread across multiple files,
+         e.g. CONSTRAINTSOLUTION1, CONSTRAINTSOLUTION2, etc.
+        """
+        table_capture = f".*/PUBLIC_DVD_{forecast_type}([A-Z_]*)[0-9]?_[0-9]*.zip"
+        tables = []
+        for link in links:
+            if mo := match(table_capture, link):
+                tables.append(mo.group(1).lstrip("_"))
+        return list(set(tables))
+
     url = _construct_mmsdm_yearmonth_url(year, month)
     soup = _rerequest_to_obtain_soup(url, next(_build_useragent_generator(1)))
     links = [link.get("href") for link in soup.find_all("a")]
-    table_capture = f".*/PUBLIC_DVD_{forecast_type}([A-Z_]*)[0-9]?_[0-9]*.zip"
-    tables = []
-    for link in links:
-        if mo := match(table_capture, link):
-            tables.append(mo.group(1).lstrip("_"))
-    return list(set(tables))
+    tables = _unique_tablename_from_enumerated(links)
+    return tables
