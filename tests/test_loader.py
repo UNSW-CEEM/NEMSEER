@@ -105,7 +105,7 @@ class TestLoader:
 
     def test_invalid_tables(self):
         with pytest.raises(ValueError):
-            obj = Loader.initialise(
+            Loader.initialise(
                 self.same_forecast_dates[0],
                 self.same_forecast_dates[1],
                 self.consecutive_dates[0],
@@ -113,7 +113,52 @@ class TestLoader:
                 "P5MIN",
                 ["DISPATCHLOAD", "REGIONDISPATCHSUM"],
             )
-            assert obj.tables == ["CONSTRAINTSOLUTION"]
+
+    def test_dir_validation(self, tmp_path):
+        raw = tmp_path / "raw"
+        raw.mkdir()
+        processed = tmp_path / "processed"
+        processed.mkdir()
+        obj = Loader.initialise(
+            self.same_forecast_dates[0],
+            self.same_forecast_dates[1],
+            self.consecutive_dates[0],
+            self.consecutive_dates[1],
+            "PREDISPATCH",
+            "CONSTRAINT_D",
+            raw_cache=raw,
+            processed_cache=processed,
+        )
+        assert type(obj) is Loader
+
+    def test_distinct_dir_error(self, tmp_path):
+        testdir = tmp_path / "same"
+        testdir.mkdir()
+        with pytest.raises(ValueError):
+            Loader.initialise(
+                self.same_forecast_dates[0],
+                self.same_forecast_dates[1],
+                self.consecutive_dates[0],
+                self.consecutive_dates[1],
+                "PREDISPATCH",
+                "CONSTRAINT_D",
+                raw_cache=testdir,
+                processed_cache=testdir,
+            )
+
+    def test_dir_creation(self, tmp_path):
+        testdir = tmp_path / "yettobe"
+        with pytest.raises(ValueError):
+            Loader.initialise(
+                self.same_forecast_dates[0],
+                self.same_forecast_dates[1],
+                self.consecutive_dates[0],
+                self.consecutive_dates[1],
+                "PREDISPATCH",
+                "CONSTRAINT_D",
+                raw_cache=testdir,
+                processed_cache=testdir,
+            )
 
     @pytest.mark.xfail(raises=ValueError)
     def test_mtpasa_duidavailability(self):
