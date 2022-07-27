@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Union
@@ -5,6 +6,8 @@ from typing import Dict, List, Optional, Union
 from attrs import converters, define, field, validators
 
 from .dl_helpers.funcs import get_tables_for_yearmonths
+
+logger = logging.getLogger(__name__)
 
 
 def _dt_converter(value: str) -> datetime:
@@ -84,6 +87,7 @@ def _validate_path(instance, attribute, value):
     """Check the path is a directory and creates it if it is not"""
     if not value.is_dir():
         value.mkdir()
+        logger.info(f"Created directory at {value.absolute()}")
 
 
 def _validate_raw_not_processed(instance, attribute, value):
