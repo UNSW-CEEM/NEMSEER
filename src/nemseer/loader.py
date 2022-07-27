@@ -1,8 +1,8 @@
-import os
 from datetime import datetime
+from pathlib import Path
 from typing import Dict, List, Optional, Union
 
-from attrs import define, field, validators
+from attrs import converters, define, field, validators
 
 from .dl_helpers.funcs import get_tables_for_yearmonths
 
@@ -82,8 +82,14 @@ def _validate_tables_on_forecast_start(instance, attribute, value):
 
 def _validate_path(instance, attribute, value):
     """Check the path exists."""
-    if not os.path.exists(value):
+    if not value.exists():
         raise ValueError(f"{attribute.name} supplied ('{value}') is invalid.")
+
+
+def _validate_raw_not_processed(instance, attribute, value):
+    """Check that `raw_cache` and `processed_cache` are distinct."""
+    if value.absolute() == instance.processed_cache.absolute():
+        raise ValueError(f"{attribute.name} should be distinct from processed_cache")
 
 
 @define
@@ -115,7 +121,8 @@ class Loader:
             a string. Multiple tables can be supplied as a list of strings.
         metadata: Metadata dictionary. Constructed by `Loader.initialise()`.
         raw_cache (optional): Path to build or reuse raw cache.
-        processed_cache (optional): Path to build or reuse processed cache.
+        processed_cache (optional): Path to build or reuse processed cache. Should be
+          distinct from raw_cache
 
     """
 
@@ -136,10 +143,17 @@ class Loader:
     )
     metadata: Dict
     raw_cache: Optional[str] = field(
-        default=None, validator=validators.optional(_validate_path)
+        default=None,
+        converter=converters.optional(Path),
+        validator=[
+            validators.optional(_validate_path),
+            validators.optional(_validate_raw_not_processed),
+        ],
     )
     processed_cache: Optional[str] = field(
-        default=None, validator=validators.optional(_validate_path)
+        default=None,
+        converter=converters.optional(Path),
+        validator=validators.optional(_validate_path),
     )
 
     @classmethod
