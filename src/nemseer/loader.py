@@ -5,7 +5,7 @@ from typing import Dict, List, Optional, Union
 
 from attrs import converters, define, field, validators
 
-from .dl_helpers.funcs import get_tables_for_yearmonths
+from .dl_helpers.functions import get_tables_for_yearmonths
 
 logger = logging.getLogger(__name__)
 

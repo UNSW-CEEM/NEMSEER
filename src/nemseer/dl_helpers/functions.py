@@ -5,15 +5,14 @@ from typing import Dict, Generator, List
 import requests
 from bs4 import BeautifulSoup
 
-from .urls import MMSDM_ARCHIVE_URL
-from .user_agents import USER_AGENTS
+from .data import MMSDM_ARCHIVE_URL, USER_AGENTS
 
 
 def _build_useragent_generator(n: int) -> Generator:
     """Generator function that cycles through user agents for GET requests.
 
     Generator function that cycles through user agents to yield n user agents
-    in total. Doing so avoids 403 Forbidden errors when scraping.
+    in total. Doing so minimises 403 Forbidden errors when scraping.
 
     Args:
         n: Number of user agents, i.e. number of GET requests.
@@ -24,6 +23,29 @@ def _build_useragent_generator(n: int) -> Generator:
     n_iterator = range(n)
     for _, useragent in zip(n_iterator, inf_agents):
         yield useragent
+
+
+def _build_nemweb_get_header(useragent: str) -> Dict[str, str]:
+    """Builds request header for GET requests from NEMWeb
+
+    Args:
+        useragent: User-Agent string to use
+    Returns:
+        Dict that can be used as a request header
+    """
+    header = {
+        "Host": "www.nemweb.com.au",
+        "User-Agent": useragent,
+        "Accept": (
+            "text/html,application/xhtml+xml,application/xml;"
+            + "q=0.9,image/avif,image/webp,*/*;q=0.8"
+        ),
+        "Accept-Language": "en-US,en;q=0.5",
+        "Accept-Encoding": "gzip, deflate",
+        "Connection": "keep-alive",
+        "Upgrade-Insecure-Requests": "1",
+    }
+    return header
 
 
 def _request_content(
@@ -39,18 +61,7 @@ def _request_content(
     Returns:
         requests Response object.
     """
-    header = {
-        "Host": "www.nemweb.com.au",
-        "User-Agent": useragent,
-        "Accept": (
-            "text/html,application/xhtml+xml,application/xml;"
-            + "q=0.9,image/avif,image/webp,*/*;q=0.8"
-        ),
-        "Accept-Language": "en-US,en;q=0.5",
-        "Accept-Encoding": "gzip, deflate",
-        "Connection": "keep-alive",
-        "Upgrade-Insecure-Requests": "1",
-    }
+    header = _build_nemweb_get_header(useragent)
     if additional_header:
         header.update(additional_header)
     r = requests.get(url, headers=header)
