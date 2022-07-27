@@ -36,6 +36,7 @@ release = "0.1.0"
 # napoleon supports Google/NumPy style docstrings
 # intersphinx can link to other docs, e.g. standard library docs for try:
 # doctest enables doctesting
+# todo is self explanatory
 # viewcode adds links to highlighted source code
 # MyST is a CommonMark parser that plugs into Sphinx. Enables you to write docs in md.
 extensions = [
@@ -43,6 +44,7 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "sphinx.ext.doctest",
+    "sphinx.ext.todo",
     "sphinx.ext.viewcode",
     "myst_parser",
 ]
@@ -81,6 +83,10 @@ myst_enable_extensions = [
     "colon_fence",
     "deflist",
 ]
+
+# --  Todo options------------------------------------------------------------
+
+todo_include_todos = True
 
 # -- Options for HTML output -------------------------------------------------
 

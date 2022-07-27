@@ -153,8 +153,8 @@ def get_tables_for_yearmonths(year: int, month: int, forecast_type: str) -> List
 
     Handling of special cases:
       - Removes numbering from enumerated tables for `P5MIN` (`CONSTRAINTSOLUTION(x)`)
-      ```{todo} Add handling for MTPASA
-      ```
+
+    .. todo:: Add handling for MTPASA
 
     Args:
         year: Year

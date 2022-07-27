@@ -3,7 +3,7 @@
 
 ```{toctree}
 ---
-maxdepth: 2
+maxdepth: 3
 caption: Contents
 ---
 api.md
@@ -14,3 +14,6 @@ api.md
 - {ref}`genindex`
 - {ref}`modindex`
 - {ref}`search`
+
+# Development
+- [TODOs](todo.md)
