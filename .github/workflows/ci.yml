@@ -26,6 +26,7 @@ jobs:
       # Set up Python
       - name: Set up Python
         uses: actions/setup-python@v4
+        python-version: '3.9'
 
       # Install the specified version of poetry
       - name: Get poetry
