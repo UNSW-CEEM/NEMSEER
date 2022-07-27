@@ -81,9 +81,9 @@ def _validate_tables_on_forecast_start(instance, attribute, value):
 
 
 def _validate_path(instance, attribute, value):
-    """Check the path is a directory"""
+    """Check the path is a directory and creates it if it is not"""
     if not value.is_dir():
-        raise ValueError(f"{attribute.name} supplied ('{value}') is invalid.")
+        value.mkdir()
 
 
 def _validate_raw_not_processed(instance, attribute, value):
