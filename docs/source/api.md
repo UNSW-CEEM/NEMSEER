@@ -29,5 +29,5 @@ Use the {meth}`from_Loader() <nemseer.downloader.ForecastTypeDownloader.from_Loa
 ### Downloader Helpers
 
 ```{eval-rst}
-.. autofunction:: nemseer.dl_helpers.funcs.get_tables_for_yearmonths
+.. autofunction:: nemseer.dl_helpers.functions.get_tables_for_yearmonths
 ```
