@@ -207,13 +207,13 @@ def get_sqlloader_filesize(
     return size
 
 
-def get_tables_for_yearmonths(year: int, month: int, forecast_type: str) -> List[str]:
+def get_historical_forecast_tables(
+    year: int, month: int, forecast_type: str
+) -> List[str]:
     """For a month & year, get available tables for a particular forecast type.
 
     Handling of special cases:
       - Removes numbering from enumerated tables for `P5MIN` (`CONSTRAINTSOLUTION(x)`)
-
-    .. todo:: Add handling for MTPASA
 
     Args:
         year: Year
