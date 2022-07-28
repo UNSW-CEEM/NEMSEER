@@ -103,17 +103,6 @@ class TestLoader:
         )
         assert obj.tables == ["CONSTRAINTSOLUTION"]
 
-    def test_invalid_tables(self):
-        with pytest.raises(ValueError):
-            Loader.initialise(
-                self.same_forecast_dates[0],
-                self.same_forecast_dates[1],
-                self.consecutive_dates[0],
-                self.consecutive_dates[1],
-                "P5MIN",
-                ["DISPATCHLOAD", "REGIONDISPATCHSUM"],
-            )
-
     def test_dir_validation(self, tmp_path):
         raw = tmp_path / "raw"
         raw.mkdir()
