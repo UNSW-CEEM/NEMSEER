@@ -75,7 +75,8 @@ class ForecastTypeDownloader:
             raw_cache=loader.raw_cache,
         )
 
-    def download_zip_to_parquet(self):
+    def download_zip(self):
+        """TODO: extend to converting to parquet"""
         intervening_dates = rrule.rrule(
             rrule.MONTHLY, dtstart=self.forecast_start, until=self.forecast_end
         )
