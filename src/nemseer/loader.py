@@ -72,8 +72,11 @@ def _validate_path(instance, attribute, value):
 
 def _validate_raw_not_processed(instance, attribute, value):
     """Check that `raw_cache` and `processed_cache` are distinct."""
-    if value.absolute() == instance.processed_cache.absolute():
-        raise ValueError(f"{attribute.name} should be distinct from processed_cache")
+    if instance.processed_cache:
+        if value.absolute() == instance.processed_cache.absolute():
+            raise ValueError(
+                f"{attribute.name} should be distinct from processed_cache"
+            )
 
 
 @define
