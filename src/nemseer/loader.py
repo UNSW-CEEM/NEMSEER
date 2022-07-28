@@ -5,8 +5,6 @@ from typing import Dict, List, Optional, Union
 
 from attrs import converters, define, field, validators
 
-from .dl_helpers.functions import get_tables_for_yearmonths
-
 logger = logging.getLogger(__name__)
 
 
@@ -65,24 +63,6 @@ def _validate_relative_chronology(instance, attribute, value):
         )
 
 
-def _validate_tables_on_forecast_start(instance, attribute, value):
-    """Validates tables for the provided forecast type.
-
-    Checks user-supplied tables against tables available in MMS Historical
-    Data SQL Loader for the month and year of forecast_start.
-    """
-    start_dt = instance.forecast_start
-    tables = get_tables_for_yearmonths(
-        start_dt.year, start_dt.month, instance.forecast_type
-    )
-    if not set(value).issubset(set(tables)):
-        raise ValueError(
-            "Table not available from MMS Historical Data SQL Loader"
-            + f" (for {start_dt.month}/{start_dt.year}).\n"
-            + f"Tables include: {tables}"
-        )
-
-
 def _validate_path(instance, attribute, value):
     """Check the path is a directory and creates it if it is not"""
     if not value.is_dir():
@@ -113,8 +93,6 @@ class Loader:
     - Retains query metadata (via constructor class method `initialise`)
     - Can dispatch various Managers and Downloaders
 
-    .. todo:: Move NEMWEB validation to ForecastTypeDownloader
-
     Attributes:
         forecast_start: Forecasts made at or after this datetime are queried.
         forecast_end: Forecasts made before or at this datetime are queried.
@@ -144,9 +122,7 @@ class Loader:
     forecast_type: str = field(
         validator=validators.in_(["MTPASA", "STPASA", "PDPASA", "PREDISPATCH", "P5MIN"])
     )
-    tables: List[str] = field(
-        converter=_tablestr_converter, validator=_validate_tables_on_forecast_start
-    )
+    tables: List[str] = field(converter=_tablestr_converter)
     metadata: Dict
     raw_cache: Optional[str] = field(
         default=None,

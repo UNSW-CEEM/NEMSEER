@@ -1,8 +1,9 @@
 from datetime import datetime
-from typing import List, Optional, Union
+from typing import List, Optional
 
 from attrs import define, field
 
+from .dl_helpers.functions import get_tables_for_yearmonths
 from .loader import Loader
 
 
@@ -25,12 +26,30 @@ def _enumerate_tables(tables: List[str], table_str: str, range_to: int):
     return tables
 
 
+def _validate_tables_on_forecast_start(instance, attribute, value):
+    """Validates tables for the provided forecast type.
+
+    Checks user-supplied tables against tables available in MMS Historical
+    Data SQL Loader for the month and year of forecast_start.
+    """
+    start_dt = instance.forecast_start
+    tables = get_tables_for_yearmonths(
+        start_dt.year, start_dt.month, instance.forecast_type
+    )
+    if not set(value).issubset(set(tables)):
+        raise ValueError(
+            "Table not available from MMS Historical Data SQL Loader"
+            + f" (for {start_dt.month}/{start_dt.year}).\n"
+            + f"Tables include: {tables}"
+        )
+
+
 @define(kw_only=True)
 class ForecastTypeDownloader:
     forecast_start: datetime
     forecast_end: datetime
     forecast_type: str
-    tables: Union[str, List[str]]
+    tables: List[str] = field(validator=_validate_tables_on_forecast_start)
     raw_cache: Optional[str] = field(default=None)
 
     @classmethod
