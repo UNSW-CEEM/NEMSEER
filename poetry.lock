@@ -1060,6 +1060,17 @@ pytz = ">=2020.1"
 test = ["hypothesis (>=5.5.3)", "pytest (>=6.0)", "pytest-xdist (>=1.31)"]
 
 [[package]]
+name = "pandas-stubs"
+version = "1.4.3.220724"
+description = "Type annotations for pandas"
+category = "dev"
+optional = false
+python-versions = ">=3.8,<3.11"
+
+[package.dependencies]
+types-pytz = ">=2022.1.1"
+
+[[package]]
 name = "pandocfilters"
 version = "1.5.0"
 description = "Utilities for writing pandoc filters in python"
@@ -1694,6 +1705,14 @@ optional = false
 python-versions = "*"
 
 [[package]]
+name = "types-pytz"
+version = "2022.1.2"
+description = "Typing stubs for pytz"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "types-requests"
 version = "2.28.5"
 description = "Typing stubs for requests"
@@ -1825,8 +1844,8 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.8"
-content-hash = "9d0e497250d9a36faf2778a781baa70221eb08d64b227a59cc19cc4189cd88d7"
+python-versions = ">= 3.8, < 3.11"
+content-hash = "6a873d7af874b7cd77d100231fb359d524144c805faa84b6fd04afa3282d7dc0"
 
 [metadata.files]
 alabaster = []
@@ -1908,6 +1927,7 @@ notebook = []
 numpy = []
 packaging = []
 pandas = []
+pandas-stubs = []
 pandocfilters = []
 parso = []
 partd = []
@@ -1963,6 +1983,7 @@ toolz = []
 tornado = []
 traitlets = []
 types-beautifulsoup4 = []
+types-pytz = []
 types-requests = []
 types-urllib3 = []
 typing-extensions = []
