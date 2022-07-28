@@ -109,9 +109,11 @@ class Loader:
         - Checks datetime are dd/mm/yyyy HH:MM
         - Checks datetime chronology (e.g. end is after start)
         - Validates `forecast_type`
-        - Validates user-supplied tables against what is available on NEMWeb
+        - *Validates user-supplied tables against what is available on NEMWeb*
     - Retains query metadata (via constructor class method `initialise`)
     - Can dispatch various Managers and Downloaders
+
+    .. todo:: Move NEMWEB validation to ForecastTypeDownloader
 
     Attributes:
         forecast_start: Forecasts made at or after this datetime are queried.
