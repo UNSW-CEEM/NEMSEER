@@ -170,6 +170,8 @@ def _construct_sqlloader_forecastdata_url(
 ) -> str:
     """Constructs URL that points to a NEMWeb zip file
 
+    Handles exceptions to naming rules for `PREDISPATCH`
+
     Args:
         year: Year
         month: Month
@@ -180,7 +182,11 @@ def _construct_sqlloader_forecastdata_url(
     """
     base_url = _construct_sqlloader_yearmonth_url(year, month)
     (stryear, strmonth) = (str(year), str(month).rjust(2, "0"))
-    url = base_url + f"PUBLIC_DVD_{forecast_type}_{table}_{stryear}{strmonth}010000.zip"
+    if forecast_type == "PREDISPATCH" and forecast_type != "MNSPBIDTRK":
+        prefix = f"PUBLIC_DVD_{forecast_type}{table}"
+    else:
+        prefix = f"PUBLIC_DVD_{forecast_type}_{table}"
+    url = base_url + prefix + f"_{stryear}{strmonth}010000.zip"
     return url
 
 
@@ -209,7 +215,7 @@ def get_sqlloader_filesize(
         raise ValueError(f" Cannot find file size for {data_table}")
     else:
         size = size_and_file.group(1)
-        size = round(float(size) / (1024 ^ 2))
+        size = round(float(size) / (1024**2))
     return size
 
 
@@ -268,10 +274,10 @@ def get_unzipped_csv(url: str, raw_cache: Path) -> None:
     r = _request_content(url, next(_build_useragent_generator(1)))
     z = ZipFile(io.BytesIO(r.content))
     if (
-        len(zf := z.namelist()) == 1
-        and z.filename
-        and (re := match("(.*).[cC][sS][vV]", z.filename))
-        and (re.group(1) in zf)
+        len(csvfn := z.namelist()) == 1
+        and (zfn := match(".*/DATA/(.*).zip", url))
+        and (fn := match("(.*).[cC][sS][vV]", csvfn.pop()))
+        and (fn.group(1) == zfn.group(1))
     ):
         z.extractall(raw_cache)
     else:

@@ -87,5 +87,7 @@ class ForecastTypeDownloader:
                     year, month, self.forecast_type, table
                 )
                 size = get_sqlloader_filesize(year, month, self.forecast_type, table)
-                logger.info(f"Downloading {table} for {month}/{year}: {size} MB")
+                logger.info(
+                    f"Downloading {table} for {month}/{year}: {size} MB (zipped)"
+                )
                 get_unzipped_csv(url, self.raw_cache)
