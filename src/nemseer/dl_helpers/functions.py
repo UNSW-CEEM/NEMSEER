@@ -1,11 +1,17 @@
+import io
+import logging
 from itertools import cycle
+from pathlib import Path
 from re import match, search
 from typing import Dict, Generator, List
+from zipfile import ZipFile
 
 import requests
 from bs4 import BeautifulSoup
 
 from .data import MMSDM_ARCHIVE_URL, USER_AGENTS
+
+logger = logging.getLogger(__name__)
 
 
 def _build_useragent_generator(n: int) -> Generator:
@@ -228,6 +234,11 @@ def get_historical_forecast_tables(
 
         Handles P5MIN tables that are spread across multiple files,
          e.g. CONSTRAINTSOLUTION1, CONSTRAINTSOLUTION2, etc.
+
+        Args:
+            links: A list of links
+        Returns:
+            List of unique tables, with enumerated links/tables collapsed
         """
         table_capture = f".*/PUBLIC_DVD_{forecast_type}([A-Z_]*)[0-9]?_[0-9]*.zip"
         tables = []
@@ -241,3 +252,27 @@ def get_historical_forecast_tables(
     links = [link.get("href") for link in soup.find_all("a")]
     tables = _unique_tablename_from_enumerated(links)
     return tables
+
+
+def get_unzipped_csv(url: str, raw_cache: Path) -> None:
+    """Downloads unzipped (single) csv file from `url` to `raw_cache`
+
+    Validates that the zip contains a single file that has a similar name to the zip
+
+    Args:
+        url: URL of zip
+        raw_cache: Path to save zip
+    Returns:
+        None. Extracts csvs to `raw_cache`.
+    """
+    r = _request_content(url, next(_build_useragent_generator(1)))
+    z = ZipFile(io.BytesIO(r.content))
+    if (
+        len(zf := z.namelist()) == 1
+        and z.filename
+        and (re := match("(.*).[cC][sS][vV]", z.filename))
+        and (re.group(1) in zf)
+    ):
+        z.extractall(raw_cache)
+    else:
+        raise ValueError(f"Unexpected contents in zipfile from {url}")
