@@ -16,7 +16,7 @@ nemosis = "^3"
 netCDF4 = "^1.6.0"
 numpy = "^1.23.0"
 packaging = "^21.3"
-pandas = "^1"
+pandas = "^1.2"
 requests = "^2"
 xarray = "^2022"
 
