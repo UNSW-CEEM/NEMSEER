@@ -1,5 +1,5 @@
 from itertools import cycle
-from re import match
+from re import match, search
 from typing import Dict, Generator, List
 
 import requests
@@ -141,7 +141,7 @@ def _get_years_and_months() -> Dict[int, List[int]]:
     return yearmonths
 
 
-def _construct_mmsdm_yearmonth_url(year: int, month: int) -> str:
+def _construct_sqlloader_yearmonth_url(year: int, month: int) -> str:
     """Constructs MMSDM Historical Data SQLLoader URL for a given year and month
 
     Args:
@@ -157,6 +157,54 @@ def _construct_mmsdm_yearmonth_url(year: int, month: int) -> str:
         + "DATA/"
     )
     return url
+
+
+def _construct_sqlloader_forecastdata_url(
+    year: int, month: int, forecast_type: str, table: str
+) -> str:
+    """Constructs URL that points to a NEMWeb zip file
+
+    Args:
+        year: Year
+        month: Month
+        forecast_type: `P5MIN`, `PREDISPATCH`, `PDPASA`, `STPASA` or `MTPASA`
+        table: The name of the table required
+    Returns:
+        URL pointing to forecast data zipfile on NEMWeb
+    """
+    base_url = _construct_sqlloader_yearmonth_url(year, month)
+    (stryear, strmonth) = (str(year), str(month).rjust(2, "0"))
+    url = base_url + f"PUBLIC_DVD_{forecast_type}_{table}_{stryear}{strmonth}010000.zip"
+    return url
+
+
+def get_sqlloader_filesize(
+    year: int, month: int, forecast_type: str, table: str
+) -> int:
+    """For a particular table file on NEMWeb, scrapes and returns file size in MB
+
+    NEMWeb has file size in a column preceding the link to the file. This functions
+    scrapes and returns a megabyte filesize (NEMWeb file size is in bytes).
+
+    Args:
+        year: Year
+        month: Month
+        forecast_type: `P5MIN`, `PREDISPATCH`, `PDPASA`, `STPASA` or `MTPASA`
+        table: The name of the table required
+    Returns:
+        File size in megabytes, rounded to nearest MB
+    """
+    parent_url = _construct_sqlloader_yearmonth_url(year, month)
+    data_url = _construct_sqlloader_forecastdata_url(year, month, forecast_type, table)
+    data_table = data_url.lstrip(parent_url)
+    useragent = next(_build_useragent_generator(1))
+    soup = _rerequest_to_obtain_soup(parent_url, useragent)
+    if not (size_and_file := search(f"([0-9]*) {data_table}", soup.get_text())):
+        raise ValueError(f" Cannot find file size for {data_table}")
+    else:
+        size = size_and_file.group(1)
+        size = round(float(size) / (1024 ^ 2))
+    return size
 
 
 def get_tables_for_yearmonths(year: int, month: int, forecast_type: str) -> List[str]:
@@ -188,7 +236,7 @@ def get_tables_for_yearmonths(year: int, month: int, forecast_type: str) -> List
                 tables.append(mo.group(1).lstrip("_"))
         return list(set(tables))
 
-    url = _construct_mmsdm_yearmonth_url(year, month)
+    url = _construct_sqlloader_yearmonth_url(year, month)
     soup = _rerequest_to_obtain_soup(url, next(_build_useragent_generator(1)))
     links = [link.get("href") for link in soup.find_all("a")]
     tables = _unique_tablename_from_enumerated(links)
