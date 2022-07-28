@@ -76,7 +76,10 @@ class ForecastTypeDownloader:
         )
 
     def download_zip(self):
-        """TODO: extend to converting to parquet"""
+        """Downloads zip files given query loaded into ForecastTypeDownloader
+
+        .. todo:: Extend to converting to parquet
+        """
         intervening_dates = rrule.rrule(
             rrule.MONTHLY, dtstart=self.forecast_start, until=self.forecast_end
         )
