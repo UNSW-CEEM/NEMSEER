@@ -129,7 +129,7 @@ jobs:
   publish:
     if: github.event_name == 'release' && github.event.action == 'created'
     needs: test
-    runs-on: ubtuntu-latest
+    runs-on: ubuntu-latest
     steps:
       # Checkout the repo so the workflow can access it
       - name: Checkout
