@@ -98,8 +98,51 @@ def _rerequest_to_obtain_soup(
     return soup
 
 
-def _get_years_and_months() -> Dict[int, List[int]]:
-    """Checks months with data available, for each year from scraped link.
+def _construct_sqlloader_yearmonth_url(year: int, month: int) -> str:
+    """Constructs MMSDM Historical Data SQLLoader URL for a given year and month
+
+    Args:
+        year: Year
+        month: Month
+    Returns:
+        Constructed URL as a string.
+    """
+    url = (
+        MMSDM_ARCHIVE_URL
+        + f"{year}/MMSDM_{year}_"
+        + f'{str(month).rjust(2, "0")}/MMSDM_Historical_Data_SQLLoader/'
+        + "DATA/"
+    )
+    return url
+
+
+def _construct_sqlloader_forecastdata_url(
+    year: int, month: int, forecast_type: str, table: str
+) -> str:
+    """Constructs URL that points to a MMSDM Historical Data SQLLoader zip file
+
+    Handles exceptions to naming rules for `PREDISPATCH`
+
+    Args:
+        year: Year
+        month: Month
+        forecast_type: `P5MIN`, `PREDISPATCH`, `PDPASA`, `STPASA` or `MTPASA`
+        table: The name of the table required
+    Returns:
+        URL pointing to forecast data zipfile on NEMWeb
+    """
+    base_url = _construct_sqlloader_yearmonth_url(year, month)
+    (stryear, strmonth) = (str(year), str(month).rjust(2, "0"))
+    if forecast_type == "PREDISPATCH" and forecast_type != "MNSPBIDTRK":
+        prefix = f"PUBLIC_DVD_{forecast_type}{table}"
+    else:
+        prefix = f"PUBLIC_DVD_{forecast_type}_{table}"
+    url = base_url + prefix + f"_{stryear}{strmonth}010000.zip"
+    return url
+
+
+def get_sqlloader_years_and_months() -> Dict[int, List[int]]:
+    """Years and months with data on NEMWeb MMSDM Historical Data SQLLoader
 
     Returns:
         Months mapped to each year. Data is available for each of these months.
@@ -147,55 +190,12 @@ def _get_years_and_months() -> Dict[int, List[int]]:
     return yearmonths
 
 
-def _construct_sqlloader_yearmonth_url(year: int, month: int) -> str:
-    """Constructs MMSDM Historical Data SQLLoader URL for a given year and month
-
-    Args:
-        year: Year
-        month: Month
-    Returns:
-        Constructed URL as a string.
-    """
-    url = (
-        MMSDM_ARCHIVE_URL
-        + f"{year}/MMSDM_{year}_"
-        + f'{str(month).rjust(2, "0")}/MMSDM_Historical_Data_SQLLoader/'
-        + "DATA/"
-    )
-    return url
-
-
-def _construct_sqlloader_forecastdata_url(
-    year: int, month: int, forecast_type: str, table: str
-) -> str:
-    """Constructs URL that points to a NEMWeb zip file
-
-    Handles exceptions to naming rules for `PREDISPATCH`
-
-    Args:
-        year: Year
-        month: Month
-        forecast_type: `P5MIN`, `PREDISPATCH`, `PDPASA`, `STPASA` or `MTPASA`
-        table: The name of the table required
-    Returns:
-        URL pointing to forecast data zipfile on NEMWeb
-    """
-    base_url = _construct_sqlloader_yearmonth_url(year, month)
-    (stryear, strmonth) = (str(year), str(month).rjust(2, "0"))
-    if forecast_type == "PREDISPATCH" and forecast_type != "MNSPBIDTRK":
-        prefix = f"PUBLIC_DVD_{forecast_type}{table}"
-    else:
-        prefix = f"PUBLIC_DVD_{forecast_type}_{table}"
-    url = base_url + prefix + f"_{stryear}{strmonth}010000.zip"
-    return url
-
-
 def get_sqlloader_filesize(
     year: int, month: int, forecast_type: str, table: str
 ) -> int:
-    """For a particular table file on NEMWeb, scrapes and returns file size in MB
+    """File size in MB for MMSDM Historical Data SQLLoader file
 
-    NEMWeb has file size in a column preceding the link to the file. This functions
+    NEMWeb has file size in a column preceding the link to the file. This function
     scrapes and returns a megabyte filesize (NEMWeb file size is in bytes).
 
     Args:
@@ -219,10 +219,10 @@ def get_sqlloader_filesize(
     return size
 
 
-def get_historical_forecast_tables(
+def get_sqlloader_forecast_tables(
     year: int, month: int, forecast_type: str
 ) -> List[str]:
-    """For a month & year, get available tables for a particular forecast type.
+    """Available tables for a particular forecast type on MMSDM Historical Data SQLLoader
 
     Handling of special cases:
       - Removes numbering from enumerated tables for `P5MIN` (`CONSTRAINTSOLUTION(x)`)
@@ -263,7 +263,7 @@ def get_historical_forecast_tables(
 def get_unzipped_csv(url: str, raw_cache: Path) -> None:
     """Downloads unzipped (single) csv file from `url` to `raw_cache`
 
-    Validates that the zip contains a single file that has a similar name to the zip
+    Validates that the zip contains a single file that has the same name as the zip
 
     Args:
         url: URL of zip
