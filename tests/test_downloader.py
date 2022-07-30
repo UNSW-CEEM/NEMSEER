@@ -1,7 +1,18 @@
 import pytest
 
-from nemseer.downloader import ForecastTypeDownloader
+from nemseer.downloader import ForecastTypeDownloader, _enumerate_tables
 from nemseer.loader import Loader
+
+
+def test_enumerate_tables():
+    tables = ["REGIONDISPATCH", "DISPATCHLOAD", "testing"]
+    table_str = "testing"
+    assert _enumerate_tables(tables, table_str, 2) == [
+        "REGIONDISPATCH",
+        "DISPATCHLOAD",
+        "testing1",
+        "testing2",
+    ]
 
 
 class TestForecastTypeDownloader:
