@@ -13,7 +13,7 @@ def download_raw_data(
     tables: Union[str, List[str]],
     raw_cache: str,
 ) -> None:
-    """Downloads raw forecast data from NEMWeb
+    """Downloads raw forecast data from NEMWeb MMSDM Historical Data SQLLoader
 
     Arguments:
         forecast_start: Forecasts made at or after this datetime are queried.
