@@ -141,6 +141,75 @@ def _construct_sqlloader_forecastdata_url(
     return url
 
 
+def _get_captured_group_from_links(
+    year: int, month: int, forecast_type: str, regex: str
+) -> List[str]:
+    """Returns a list of unique captured groups from a MMSDM Historical Data SQLLOader page
+
+    For a year and month in the MMSDM Historical Data SQLLoader, returns captured groups
+    associated with a particular `forecast_type`. Primarily used to obtain table names.
+
+    Args:
+        year: Year
+        month: Month
+        forecast_type: AEMO forecast types (`P5MIN`, `PREDISPATCH`, `STPASA`, `MTPASA`)
+        regex: Regular expression pattern, with one group capture
+    Returns:
+        A list of unique captured groups (one for each link on the page of tables)
+    """
+    url = _construct_sqlloader_yearmonth_url(year, month)
+    soup = _rerequest_to_obtain_soup(url, next(_build_useragent_generator(1)))
+    links = [link.get("href") for link in soup.find_all("a")]
+    tables = []
+    for link in links:
+        if mo := match(regex, link):
+            tables.append(mo.group(1).lstrip("_"))
+    return list(set(tables))
+
+
+def _get_all_sqlloader_forecast_tables(
+    year: int, month: int, forecast_type: str
+) -> List[str]:
+    """Available tables for a particular forecast type on MMSDM Historical Data SQLLoader
+
+    Private validator function that returns actual tables available via NEMWeb,
+    including all tables that are enumerated.
+
+    Args:
+        year: Year
+        month: Month
+        forecast_type: AEMO forecast types (`P5MIN`, `PREDISPATCH`, `STPASA`, `MTPASA`)
+    Returns:
+        List of tables associated with that forecast type for that period
+    """
+    table_capture = f".*/PUBLIC_DVD_{forecast_type}([A-Z_0-9]*)_[0-9]*.zip"
+    tables = _get_captured_group_from_links(year, month, forecast_type, table_capture)
+    return tables
+
+
+def get_sqlloader_forecast_tables(
+    year: int, month: int, forecast_type: str
+) -> List[str]:
+    """Requestable tables for a particular forecast type on MMSDM Historical Data SQLLoader
+
+    Provides a list of tables that can be requested via `nemseer`.
+
+    N.B.:
+      - Removes numbering from enumerated tables for `P5MIN`
+        - e.g. `CONSTRAINTSOLUTION(x)` are all reduced to `CONSTRAINTSOLUTION`
+
+    Args:
+        year: Year
+        month: Month
+        forecast_type: AEMO forecast types (`P5MIN`, `PREDISPATCH`, `STPASA`, `MTPASA`)
+    Returns:
+        List of tables associated with that forecast type for that period
+    """
+    table_capture = f".*/PUBLIC_DVD_{forecast_type}([A-Z_]*)[0-9]?_[0-9]*.zip"
+    tables = _get_captured_group_from_links(year, month, forecast_type, table_capture)
+    return tables
+
+
 def get_sqlloader_years_and_months() -> Dict[int, List[int]]:
     """Years and months with data on NEMWeb MMSDM Historical Data SQLLoader
 
@@ -217,47 +286,6 @@ def get_sqlloader_filesize(
         size = size_and_file.group(1)
         size = round(float(size) / (1024**2))
     return size
-
-
-def get_sqlloader_forecast_tables(
-    year: int, month: int, forecast_type: str
-) -> List[str]:
-    """Available tables for a particular forecast type on MMSDM Historical Data SQLLoader
-
-    Handling of special cases:
-      - Removes numbering from enumerated tables for `P5MIN` (`CONSTRAINTSOLUTION(x)`)
-
-    Args:
-        year: Year
-        month: Month
-        forecast_type: AEMO forecast types (`P5MIN`, `PREDISPATCH`, `STPASA`, `MTPASA`)
-    Returns:
-        List of tables associated with that forecast type for that period
-    """
-
-    def _unique_tablename_from_enumerated(links: List[str]) -> List[str]:
-        """Handles enumerated table names
-
-        Handles P5MIN tables that are spread across multiple files,
-         e.g. CONSTRAINTSOLUTION1, CONSTRAINTSOLUTION2, etc.
-
-        Args:
-            links: A list of links
-        Returns:
-            List of unique tables, with enumerated links/tables collapsed
-        """
-        table_capture = f".*/PUBLIC_DVD_{forecast_type}([A-Z_]*)[0-9]?_[0-9]*.zip"
-        tables = []
-        for link in links:
-            if mo := match(table_capture, link):
-                tables.append(mo.group(1).lstrip("_"))
-        return list(set(tables))
-
-    url = _construct_sqlloader_yearmonth_url(year, month)
-    soup = _rerequest_to_obtain_soup(url, next(_build_useragent_generator(1)))
-    links = [link.get("href") for link in soup.find_all("a")]
-    tables = _unique_tablename_from_enumerated(links)
-    return tables
 
 
 def get_unzipped_csv(url: str, raw_cache: Path) -> None:
