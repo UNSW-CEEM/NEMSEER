@@ -7,8 +7,8 @@ from dateutil import rrule
 
 from .dl_helpers.functions import (
     _construct_sqlloader_forecastdata_url,
+    _get_all_sqlloader_forecast_tables,
     get_sqlloader_filesize,
-    get_sqlloader_forecast_tables,
     get_unzipped_csv,
 )
 from .loader import Loader
@@ -42,12 +42,12 @@ def _validate_tables_on_forecast_start(instance, attribute, value):
     Data SQL Loader for the month and year of forecast_start.
     """
     start_dt = instance.forecast_start
-    tables = get_sqlloader_forecast_tables(
+    tables = _get_all_sqlloader_forecast_tables(
         start_dt.year, start_dt.month, instance.forecast_type
     )
     if not set(value).issubset(set(tables)):
         raise ValueError(
-            "Table not available from MMS Historical Data SQL Loader"
+            "Table(s) not available from MMS Historical Data SQL Loader"
             + f" (for {start_dt.month}/{start_dt.year}).\n"
             + f"Tables include: {tables}"
         )
