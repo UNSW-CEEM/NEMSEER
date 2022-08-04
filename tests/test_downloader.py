@@ -25,7 +25,7 @@ class TestForecastTypeDownloader:
         return Loader.initialise(
             self.forecast_start,
             self.forecast_end,
-            self.forecast_start,
+            self.forecasted_start,
             self.forecasted_end,
             "STPASA",
             "REGIONSOLUTION",
@@ -36,13 +36,41 @@ class TestForecastTypeDownloader:
         return Loader.initialise(
             self.forecast_start,
             self.forecast_end,
-            self.forecast_start,
+            self.forecasted_start,
             self.forecasted_end,
             "P5MIN",
             ["DISPATCHLOAD", "REGIONDISPATCHSUM"],
             raw_cache=cache,
         )
 
+    def constraint_solution_loader(self, cache):
+        return Loader.initialise(
+            self.forecast_start,
+            self.forecast_end,
+            self.forecasted_start,
+            self.forecasted_end,
+            "P5MIN",
+            "CONSTRAINTSOLUTION",
+            raw_cache=cache,
+        )
+
     def test_invalid_tables(self, tmp_path):
         with pytest.raises(ValueError):
             ForecastTypeDownloader.from_Loader(self.invalid_tables_loader(tmp_path))
+
+    def test_table_enumeration(self, tmp_path):
+        """
+        Add other initialisations if additional tables require enumeration
+        """
+        ftd = ForecastTypeDownloader.from_Loader(
+            self.constraint_solution_loader(tmp_path)
+        )
+        to_check = set(
+            [
+                "CONSTRAINTSOLUTION1",
+                "CONSTRAINTSOLUTION2",
+                "CONSTRAINTSOLUTION3",
+                "CONSTRAINTSOLUTION4",
+            ]
+        )
+        assert to_check.issubset(set(ftd.tables))
