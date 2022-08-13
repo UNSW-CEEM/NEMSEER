@@ -6,14 +6,15 @@
 
 Two types of functionality would be exposed:
 1. User functions (NEMOSIS-style) that enable the user to go end-to-end quickly. This would 'automate' the chain from raw cache/download to validation to aggregation to processed cache.
-2. Advanced interface/API. Really this is just exposing the classes to the user so they can do more with it e.g. users can load the cache managers and use them to manage the cache.
+2. Advanced interface/API. Really this is just exposing the classes to the user so they can do more with it if need be
 
 ### Automated workflow
 
 1. Loader is initialised with user input
 2. Then:
-    a) Loader then loads from RawCache (via `RawCacheManager`), or dispatches a Downloader. RawCache is a SQLite DB. Generic as well as forecast-specific validators should verify user inputs. Returns `CompiledRawData`.
-    b) Loader checks metadata of netCDF from ProcessedCache (via `ProcessedCacheManager`). Returns `CompiledProcessedData`.
+    a) Loader checks metadata of netCDF via`CompiledProcessedData`. If no such metadata exists, proceed to b).
+    b) Loader loads from the raw cache (via `CompiledRawData`), or dispatches a `ForecastTypeDownloader`. RawCache will consist of partioned parquet files (corresponding to original CSVs). Generic as well as forecast-specific validators should verify user inputs. Returns `CompiledRawData`.
+
 3. If 2(a), then passed to `AggregatedForecastbyType` for data aggregation, filtering and building to processed cache
 4. If 2(b), could then be passed to `AggregatedForecastbyType` for specific filtering?
 
@@ -25,8 +26,7 @@ By step 3/4, the datasets should be useful  enough to answer questions such as:
 
 ## Extensions
 
-1. Aggregate data across different forecast types (I'm not sure this is even a good idea given PASA and PD are different beasts...but maybe comparing demand forecasts)? (`CrossForecastTypeHandler`)
-2. A very useful thing would be to have functionality to patch in NEMOSIS and do forecasts vs actual (`ForecastActualHandler`)
+1. A very useful thing would be to have functionality to patch in NEMOSIS and do forecasts vs actual (`ForecastActualHandler`)
 
 
 ## Class Diagram
