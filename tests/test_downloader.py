@@ -1,3 +1,5 @@
+import pathlib
+
 import pytest
 
 from nemseer.downloader import ForecastTypeDownloader, _enumerate_tables
@@ -54,6 +56,17 @@ class TestForecastTypeDownloader:
             raw_cache=cache,
         )
 
+    def casesolution_loader(self, cache, forecast_type):
+        return Loader.initialise(
+            self.forecast_start,
+            self.forecast_end,
+            self.forecasted_start,
+            self.forecasted_end,
+            forecast_type,
+            "CASESOLUTION",
+            raw_cache=cache,
+        )
+
     def test_invalid_tables(self, tmp_path):
         with pytest.raises(ValueError):
             ForecastTypeDownloader.from_Loader(self.invalid_tables_loader(tmp_path))
@@ -74,3 +87,12 @@ class TestForecastTypeDownloader:
             ]
         )
         assert to_check.issubset(set(ftd.tables))
+
+    def test_casesolution_zip_download(self, tmp_path):
+        for forecast_type in ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA"):
+            loader = self.casesolution_loader(tmp_path, forecast_type)
+            downloader = ForecastTypeDownloader.from_Loader(loader)
+            downloader.download_zip()
+        path = pathlib.Path(tmp_path)
+        assert len(list(path.iterdir())) == 5
+        assert all([True for file in path.iterdir() if "CASESOLUTION" in file.name])
