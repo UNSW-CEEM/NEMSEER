@@ -205,6 +205,9 @@ def get_sqlloader_forecast_tables(
     Returns:
         List of tables associated with that forecast type for that period
     """
+    valid_types = ("P5MIN", "PREDISPATCH", "STPASA", "MTPASA")
+    if forecast_type not in valid_types:
+        raise ValueError(f"Forecast type should be one of {valid_types}")
     table_capture = f".*/PUBLIC_DVD_{forecast_type}([A-Z_]*)[0-9]?_[0-9]*.zip"
     tables = _get_captured_group_from_links(year, month, forecast_type, table_capture)
     return tables
@@ -261,7 +264,7 @@ def get_sqlloader_years_and_months() -> Dict[int, List[int]]:
 
 def get_sqlloader_filesize(
     year: int, month: int, forecast_type: str, table: str
-) -> int:
+) -> float:
     """File size in MB for MMSDM Historical Data SQLLoader file
 
     NEMWeb has file size in a column preceding the link to the file. This function
@@ -275,6 +278,9 @@ def get_sqlloader_filesize(
     Returns:
         File size in megabytes, rounded to nearest MB
     """
+    valid_types = ("P5MIN", "PREDISPATCH", "STPASA", "MTPASA")
+    if forecast_type not in valid_types:
+        raise ValueError(f"Forecast type should be one of {valid_types}")
     parent_url = _construct_sqlloader_yearmonth_url(year, month)
     data_url = _construct_sqlloader_forecastdata_url(year, month, forecast_type, table)
     data_table = data_url.lstrip(parent_url)
@@ -284,7 +290,7 @@ def get_sqlloader_filesize(
         raise ValueError(f" Cannot find file size for {data_table}")
     else:
         size = size_and_file.group(1)
-        size = round(float(size) / (1024**2))
+        size = round(float(size) / (1024**2), 2)
     return size
 
 
