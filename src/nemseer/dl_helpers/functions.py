@@ -14,6 +14,12 @@ from .data import MMSDM_ARCHIVE_URL, USER_AGENTS
 logger = logging.getLogger(__name__)
 
 
+def _validate_forecast_type(forecast_type: str):
+    valid_types = ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA")
+    if forecast_type not in valid_types:
+        raise ValueError(f"Forecast type should be one of {valid_types}")
+
+
 def _build_useragent_generator(n: int) -> Generator:
     """Generator function that cycles through user agents for GET requests.
 
@@ -205,9 +211,7 @@ def get_sqlloader_forecast_tables(
     Returns:
         List of tables associated with that forecast type for that period
     """
-    valid_types = ("P5MIN", "PREDISPATCH", "STPASA", "MTPASA")
-    if forecast_type not in valid_types:
-        raise ValueError(f"Forecast type should be one of {valid_types}")
+    _validate_forecast_type(forecast_type)
     table_capture = f".*/PUBLIC_DVD_{forecast_type}([A-Z_]*)[0-9]?_[0-9]*.zip"
     tables = _get_captured_group_from_links(year, month, forecast_type, table_capture)
     return tables
@@ -278,9 +282,7 @@ def get_sqlloader_filesize(
     Returns:
         File size in megabytes, rounded to nearest MB
     """
-    valid_types = ("P5MIN", "PREDISPATCH", "STPASA", "MTPASA")
-    if forecast_type not in valid_types:
-        raise ValueError(f"Forecast type should be one of {valid_types}")
+    _validate_forecast_type(forecast_type)
     parent_url = _construct_sqlloader_yearmonth_url(year, month)
     data_url = _construct_sqlloader_forecastdata_url(year, month, forecast_type, table)
     data_table = data_url.lstrip(parent_url)
