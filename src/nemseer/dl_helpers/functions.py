@@ -147,9 +147,7 @@ def _construct_sqlloader_forecastdata_url(
     return url
 
 
-def _get_captured_group_from_links(
-    year: int, month: int, forecast_type: str, regex: str
-) -> List[str]:
+def _get_captured_group_from_links(year: int, month: int, regex: str) -> List[str]:
     """Returns a list of unique captured groups from a MMSDM Historical Data SQLLOader page
 
     For a year and month in the MMSDM Historical Data SQLLoader, returns captured groups
@@ -189,7 +187,7 @@ def _get_all_sqlloader_forecast_tables(
         List of tables associated with that forecast type for that period
     """
     table_capture = f".*/PUBLIC_DVD_{forecast_type}([A-Z_0-9]*)_[0-9]*.zip"
-    tables = _get_captured_group_from_links(year, month, forecast_type, table_capture)
+    tables = _get_captured_group_from_links(year, month, table_capture)
     return tables
 
 
@@ -213,7 +211,7 @@ def get_sqlloader_forecast_tables(
     """
     _validate_forecast_type(forecast_type)
     table_capture = f".*/PUBLIC_DVD_{forecast_type}([A-Z_]*)[0-9]?_[0-9]*.zip"
-    tables = _get_captured_group_from_links(year, month, forecast_type, table_capture)
+    tables = _get_captured_group_from_links(year, month, table_capture)
     return tables
 
 
