@@ -1,6 +1,6 @@
 import pytest
 
-from nemseer.dl_helpers.functions import get_sqlloader_years_and_months
+from nemseer.downloader import get_sqlloader_years_and_months
 
 
 @pytest.fixture(scope="module")

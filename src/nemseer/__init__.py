@@ -4,8 +4,8 @@ import sys
 from importlib.metadata import version
 
 # aliases for SQLLoader functions
-from .dl_helpers.functions import get_sqlloader_forecast_tables as get_tables
-from .dl_helpers.functions import get_sqlloader_years_and_months as get_data_daterange
+from .downloader import get_sqlloader_forecast_tables as get_tables
+from .downloader import get_sqlloader_years_and_months as get_data_daterange
 from .nemseer import download_raw_data
 
 __version__ = version("nemseer")
@@ -16,3 +16,5 @@ logging.basicConfig(
 )
 
 __all__ = ["download_raw_data", "get_tables", "get_data_daterange"]
+
+forecast_types = ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA")
