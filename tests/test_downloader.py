@@ -88,11 +88,13 @@ class TestForecastTypeDownloader:
         )
         assert to_check.issubset(set(ftd.tables))
 
-    def test_casesolution_zip_download(self, tmp_path):
+    def test_casesolution_download_and_to_parquet(self, tmp_path):
         for forecast_type in ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA"):
             loader = self.casesolution_loader(tmp_path, forecast_type)
             downloader = ForecastTypeDownloader.from_Loader(loader)
             downloader.download_zip()
+        downloader.convert_to_parquet()
         path = pathlib.Path(tmp_path)
         assert len(list(path.iterdir())) == 5
         assert all([True for file in path.iterdir() if "CASESOLUTION" in file.name])
+        assert all([True for file in path.iterdir() if ".parquet" in file.name])
