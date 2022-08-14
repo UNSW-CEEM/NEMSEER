@@ -15,6 +15,8 @@ def download_raw_data(
 ) -> None:
     """Downloads raw forecast data from NEMWeb MMSDM Historical Data SQLLoader
 
+    Downloads raw forecast data and converts to parquet.
+
     Arguments:
         forecast_start: Forecasts made at or after this datetime are queried.
         forecast_end: Forecasts made before or at this datetime are queried.
