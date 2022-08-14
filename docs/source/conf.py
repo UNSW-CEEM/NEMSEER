@@ -75,7 +75,10 @@ autodoc_typehints = "both"
 autoclass_content = "class"
 
 # --  Intersphinx options-----------------------------------------------------
-intersphinx_mapping = {"python": ("https://docs.python.org/3", None)}
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "pandas": ("https://pandas.pydata.org/docs/", None),
+}
 
 # --  MyST options------------------------------------------------------------
 

@@ -28,12 +28,24 @@ Use the {meth}`from_Loader() <nemseer.downloader.ForecastTypeDownloader.from_Loa
 
 ### Downloader Helpers
 
-#### Scrapers
+#### Scrapers and downloaders
 
-These functions scrape NEMWeb to assist `nemseer` in validating inputs and providing feedback to users.
+**Scrapers**: These functions scrape NEMWeb to assist `nemseer` in validating inputs and providing feedback to users.
+**Downloader**: The downloader function is used to download a `.zip` file.
 
 ```{eval-rst}
 .. automodule:: nemseer.dl_helpers.functions
+   :members:
+```
+
+#### Data handlers
+
+Functions for handling various data states.
+
+Valid inputs for {func}`clean_forecast_csv <nemseer.data_handlers.clean_forecast_csv>` are the same as those for {func}`pandas.read_csv <pandas.read_csv()>`
+
+```{eval-rst}
+.. automodule:: nemseer.data_handlers
    :members:
 ```
 

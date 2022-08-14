@@ -38,3 +38,4 @@ def download_raw_data(
     )
     downloader = ForecastTypeDownloader.from_Loader(loader)
     downloader.download_zip()
+    downloader.convert_to_parquet()
