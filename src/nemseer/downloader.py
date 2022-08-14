@@ -1,10 +1,13 @@
 import logging
 from datetime import datetime
+from pathlib import Path
 from typing import List, Optional
 
+import psutil
 from attrs import define, field
 from dateutil import rrule
 
+from .data_handlers import clean_forecast_csv
 from .dl_helpers.functions import (
     _construct_sqlloader_forecastdata_url,
     _get_all_sqlloader_forecast_tables,
@@ -76,10 +79,7 @@ class ForecastTypeDownloader:
         )
 
     def download_zip(self):
-        """Downloads zip files given query loaded into ForecastTypeDownloader
-
-        .. todo:: Extend to converting to parquet
-        """
+        """Downloads zip files given query loaded into ForecastTypeDownloader"""
         intervening_dates = rrule.rrule(
             rrule.MONTHLY, dtstart=self.forecast_start, until=self.forecast_end
         )
@@ -91,6 +91,26 @@ class ForecastTypeDownloader:
                 )
                 size = get_sqlloader_filesize(year, month, self.forecast_type, table)
                 logger.info(
-                    f"Downloading {table} for {month}/{year}: {size} MB (zipped)"
+                    f"Downloading and unzipping {table} for {month}/{year}:"
+                    + f" {size} MB (zipped)"
                 )
                 get_unzipped_csv(url, self.raw_cache)
+
+    def convert_to_parquet(self):
+        """Converts all CSVs in the `raw_cache` to parquet
+
+        Logs a warning if the filesize is greater than half of available memory.
+        pandas DataFrames consume more than the file size in memory.
+        """
+        csvs = list(Path(self.raw_cache).glob("*.[Cc][Ss][Vv]"))
+        for csv in csvs:
+            if csv.stat().st_size * 2 >= psutil.virtual_memory().available:
+                logging.warning(
+                    f"Attempting to convert {csv} to parquet,"
+                    + " but your available system memory may be too low for this."
+                )
+            logging.info(f"Converting {csv.name} to parquet")
+            df = clean_forecast_csv(csv)
+            parquet_name = csv.name[0:-3] + "parquet"
+            df.to_parquet(csv.with_name(parquet_name))
+            csv.unlink()
