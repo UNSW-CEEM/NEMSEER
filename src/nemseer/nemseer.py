@@ -39,5 +39,5 @@ def download_raw_data(
         raw_cache=raw_cache,
     )
     downloader = ForecastTypeDownloader.from_Loader(loader)
-    downloader.download_zip()
+    downloader.download_csv()
     downloader.convert_to_parquet()
