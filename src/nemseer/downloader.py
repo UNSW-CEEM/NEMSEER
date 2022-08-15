@@ -1,9 +1,9 @@
-import io
 import logging
+import shutil
 from datetime import datetime
 from itertools import cycle
 from pathlib import Path
-from re import match, search
+from re import match
 from typing import Dict, Generator, List, Optional
 from zipfile import ZipFile
 
@@ -12,6 +12,7 @@ import requests
 from attrs import define, field
 from bs4 import BeautifulSoup
 from dateutil import rrule
+from tqdm.auto import tqdm
 
 from .data_handlers import clean_forecast_csv
 from .downloader_helpers.data import MMSDM_ARCHIVE_URL, USER_AGENTS
@@ -26,7 +27,7 @@ def _validate_forecast_type(forecast_type: str):
         raise ValueError(f"Forecast type should be one of {valid_types}")
 
 
-def _build_useragent_generator(n: int) -> Generator:
+def _build_useragent_generator(n: int) -> Generator[str, None, None]:
     """Generator function that cycles through user agents for GET requests.
 
     Generator function that cycles through user agents to yield n user agents
@@ -154,7 +155,7 @@ def _construct_sqlloader_forecastdata_url(
 
 
 def _get_captured_group_from_links(year: int, month: int, regex: str) -> List[str]:
-    """Returns a list of unique captured groups from a MMSDM Historical Data SQLLOader page
+    """Returns list of unique captured groups from MMSDM Historical Data SQLLoader page
 
     For a year and month in the MMSDM Historical Data SQLLoader, returns captured groups
     associated with a particular `forecast_type`. Primarily used to obtain table names.
@@ -180,7 +181,7 @@ def _get_captured_group_from_links(year: int, month: int, regex: str) -> List[st
 def _get_all_sqlloader_forecast_tables(
     year: int, month: int, forecast_type: str
 ) -> List[str]:
-    """Available tables for a particular forecast type on MMSDM Historical Data SQLLoader
+    """Available tables for particular forecast type on MMSDM Historical Data SQLLoader
 
     Private validator function that returns actual tables available via NEMWeb,
     including all tables that are enumerated.
@@ -200,7 +201,7 @@ def _get_all_sqlloader_forecast_tables(
 def get_sqlloader_forecast_tables(
     year: int, month: int, forecast_type: str
 ) -> List[str]:
-    """Requestable tables for a particular forecast type on MMSDM Historical Data SQLLoader
+    """Requestable tables of particular forecast type on MMSDM Historical Data SQLLoader
 
     Provides a list of tables that can be requested via `nemseer`.
 
@@ -270,40 +271,11 @@ def get_sqlloader_years_and_months() -> Dict[int, List[int]]:
     return yearmonths
 
 
-def get_sqlloader_filesize(
-    year: int, month: int, forecast_type: str, table: str
-) -> float:
-    """File size in MB for MMSDM Historical Data SQLLoader file
-
-    NEMWeb has file size in a column preceding the link to the file. This function
-    scrapes and returns a megabyte filesize (NEMWeb file size is in bytes).
-
-    Args:
-        year: Year
-        month: Month
-        forecast_type: `P5MIN`, `PREDISPATCH`, `PDPASA`, `STPASA` or `MTPASA`
-        table: The name of the table required
-    Returns:
-        File size in megabytes, rounded to nearest MB
-    """
-    _validate_forecast_type(forecast_type)
-    parent_url = _construct_sqlloader_yearmonth_url(year, month)
-    data_url = _construct_sqlloader_forecastdata_url(year, month, forecast_type, table)
-    data_table = data_url.lstrip(parent_url)
-    useragent = next(_build_useragent_generator(1))
-    soup = _rerequest_to_obtain_soup(parent_url, useragent)
-    if not (size_and_file := search(f"([0-9]*) {data_table}", soup.get_text())):
-        raise ValueError(f" Cannot find file size for {data_table}")
-    else:
-        size = size_and_file.group(1)
-        size = round(float(size) / (1024**2), 2)
-    return size
-
-
 def get_unzipped_csv(url: str, raw_cache: Path) -> None:
-    """Downloads unzipped (single) csv file from `url` to `raw_cache`
+    """Unzipped (single) csv file downloaded from `url` to `raw_cache`
 
-    Validates that the zip contains a single file that has the same name as the zip
+    1. Downloads zip file in chunks to limit memory use and enable progress bar
+    2. Validates that the zip contains a single file that has the same name as the zip
 
     Args:
         url: URL of zip
@@ -311,8 +283,15 @@ def get_unzipped_csv(url: str, raw_cache: Path) -> None:
     Returns:
         None. Extracts csvs to `raw_cache`.
     """
-    r = _request_content(url, next(_build_useragent_generator(1)))
-    z = ZipFile(io.BytesIO(r.content))
+    file_name = Path(url).name
+    header = _build_nemweb_get_header(next(_build_useragent_generator(1)))
+    file_path = raw_cache / Path(file_name)
+    with requests.get(url, headers=header, stream=True) as r:
+        total_length = int(r.headers.get("Content-Length", 0))
+        with tqdm.wrapattr(r.raw, "read", desc=file_name, total=total_length) as raw:
+            with open(file_path, "wb") as fout:
+                shutil.copyfileobj(raw, fout)
+    z = ZipFile(file_path)
     if (
         len(csvfn := z.namelist()) == 1
         and (zfn := match(".*/DATA/(.*).zip", url))
@@ -320,6 +299,7 @@ def get_unzipped_csv(url: str, raw_cache: Path) -> None:
         and (fn.group(1) == zfn.group(1))
     ):
         z.extractall(raw_cache)
+        Path(file_path).unlink()
     else:
         raise ValueError(f"Unexpected contents in zipfile from {url}")
 
@@ -394,11 +374,7 @@ class ForecastTypeDownloader:
                 url = _construct_sqlloader_forecastdata_url(
                     year, month, self.forecast_type, table
                 )
-                size = get_sqlloader_filesize(year, month, self.forecast_type, table)
-                logger.info(
-                    f"Downloading and unzipping {table} for {month}/{year}:"
-                    + f" {size} MB (zipped)"
-                )
+                logger.info(f"Downloading and unzipping {table} for {month}/{year}")
                 get_unzipped_csv(url, self.raw_cache)
 
     def convert_to_parquet(self):
