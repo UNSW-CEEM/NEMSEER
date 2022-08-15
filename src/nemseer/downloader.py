@@ -129,6 +129,28 @@ def _construct_sqlloader_yearmonth_url(year: int, month: int) -> str:
     return url
 
 
+def _construct_sqlloader_filename(
+    year: int, month: int, forecast_type: str, table: str
+) -> str:
+    """ Constructs filename without file type
+
+    Args:
+        year: Year
+        month: Month
+        forecast_type: `P5MIN`, `PREDISPATCH`, `PDPASA`, `STPASA` or `MTPASA`
+        table: The name of the table required
+    Returns:
+        Filename string without file type
+    """
+    (stryear, strmonth) = (str(year), str(month).rjust(2, "0"))
+    if forecast_type == "PREDISPATCH" and table != "MNSPBIDTRK":
+        prefix = f"PUBLIC_DVD_{forecast_type}{table}"
+    else:
+        prefix = f"PUBLIC_DVD_{forecast_type}_{table}"
+    fn = prefix + f"_{stryear}{strmonth}010000"
+    return fn
+
+
 def _construct_sqlloader_forecastdata_url(
     year: int, month: int, forecast_type: str, table: str
 ) -> str:
@@ -137,20 +159,10 @@ def _construct_sqlloader_forecastdata_url(
     Handles exceptions to naming rules for `PREDISPATCH`
 
     Args:
-        year: Year
-        month: Month
-        forecast_type: `P5MIN`, `PREDISPATCH`, `PDPASA`, `STPASA` or `MTPASA`
-        table: The name of the table required
-    Returns:
-        URL pointing to forecast data zipfile on NEMWeb
     """
     base_url = _construct_sqlloader_yearmonth_url(year, month)
-    (stryear, strmonth) = (str(year), str(month).rjust(2, "0"))
-    if forecast_type == "PREDISPATCH" and forecast_type != "MNSPBIDTRK":
-        prefix = f"PUBLIC_DVD_{forecast_type}{table}"
-    else:
-        prefix = f"PUBLIC_DVD_{forecast_type}_{table}"
-    url = base_url + prefix + f"_{stryear}{strmonth}010000.zip"
+    fn = _construct_sqlloader_filename(year, month, forecast_type, table)
+    url = base_url + fn + ".zip"
     return url
 
 
@@ -355,6 +367,7 @@ class ForecastTypeDownloader:
         tables = loader.tables
         if "CONSTRAINTSOLUTION" in tables:
             tables = _enumerate_tables(tables, "CONSTRAINTSOLUTION", 4)
+
         return cls(
             forecast_start=loader.forecast_start,
             forecast_end=loader.forecast_end,
@@ -363,19 +376,30 @@ class ForecastTypeDownloader:
             raw_cache=loader.raw_cache,
         )
 
-    def download_zip(self):
-        """Downloads zip files given query loaded into ForecastTypeDownloader"""
+    def download_csv(self):
+        """Downloads and unzips zip files given query loaded into ForecastTypeDownloader
+
+        This method will only download and unzip the relevant zip/csv if the
+        corresponding `.parquet` file is not located in the specified `raw_cache`.
+        """
         intervening_dates = rrule.rrule(
             rrule.MONTHLY, dtstart=self.forecast_start, until=self.forecast_end
         )
         for table in self.tables:
             for date in intervening_dates:
                 (year, month) = (date.year, date.month)
-                url = _construct_sqlloader_forecastdata_url(
+                fname = _construct_sqlloader_filename(
                     year, month, self.forecast_type, table
                 )
-                logger.info(f"Downloading and unzipping {table} for {month}/{year}")
-                get_unzipped_csv(url, self.raw_cache)
+                if (self.raw_cache / Path(fname + ".parquet")).exists():
+                    logging.info(f"{table} for {month}/{year} in raw_cache")
+                    continue
+                else:
+                    url = _construct_sqlloader_forecastdata_url(
+                        year, month, self.forecast_type, table
+                    )
+                    logger.info(f"Downloading and unzipping {table} for {month}/{year}")
+                    get_unzipped_csv(url, self.raw_cache)
 
     def convert_to_parquet(self):
         """Converts all CSVs in the `raw_cache` to parquet
