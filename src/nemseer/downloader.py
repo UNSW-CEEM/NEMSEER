@@ -365,7 +365,7 @@ class ForecastTypeDownloader:
     def from_Loader(cls, loader: Loader):
         """Constructor method for ForecastTypeDownloader from Loader."""
         tables = loader.tables
-        if "CONSTRAINTSOLUTION" in tables:
+        if "CONSTRAINTSOLUTION" in tables and loader.forecast_type == "P5MIN":
             tables = _enumerate_tables(tables, "CONSTRAINTSOLUTION", 4)
 
         return cls(
@@ -401,7 +401,7 @@ class ForecastTypeDownloader:
                     logger.info(f"Downloading and unzipping {table} for {month}/{year}")
                     get_unzipped_csv(url, self.raw_cache)
 
-    def convert_to_parquet(self):
+    def convert_to_parquet(self, keep_csv=False):
         """Converts all CSVs in the `raw_cache` to parquet
 
         Logs a warning if the filesize is greater than half of available memory.
@@ -418,4 +418,5 @@ class ForecastTypeDownloader:
             df = clean_forecast_csv(csv)
             parquet_name = csv.name[0:-3] + "parquet"
             df.to_parquet(csv.with_name(parquet_name))
-            csv.unlink()
+            if not keep_csv:
+                csv.unlink()
