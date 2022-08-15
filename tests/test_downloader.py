@@ -133,7 +133,7 @@ class TestForecastTypeDownloader:
         for forecast_type in ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA"):
             loader = self.casesolution_loader(tmp_path, forecast_type)
             downloader = ForecastTypeDownloader.from_Loader(loader)
-            downloader.download_zip()
+            downloader.download_csv()
             downloader.convert_to_parquet()
         path = pathlib.Path(tmp_path)
         assert len(list(path.iterdir())) == 5
