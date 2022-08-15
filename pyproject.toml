@@ -62,6 +62,7 @@ isort = "^5.10.1"
 pre-commit = "^2.20.0"
 
 # Packages for developers for testing
+types-tqdm = "^4.64.4"
 [tool.poetry.group.test]
 optional = true
 

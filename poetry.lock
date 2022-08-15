@@ -1745,6 +1745,14 @@ python-versions = "*"
 types-urllib3 = "<1.27"
 
 [[package]]
+name = "types-tqdm"
+version = "4.64.4"
+description = "Typing stubs for tqdm"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "types-urllib3"
 version = "1.26.22"
 description = "Typing stubs for urllib3"
@@ -1853,7 +1861,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = ">= 3.8, < 3.11"
-content-hash = "fb838b952a737e56ecd5bdf8d55d9db5b90bdace532cebd74602157ad9607b70"
+content-hash = "aba652b4afb8bc7bcf8eb2cb1861568aa8999514d4019c4f59360183207471d3"
 
 [metadata.files]
 alabaster = []
@@ -1995,6 +2003,7 @@ types-psutil = []
 types-python-dateutil = []
 types-pytz = []
 types-requests = []
+types-tqdm = []
 types-urllib3 = []
 typing-extensions = []
 urllib3 = []
