@@ -51,6 +51,7 @@ nemseer.download_raw_data(
     forecast_type = "P5MIN",
     tables = "REGIONSOLUTION",
     raw_cache = "/my/raw/cache/",
+    keep_csv = False
 )
 ```
 
@@ -69,7 +70,7 @@ nemseer.download_raw_data(
 )
 ```
 
-You can also query multiple tables for a given forecast type:
+You can also query multiple tables for a given forecast type, and keep downloaded csvs:
 
 ```python
 import nemseer
@@ -81,6 +82,7 @@ nemseer.download_raw_data(
     "P5MIN",
     ["REGIONSOLUTION", "CASESOLUTION"],
     "/my/raw/cache/",
+    keep_csv = True
 )
 ```
 
