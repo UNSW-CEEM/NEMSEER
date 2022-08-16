@@ -24,7 +24,7 @@ def download_raw_data(
         forecasted_start: Forecasts pertaining to times at or after this
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
-            datetime are retaned.
+            datetime are retained.
         forecast_type: `MTPASA`, `STPASA`, `PDPASA`, `PREDISPATCH` or `P5MIN`.
         tables: Table or tables required. A single table can be supplied as
             a string. Multiple tables can be supplied as a list of strings.
@@ -39,6 +39,9 @@ def download_raw_data(
         tables=tables,
         raw_cache=raw_cache,
     )
-    downloader = ForecastTypeDownloader.from_Loader(loader)
-    downloader.download_csv()
-    downloader.convert_to_parquet(keep_csv=keep_csv)
+    if loader.check_data_in_cache():
+        pass
+    else:
+        downloader = ForecastTypeDownloader.from_Loader(loader)
+        downloader.download_csv()
+        downloader.convert_to_parquet(keep_csv=keep_csv)
