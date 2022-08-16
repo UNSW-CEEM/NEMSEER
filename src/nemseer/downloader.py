@@ -11,12 +11,11 @@ import psutil
 import requests
 from attrs import define, field
 from bs4 import BeautifulSoup
-from dateutil import rrule
 from tqdm.auto import tqdm
 
-from .data_handlers import clean_forecast_csv, _construct_sqlloader_filename
+from .data_handlers import clean_forecast_csv
 from .downloader_helpers.data import MMSDM_ARCHIVE_URL, USER_AGENTS
-from .loader import Loader
+from .loader import Loader, _construct_sqlloader_filename, generate_sqlloader_filenames
 
 logger = logging.getLogger(__name__)
 
@@ -360,24 +359,21 @@ class ForecastTypeDownloader:
         This method will only download and unzip the relevant zip/csv if the
         corresponding `.parquet` file is not located in the specified `raw_cache`.
         """
-        intervening_dates = rrule.rrule(
-            rrule.MONTHLY, dtstart=self.forecast_start, until=self.forecast_end
+        yearmonths, fnames = generate_sqlloader_filenames(
+            self.forecast_start, self.forecast_end, self.forecast_type, self.tables
         )
-        for table in self.tables:
-            for date in intervening_dates:
-                (year, month) = (date.year, date.month)
-                fname = _construct_sqlloader_filename(
+        for ((year, month), fname) in zip(yearmonths, fnames):
+            raw_table = match(f"^PUBLIC_DVD_{self.forecast_type}(.*)_[0-9]*$", fname)
+            table = raw_table.group(1).lstrip("_")
+            if (self.raw_cache / Path(fname + ".parquet")).exists():
+                logging.info(f"{table} for {month}/{year} in raw_cache")
+                continue
+            else:
+                url = _construct_sqlloader_forecastdata_url(
                     year, month, self.forecast_type, table
                 )
-                if (self.raw_cache / Path(fname + ".parquet")).exists():
-                    logging.info(f"{table} for {month}/{year} in raw_cache")
-                    continue
-                else:
-                    url = _construct_sqlloader_forecastdata_url(
-                        year, month, self.forecast_type, table
-                    )
-                    logger.info(f"Downloading and unzipping {table} for {month}/{year}")
-                    get_unzipped_csv(url, self.raw_cache)
+                logger.info(f"Downloading and unzipping {table} for {month}/{year}")
+                get_unzipped_csv(url, self.raw_cache)
 
     def convert_to_parquet(self, keep_csv=False):
         """Converts all CSVs in the `raw_cache` to parquet
