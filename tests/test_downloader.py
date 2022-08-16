@@ -5,7 +5,6 @@ import pytest
 from nemseer.downloader import (
     ForecastTypeDownloader,
     _construct_sqlloader_forecastdata_url,
-    _enumerate_tables,
     get_sqlloader_forecast_tables,
     get_sqlloader_years_and_months,
 )
@@ -45,17 +44,6 @@ def test_table_fetch_for_p5min(get_test_year_and_month):
             "INTERCONNECTORSOLN",
         ]
     )
-
-
-def test_enumerate_tables():
-    tables = ["REGIONDISPATCH", "DISPATCHLOAD", "testing"]
-    table_str = "testing"
-    assert _enumerate_tables(tables, table_str, 2) == [
-        "REGIONDISPATCH",
-        "DISPATCHLOAD",
-        "testing1",
-        "testing2",
-    ]
 
 
 class TestForecastTypeDownloader:

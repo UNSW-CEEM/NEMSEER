@@ -15,7 +15,12 @@ from tqdm.auto import tqdm
 
 from .data_handlers import clean_forecast_csv
 from .downloader_helpers.data import MMSDM_ARCHIVE_URL, USER_AGENTS
-from .loader import Loader, _construct_sqlloader_filename, generate_sqlloader_filenames
+from .loader import (
+    Loader,
+    _construct_sqlloader_filename,
+    _enumerate_tables,
+    generate_sqlloader_filenames,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -291,25 +296,6 @@ def get_unzipped_csv(url: str, raw_cache: Path) -> None:
         Path(file_path).unlink()
     else:
         raise ValueError(f"Unexpected contents in zipfile from {url}")
-
-
-def _enumerate_tables(tables: List[str], table_str: str, range_to: int):
-    """Given a table name, populates a list with enumerated table names
-
-    For example, given 'CONSTRAINTSOLUTION' and `range_to`=3, will populate
-    `tables` with ['CONSTRAINTSOLUTION1',...,'CONSTRAINTSOLUTION3'].
-
-    Args:
-        tables: Table list
-        table_str: Table string to enumerate
-        range_to: Integer to enumerate to
-    Returns:
-        `tables` with enumerated `table_str`
-    """
-    tables.remove(table_str)
-    for i in range(1, range_to + 1):
-        tables.append(f"{table_str}{i}")
-    return tables
 
 
 def _validate_tables_on_forecast_start(instance, attribute, value):

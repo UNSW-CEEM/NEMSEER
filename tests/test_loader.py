@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from nemseer.loader import Loader, _dt_converter, _tablestr_converter
+from nemseer.loader import Loader, _dt_converter, _tablestr_converter, _enumerate_tables
 
 
 def test_minimal_dateinput():
@@ -16,6 +16,17 @@ def test_tablestr_converter():
 
 def test_tablstr_redundant_conversion():
     assert _tablestr_converter(["sdfs"]) == ["sdfs"]
+
+
+def test_enumerate_tables():
+    tables = ["REGIONDISPATCH", "DISPATCHLOAD", "testing"]
+    table_str = "testing"
+    assert _enumerate_tables(tables, table_str, 2) == [
+        "REGIONDISPATCH",
+        "DISPATCHLOAD",
+        "testing1",
+        "testing2",
+    ]
 
 
 class TestLoader:

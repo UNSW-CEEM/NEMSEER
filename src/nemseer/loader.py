@@ -80,6 +80,25 @@ def _validate_raw_not_processed(instance, attribute, value):
             )
 
 
+def _enumerate_tables(tables: List[str], table_str: str, range_to: int):
+    """Given a table name, populates a list with enumerated table names
+
+    For example, given 'CONSTRAINTSOLUTION' and `range_to`=3, will populate
+    `tables` with ['CONSTRAINTSOLUTION1',...,'CONSTRAINTSOLUTION3'].
+
+    Args:
+        tables: Table list
+        table_str: Table string to enumerate
+        range_to: Integer to enumerate to
+    Returns:
+        `tables` with enumerated `table_str`
+    """
+    tables.remove(table_str)
+    for i in range(1, range_to + 1):
+        tables.append(f"{table_str}{i}")
+    return tables
+
+
 def _construct_sqlloader_filename(
     year: int, month: int, forecast_type: str, table: str
 ) -> str:
@@ -124,6 +143,8 @@ def generate_sqlloader_filenames(
     )
     year_months = []
     fnames = []
+    if "CONSTRAINTSOLUTION" in tables and forecast_type == "P5MIN":
+        tables = _enumerate_tables(tables, "CONSTRAINTSOLUTION", 4)
     for table in tables:
         for date in intervening_dates:
             (year, month) = (date.year, date.month)
@@ -229,10 +250,21 @@ class Loader:
         )
 
     def check_data_in_cache(self) -> bool:
-        """Checks whether *all* requested data is already in the `raw_cache`
+        """Checks whether *all* requested data is already in the `raw_cache` as parquet
 
         `downloader` methods handle partial `raw_cache` completeness
 
-        If all requested data is already in the `raw_cache`, returns True
+        If all requested data is already in the `raw_cache` as parquet, returns True
         Otherwise returns False.
         """
+        _, fnames = generate_sqlloader_filenames(
+            self.forecast_start, self.forecast_end, self.forecast_type, self.tables
+        )
+        check = [
+            (self.raw_cache / Path(fname + ".parquet")).exists() for fname in fnames
+        ]
+        if all(check):
+            logging.info(f"Query raw data already downloaded to {self.raw_cache}")
+            return True
+        else:
+            return False
