@@ -12,7 +12,7 @@ def download_raw_data(
     forecast_type: str,
     tables: Union[str, List[str]],
     raw_cache: str,
-    keep_csv: bool = False
+    keep_csv: bool = False,
 ) -> None:
     """Downloads raw forecast data from NEMWeb MMSDM Historical Data SQLLoader
 
