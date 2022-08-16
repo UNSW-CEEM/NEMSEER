@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 from dateutil import rrule
 from tqdm.auto import tqdm
 
-from .data_handlers import clean_forecast_csv
+from .data_handlers import clean_forecast_csv, _construct_sqlloader_filename
 from .downloader_helpers.data import MMSDM_ARCHIVE_URL, USER_AGENTS
 from .loader import Loader
 
@@ -127,28 +127,6 @@ def _construct_sqlloader_yearmonth_url(year: int, month: int) -> str:
         + "DATA/"
     )
     return url
-
-
-def _construct_sqlloader_filename(
-    year: int, month: int, forecast_type: str, table: str
-) -> str:
-    """ Constructs filename without file type
-
-    Args:
-        year: Year
-        month: Month
-        forecast_type: `P5MIN`, `PREDISPATCH`, `PDPASA`, `STPASA` or `MTPASA`
-        table: The name of the table required
-    Returns:
-        Filename string without file type
-    """
-    (stryear, strmonth) = (str(year), str(month).rjust(2, "0"))
-    if forecast_type == "PREDISPATCH" and table != "MNSPBIDTRK":
-        prefix = f"PUBLIC_DVD_{forecast_type}{table}"
-    else:
-        prefix = f"PUBLIC_DVD_{forecast_type}_{table}"
-    fn = prefix + f"_{stryear}{strmonth}010000"
-    return fn
 
 
 def _construct_sqlloader_forecastdata_url(
