@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from nemseer.loader import Loader, _dt_converter, _tablestr_converter, _enumerate_tables
+from nemseer.loader import Loader, _dt_converter, _enumerate_tables, _tablestr_converter
 
 
 def test_minimal_dateinput():
@@ -37,7 +37,7 @@ class TestLoader:
     backward_dates = ("03/06/2022 12:00", "06/03/2022 12:00")
     backward_dates_pair = ("04/06/2022 12:00", "07/03/2022 12:00")
 
-    def test_same_forecast_dates(self):
+    def test_same_forecast_dates(self, tmp_path):
         obj = Loader.initialise(
             self.same_forecast_dates[0],
             self.same_forecast_dates[1],
@@ -45,10 +45,11 @@ class TestLoader:
             self.consecutive_dates[1],
             "PREDISPATCH",
             "CONSTRAINT_D",
+            tmp_path,
         )
         assert type(obj) is Loader
 
-    def test_same_forecasted_dates(self):
+    def test_same_forecasted_dates(self, tmp_path):
         obj = Loader.initialise(
             self.consecutive_dates[0],
             self.consecutive_dates[1],
@@ -56,10 +57,11 @@ class TestLoader:
             self.same_forecasted_dates[1],
             "PREDISPATCH",
             "CONSTRAINT_D",
+            tmp_path,
         )
         assert type(obj) is Loader
 
-    def test_all_same_dates(self):
+    def test_all_same_dates(self, tmp_path):
         with pytest.raises(ValueError):
             Loader.initialise(
                 self.same_forecast_dates[0],
@@ -68,9 +70,10 @@ class TestLoader:
                 self.same_forecast_dates[1],
                 "PREDISPATCH",
                 "CONSTRAINT_D",
+                tmp_path,
             )
 
-    def test_incorrect_forecast_chronology(self):
+    def test_incorrect_forecast_chronology(self, tmp_path):
         with pytest.raises(ValueError):
             Loader.initialise(
                 self.backward_dates[0],
@@ -79,9 +82,10 @@ class TestLoader:
                 self.backward_dates_pair[1],
                 "PREDISPATCH",
                 "CONSTRAINT_D",
+                tmp_path,
             )
 
-    def test_incorrect_forecasted_chronology(self):
+    def test_incorrect_forecasted_chronology(self, tmp_path):
         with pytest.raises(ValueError):
             Loader.initialise(
                 self.same_forecast_dates[0],
@@ -90,9 +94,10 @@ class TestLoader:
                 self.backward_dates[1],
                 "PREDISPATCH",
                 "CONSTRAINT_D",
+                tmp_path,
             )
 
-    def test_incorrect_relative_chronology(self):
+    def test_incorrect_relative_chronology(self, tmp_path):
         with pytest.raises(ValueError):
             Loader.initialise(
                 self.backward_dates[0],
@@ -101,9 +106,10 @@ class TestLoader:
                 self.backward_dates_pair[1],
                 "PREDISPATCH",
                 "CONSTRAINT_D",
+                tmp_path,
             )
 
-    def test_enumerated_tables(self):
+    def test_enumerated_tables(self, tmp_path):
         obj = Loader.initialise(
             self.same_forecast_dates[0],
             self.same_forecast_dates[1],
@@ -111,6 +117,7 @@ class TestLoader:
             self.consecutive_dates[1],
             "P5MIN",
             "CONSTRAINTSOLUTION",
+            tmp_path,
         )
         assert obj.tables == ["CONSTRAINTSOLUTION"]
 
@@ -161,7 +168,7 @@ class TestLoader:
             )
 
     @pytest.mark.xfail(raises=ValueError)
-    def test_mtpasa_duidavailability(self):
+    def test_mtpasa_duidavailability(self, tmp_path):
         Loader.initialise(
             self.backward_dates[0],
             self.backward_dates_pair[0],
@@ -169,4 +176,5 @@ class TestLoader:
             self.backward_dates_pair[1],
             "MTPASA",
             "DUIDAVAILABILITY",
+            tmp_path,
         )

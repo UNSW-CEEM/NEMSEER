@@ -202,12 +202,11 @@ class Loader:
     )
     tables: List[str] = field(converter=_tablestr_converter)
     metadata: Dict
-    raw_cache: Optional[str] = field(
-        default=None,
-        converter=converters.optional(Path),
+    raw_cache: str = field(
+        converter=Path,
         validator=[
-            validators.optional(_validate_path),
-            validators.optional(_validate_raw_not_processed),
+            _validate_path,
+            _validate_raw_not_processed,
         ],
     )
     processed_cache: Optional[str] = field(
@@ -225,7 +224,7 @@ class Loader:
         forecasted_end: str,
         forecast_type: str,
         tables: Union[str, List[str]],
-        raw_cache: Optional[str] = None,
+        raw_cache: str,
         processed_cache: Optional[str] = None,
     ) -> "Loader":
         """Constructor method for Loader. Assembles query metatdata."""
