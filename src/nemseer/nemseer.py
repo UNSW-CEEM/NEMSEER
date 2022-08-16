@@ -12,6 +12,7 @@ def download_raw_data(
     forecast_type: str,
     tables: Union[str, List[str]],
     raw_cache: str,
+    keep_csv: bool = False
 ) -> None:
     """Downloads raw forecast data from NEMWeb MMSDM Historical Data SQLLoader
 
@@ -40,4 +41,4 @@ def download_raw_data(
     )
     downloader = ForecastTypeDownloader.from_Loader(loader)
     downloader.download_csv()
-    downloader.convert_to_parquet()
+    downloader.convert_to_parquet(keep_csv=keep_csv)
