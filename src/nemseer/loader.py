@@ -1,9 +1,10 @@
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Union
+from typing import Dict, List, Optional, Tuple, Union
 
 from attrs import converters, define, field, validators
+from dateutil import rrule
 
 logger = logging.getLogger(__name__)
 
@@ -77,6 +78,59 @@ def _validate_raw_not_processed(instance, attribute, value):
             raise ValueError(
                 f"{attribute.name} should be distinct from processed_cache"
             )
+
+
+def _construct_sqlloader_filename(
+    year: int, month: int, forecast_type: str, table: str
+) -> str:
+    """Constructs filename without file type
+
+    Args:
+        year: Year
+        month: Month
+        forecast_type: `P5MIN`, `PREDISPATCH`, `PDPASA`, `STPASA` or `MTPASA`
+        table: The name of the table required
+    Returns:
+        Filename string without file type
+    """
+    (stryear, strmonth) = (str(year), str(month).rjust(2, "0"))
+    if forecast_type == "PREDISPATCH" and table != "MNSPBIDTRK":
+        prefix = f"PUBLIC_DVD_{forecast_type}{table}"
+    else:
+        prefix = f"PUBLIC_DVD_{forecast_type}_{table}"
+    fn = prefix + f"_{stryear}{strmonth}010000"
+    return fn
+
+
+def generate_sqlloader_filenames(
+    forecast_start: datetime,
+    forecast_end: datetime,
+    forecast_type: str,
+    tables: List[str],
+) -> Tuple[List[Tuple[int, int]], List[str]]:
+    """Generates a list of MMSDM Historical Data SQLLoader file names based on query
+
+    Args:
+        forecast_start: Forecasts made at or after this datetime are queried.
+        forecast_end: Forecasts made before or at this datetime are queried.
+        forecast_type: `MTPASA`, `STPASA`, `PDPASA`, `PREDISPATCH` or `P5MIN`.
+        tables: Table or tables required, provided as a List.
+    Returns:
+        A list of year-month tuples and corresponding format-agnostic
+        (SQLLOader) filenames
+    """
+    intervening_dates = rrule.rrule(
+        rrule.MONTHLY, dtstart=forecast_start, until=forecast_end
+    )
+    year_months = []
+    fnames = []
+    for table in tables:
+        for date in intervening_dates:
+            (year, month) = (date.year, date.month)
+            fname = _construct_sqlloader_filename(year, month, forecast_type, table)
+            fnames.append(fname)
+            year_months.append((year, month))
+    return year_months, fnames
 
 
 @define
@@ -173,3 +227,12 @@ class Loader:
             raw_cache=raw_cache,
             processed_cache=processed_cache,
         )
+
+    def check_data_in_cache(self) -> bool:
+        """Checks whether *all* requested data is already in the `raw_cache`
+
+        `downloader` methods handle partial `raw_cache` completeness
+
+        If all requested data is already in the `raw_cache`, returns True
+        Otherwise returns False.
+        """
