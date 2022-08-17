@@ -67,9 +67,9 @@ Ready to contribute? Here's how to set up `nemseer` for local development.
       - `test` for testing utilities
       - (optional) `debug` for debugging tools
 
-    ```console
-    $ poetry install --with=docs,lint,test
-    ```
+        ```console
+        $ poetry install --with=docs,lint,test
+        ```
 
     - If you are on Windows and attempting to install dependencies results in an error such as the one below, refer to the [fix below](https://github.com/UNSW-CEEM/NEMSEER/blob/master/CONTRIBUTING.md#fix-for-running-poetry-on-windows):
 
