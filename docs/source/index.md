@@ -1,13 +1,15 @@
+```{include} readme.md
+```
 
-# Welcome to NEMSEER's documentation!
+# Full table of contents
 
 ```{toctree}
 ---
 maxdepth: 3
 caption: Contents
 ---
-nemseer.md
-api.md
+nemseer
+api
 ```
 
 # Indices and tables
