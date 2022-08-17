@@ -293,6 +293,7 @@ def get_unzipped_csv(url: str, raw_cache: Path) -> None:
         and (fn.group(1) == zfn.group(1))
     ):
         z.extractall(raw_cache)
+        z.close()
         Path(file_path).unlink()
     else:
         raise ValueError(f"Unexpected contents in zipfile from {url}")
