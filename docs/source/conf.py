@@ -87,6 +87,8 @@ myst_enable_extensions = [
     "deflist",
 ]
 
+myst_heading_anchors = 3
+
 # --  Todo options------------------------------------------------------------
 
 todo_include_todos = True
