@@ -45,11 +45,19 @@ Ready to contribute? Here's how to set up `nemseer` for local development.
 1. Download a copy of `nemseer` locally.
 2. Install `poetry`
     - `poetry` is changing the way dependencies are managed, so as of July 2022, install `v1.2.0b2` (we will transition to `v1.2.0` once it is released)
-    - The command below applies to UNIX systems. For Windows, refer to the [`poetry` docs](https://python-poetry.org/docs/master/#installation)
+    - The command below applies to UNIX systems (Mac/Linux)
 
         ```console
         $ curl -sSL https://install.python-poetry.org | python3 - --version 1.2.0b2
         ```
+        
+    - The command below applies to Windows
+      - You will also need to add the Poetry bin directory (printed during install) [to your PATH environment variable](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho)
+
+        ```powershell
+        (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py - --version=1.2.0b2
+        ```
+      
 4. Install `nemseer` using `poetry`:
     - Developers should install additional `poetry` groups for development:
       - `docs` for documentation dependencies
