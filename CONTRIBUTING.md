@@ -54,6 +54,7 @@ Ready to contribute? Here's how to set up `nemseer` for local development.
 
     - The command below applies to Windows. Run it in PowerShell (make sure you run PowerShell as an administrator).
       - You will also need to add the Poetry bin directory (printed during install) [to your PATH environment variable](https://stackoverflow.com/questions/44272416/how-to-add-a-folder-to-path-environment-variable-in-windows-10-with-screensho)
+      - For activating environments etc. you may need to alter your [PowerShell Execution Policy to `RemoteSigned`](https://windowsloop.com/change-powershell-execution-policy/)
 
         ```powershell
           (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py - --version=1.2.0b2
@@ -86,6 +87,7 @@ Ready to contribute? Here's how to set up `nemseer` for local development.
       else:
           print(sys.prefix)
       ```
+    - Use the virtual env in your terminal by running `poetry shell`, or direct your favourite text editor to the poetry environment
 
 4. Use `git` (or similar) to create a branch for local development and make your changes:
 
