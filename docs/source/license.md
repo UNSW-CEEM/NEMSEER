@@ -1,6 +1,0 @@
----
-orphan: true
----
-
-```{include} ../../LICENSE
-```

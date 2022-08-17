@@ -10,7 +10,7 @@ A package for downloading and handling forecasts for the National Electricity Ma
 
 ## Work in Progress
 
-This package is a work in progress. For a high-level overview of development, check out the [roadmap](docs/source/roadmap.md).
+This package is a work in progress. For a high-level overview of development, check out the [roadmap](./ROADMAP.md).
 
 ## Installation
 
@@ -145,13 +145,13 @@ nemseer.get_tables(2022, 1, "STPASA")
 
 ## Contributing
 
-Interested in contributing? Check out the [contributing guidelines](docs/source/contributing.md), which also includes steps to install `nemseer` for development.
+Interested in contributing? Check out the [contributing guidelines](./CONTRIBUTING.md), which also includes steps to install `nemseer` for development.
 
-Please note that this project is released with a [Code of Conduct](docs/source/conduct.md). By contributing to this project, you agree to abide by its terms.
+Please note that this project is released with a [Code of Conduct](./CONDUCT.md). By contributing to this project, you agree to abide by its terms.
 
 ## License
 
-`nemseer` was created by Abhijith Prakash. It is licensed under the terms of the [BSD 3-Clause license](docs/source/license.md).
+`nemseer` was created by Abhijith Prakash. It is licensed under the terms of the [BSD 3-Clause license](./LICENSE).
 
 ## Credits
 
