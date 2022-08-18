@@ -119,8 +119,9 @@ jobs:
       # Run doctests
       - name: Run doctests
         run: |
+          poetry shell
           cd docs/
-          poetry run make doctest
+          make doctest
 
       # Code coverage to codecov.io
       - uses: codecov/codecov-action@v3
