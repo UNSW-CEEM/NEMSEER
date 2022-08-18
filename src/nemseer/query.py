@@ -13,15 +13,15 @@ def _dt_converter(value: str) -> datetime:
     """Convert string to datetime.
 
     Args:
-        value: String with format %d/%m/%Y %H:%M
+        value: String with format %Y/%m/%d %H:%M
     Returns:
         Datetime object
     """
     try:
-        format = "%d/%m/%Y %H:%M"
+        format = "%Y/%m/%d %H:%M"
         return datetime.strptime(value, format)
     except ValueError:
-        raise ValueError("Datetime should be provided as follows: dd/mm/yyyy hh:mm")
+        raise ValueError("Datetime should be provided as follows: yyyy/mm/dd HH:MM")
 
 
 def _tablestr_converter(value: Union[str, List[str]]) -> List[str]:
@@ -164,7 +164,7 @@ class Query:
     Query:
 
     - Validates user input data
-        - Checks datetime are dd/mm/yyyy HH:MM
+        - Checks datetime are yyyy/mm/dd HH:MM
         - Checks datetime chronology (e.g. end is after start)
         - Validates `forecast_type`
         - *Validates user-supplied tables against what is available on NEMWeb*

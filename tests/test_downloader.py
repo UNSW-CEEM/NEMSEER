@@ -47,10 +47,10 @@ def test_table_fetch_for_p5min(get_test_year_and_month):
 
 
 class TestForecastTypeDownloader:
-    forecast_start = "01/02/2021 00:00"
-    forecast_end = "05/02/2021 00:00"
-    forecasted_start = "08/02/2021 00:00"
-    forecasted_end = "08/02/2021 23:55"
+    forecast_start = "2021/02/01 00:00"
+    forecast_end = "2021/02/05 00:00"
+    forecasted_start = "2021/02/08 00:00"
+    forecasted_end = "2021/02/08 23:55"
 
     def valid_query(self, cache):
         return Query.initialise(

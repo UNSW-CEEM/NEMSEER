@@ -6,7 +6,7 @@ from nemseer.query import Query, _dt_converter, _enumerate_tables, _tablestr_con
 
 
 def test_minimal_dateinput():
-    min_dt = _dt_converter("1/2/2021 2:3")
+    min_dt = _dt_converter("2021/2/1 2:3")
     assert min_dt == datetime(2021, 2, 1, 2, 3)
 
 
@@ -30,12 +30,12 @@ def test_enumerate_tables():
 
 
 class TestQuery:
-    same_forecast_dates = ("01/02/2021 02:03", "01/02/2021 02:03")
-    consecutive_dates = ("05/12/2021 23:03", "05/12/2021 23:04")
-    same_forecasted_dates = ("06/12/2021 02:03", "06/12/2021 02:03")
+    same_forecast_dates = ("2021/02/01 02:03", "2021/02/01 02:03")
+    consecutive_dates = ("2021/12/05 23:03", "2021/12/05 23:04")
+    same_forecasted_dates = ("2021/12/06 02:03", "2021/12/06 02:03")
 
-    backward_dates = ("03/06/2022 12:00", "06/03/2022 12:00")
-    backward_dates_pair = ("04/06/2022 12:00", "07/03/2022 12:00")
+    backward_dates = ("2022/06/03 12:00", "2022/03/06 12:00")
+    backward_dates_pair = ("2022/06/04 12:00", "2022/03/07 12:00")
 
     def test_same_forecast_dates(self, tmp_path):
         obj = Query.initialise(
