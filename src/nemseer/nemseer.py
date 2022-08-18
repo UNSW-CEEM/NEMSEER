@@ -1,7 +1,7 @@
 from typing import List, Union
 
 from .downloader import ForecastTypeDownloader
-from .loader import Loader
+from .query import Query
 
 
 def download_raw_data(
@@ -30,7 +30,7 @@ def download_raw_data(
             a string. Multiple tables can be supplied as a list of strings.
         raw_cache: Path to download files
     """
-    loader = Loader.initialise(
+    query = Query.initialise(
         forecast_start=forecast_start,
         forecast_end=forecast_end,
         forecasted_start=forecasted_start,
@@ -39,9 +39,9 @@ def download_raw_data(
         tables=tables,
         raw_cache=raw_cache,
     )
-    if loader.check_data_in_cache():
+    if query.check_data_in_cache():
         pass
     else:
-        downloader = ForecastTypeDownloader.from_Loader(loader)
+        downloader = ForecastTypeDownloader.from_Query(query)
         downloader.download_csv()
         downloader.convert_to_parquet(keep_csv=keep_csv)

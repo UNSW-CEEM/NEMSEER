@@ -155,13 +155,13 @@ def generate_sqlloader_filenames(
 
 
 @define
-class Loader:
-    """`Loader` validates user inputs and dispatches data fetchers.
+class Query:
+    """`Query` validates user inputs and dispatches data fetchers.
 
-    Construct `Loader` using the `Loader.initialise()` constructor. This
+    Construct `Query` using the `Query.initialise()` constructor. This
     ensures query metadata is constructed approriately.
 
-    Loader:
+    Query:
 
     - Validates user input data
         - Checks datetime are dd/mm/yyyy HH:MM
@@ -181,7 +181,7 @@ class Loader:
         forecast_type: `MTPASA`, `STPASA`, `PDPASA`, `PREDISPATCH` or `P5MIN`.
         tables: Table or tables required. A single table can be supplied as
             a string. Multiple tables can be supplied as a list of strings.
-        metadata: Metadata dictionary. Constructed by `Loader.initialise()`.
+        metadata: Metadata dictionary. Constructed by `Query.initialise()`.
         raw_cache (optional): Path to build or reuse raw cache.
         processed_cache (optional): Path to build or reuse processed cache. Should be
           distinct from raw_cache
@@ -226,8 +226,8 @@ class Loader:
         tables: Union[str, List[str]],
         raw_cache: str,
         processed_cache: Optional[str] = None,
-    ) -> "Loader":
-        """Constructor method for Loader. Assembles query metatdata."""
+    ) -> "Query":
+        """Constructor method for Query. Assembles query metatdata."""
         metadata = {
             "forecast_start": forecast_start,
             "forecast_end": forecast_end,

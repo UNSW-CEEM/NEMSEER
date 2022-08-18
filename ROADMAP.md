@@ -10,10 +10,10 @@ Two types of functionality would be exposed:
 
 ### Automated workflow
 
-1. Loader is initialised with user input
+1. Query is initialised with user input
 2. Then:
-    a) Loader checks metadata of netCDF via`CompiledProcessedData`. If no such metadata exists, proceed to b).
-    b) Loader loads from the raw cache (via `CompiledRawData`), or dispatches a `ForecastTypeDownloader`. RawCache will consist of partioned parquet files (corresponding to original CSVs). Generic as well as forecast-specific validators should verify user inputs. Returns `CompiledRawData`.
+    a) Query checks metadata of netCDF via`CompiledProcessedData`. If no such metadata exists, proceed to b).
+    b) Query loads from the raw cache (via `CompiledRawData`), or dispatches a `ForecastTypeDownloader`. RawCache will consist of partioned parquet files (corresponding to original CSVs). Generic as well as forecast-specific validators should verify user inputs. Returns `CompiledRawData`.
 
 3. If 2(a), then passed to `AggregatedForecastbyType` for data aggregation, filtering and building to processed cache
 4. If 2(b), could then be passed to `AggregatedForecastbyType` for specific filtering?
@@ -34,7 +34,7 @@ By step 3/4, the datasets should be useful  enough to answer questions such as:
 ```mermaid
 classDiagram
 
-    class Loader{
+    class Query{
       +String forecast_type
       +datetime forecast_time_start
       +datetime forecast_time_end
@@ -121,10 +121,10 @@ classDiagram
 
     }
 
-    Loader -- ForecastTypeValidators :initialised by forecasttype_input_validation()\nOne for each forecast type
-    Loader -- RawCacheManager :initialised by load_from_rawcache()
-    Loader -- ProcessedCacheManager :initialised by check_processed_cache()
-    Loader -- ForecastTypeDownloader :initialised by download_and_convert_data()\nOne for each forecast_type
+    Query -- ForecastTypeValidators :initialised by forecasttype_input_validation()\nOne for each forecast type
+    Query -- RawCacheManager :initialised by load_from_rawcache()
+    Query -- ProcessedCacheManager :initialised by check_processed_cache()
+    Query -- ForecastTypeDownloader :initialised by download_and_convert_data()\nOne for each forecast_type
     AggregatedForecastbyType -- ProcessedCacheManager : initialised by compile_to_processed_cache()
     RawCacheManager -- CompiledRawData
     ForecastTypeDownloader --CompiledRawData

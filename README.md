@@ -141,8 +141,6 @@ import nemseer
 nemseer.get_tables(2022, 1, "STPASA")
 ```
 
-
-
 ## Contributing
 
 Interested in contributing? Check out the [contributing guidelines](./CONTRIBUTING.md), which also includes steps to install `nemseer` for development.

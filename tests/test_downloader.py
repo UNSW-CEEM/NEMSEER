@@ -9,7 +9,7 @@ from nemseer.downloader import (
     get_sqlloader_years_and_months,
 )
 from nemseer.downloader_helpers.data import MMSDM_ARCHIVE_URL
-from nemseer.loader import Loader
+from nemseer.query import Query
 
 
 def test_standard_sqlloader_url():
@@ -52,8 +52,8 @@ class TestForecastTypeDownloader:
     forecasted_start = "08/02/2021 00:00"
     forecasted_end = "08/02/2021 23:55"
 
-    def valid_loader(self, cache):
-        return Loader.initialise(
+    def valid_query(self, cache):
+        return Query.initialise(
             self.forecast_start,
             self.forecast_end,
             self.forecasted_start,
@@ -63,8 +63,8 @@ class TestForecastTypeDownloader:
             raw_cache=cache,
         )
 
-    def invalid_tables_loader(self, cache):
-        return Loader.initialise(
+    def invalid_tables_query(self, cache):
+        return Query.initialise(
             self.forecast_start,
             self.forecast_end,
             self.forecasted_start,
@@ -74,8 +74,8 @@ class TestForecastTypeDownloader:
             raw_cache=cache,
         )
 
-    def constraint_solution_loader(self, cache):
-        return Loader.initialise(
+    def constraint_solution_query(self, cache):
+        return Query.initialise(
             self.forecast_start,
             self.forecast_end,
             self.forecasted_start,
@@ -85,8 +85,8 @@ class TestForecastTypeDownloader:
             raw_cache=cache,
         )
 
-    def casesolution_loader(self, cache, forecast_type):
-        return Loader.initialise(
+    def casesolution_query(self, cache, forecast_type):
+        return Query.initialise(
             self.forecast_start,
             self.forecast_end,
             self.forecasted_start,
@@ -98,14 +98,14 @@ class TestForecastTypeDownloader:
 
     def test_invalid_tables(self, tmp_path):
         with pytest.raises(ValueError):
-            ForecastTypeDownloader.from_Loader(self.invalid_tables_loader(tmp_path))
+            ForecastTypeDownloader.from_Query(self.invalid_tables_query(tmp_path))
 
     def test_table_enumeration(self, tmp_path):
         """
         Add other initialisations if additional tables require enumeration
         """
-        ftd = ForecastTypeDownloader.from_Loader(
-            self.constraint_solution_loader(tmp_path)
+        ftd = ForecastTypeDownloader.from_Query(
+            self.constraint_solution_query(tmp_path)
         )
         to_check = set(
             [
@@ -119,8 +119,8 @@ class TestForecastTypeDownloader:
 
     def test_casesolution_download_and_to_parquet(self, tmp_path):
         for forecast_type in ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA"):
-            loader = self.casesolution_loader(tmp_path, forecast_type)
-            downloader = ForecastTypeDownloader.from_Loader(loader)
+            query = self.casesolution_query(tmp_path, forecast_type)
+            downloader = ForecastTypeDownloader.from_Query(query)
             downloader.download_csv()
             downloader.convert_to_parquet()
         path = pathlib.Path(tmp_path)

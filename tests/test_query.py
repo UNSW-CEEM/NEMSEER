@@ -2,7 +2,7 @@ from datetime import datetime
 
 import pytest
 
-from nemseer.loader import Loader, _dt_converter, _enumerate_tables, _tablestr_converter
+from nemseer.query import Query, _dt_converter, _enumerate_tables, _tablestr_converter
 
 
 def test_minimal_dateinput():
@@ -29,7 +29,7 @@ def test_enumerate_tables():
     ]
 
 
-class TestLoader:
+class TestQuery:
     same_forecast_dates = ("01/02/2021 02:03", "01/02/2021 02:03")
     consecutive_dates = ("05/12/2021 23:03", "05/12/2021 23:04")
     same_forecasted_dates = ("06/12/2021 02:03", "06/12/2021 02:03")
@@ -38,7 +38,7 @@ class TestLoader:
     backward_dates_pair = ("04/06/2022 12:00", "07/03/2022 12:00")
 
     def test_same_forecast_dates(self, tmp_path):
-        obj = Loader.initialise(
+        obj = Query.initialise(
             self.same_forecast_dates[0],
             self.same_forecast_dates[1],
             self.consecutive_dates[0],
@@ -47,10 +47,10 @@ class TestLoader:
             "CONSTRAINT_D",
             tmp_path,
         )
-        assert type(obj) is Loader
+        assert type(obj) is Query
 
     def test_same_forecasted_dates(self, tmp_path):
-        obj = Loader.initialise(
+        obj = Query.initialise(
             self.consecutive_dates[0],
             self.consecutive_dates[1],
             self.same_forecasted_dates[0],
@@ -59,11 +59,11 @@ class TestLoader:
             "CONSTRAINT_D",
             tmp_path,
         )
-        assert type(obj) is Loader
+        assert type(obj) is Query
 
     def test_all_same_dates(self, tmp_path):
         with pytest.raises(ValueError):
-            Loader.initialise(
+            Query.initialise(
                 self.same_forecast_dates[0],
                 self.same_forecast_dates[1],
                 self.same_forecast_dates[0],
@@ -75,7 +75,7 @@ class TestLoader:
 
     def test_incorrect_forecast_chronology(self, tmp_path):
         with pytest.raises(ValueError):
-            Loader.initialise(
+            Query.initialise(
                 self.backward_dates[0],
                 self.backward_dates[1],
                 self.backward_dates_pair[0],
@@ -87,7 +87,7 @@ class TestLoader:
 
     def test_incorrect_forecasted_chronology(self, tmp_path):
         with pytest.raises(ValueError):
-            Loader.initialise(
+            Query.initialise(
                 self.same_forecast_dates[0],
                 self.same_forecast_dates[1],
                 self.backward_dates[0],
@@ -99,7 +99,7 @@ class TestLoader:
 
     def test_incorrect_relative_chronology(self, tmp_path):
         with pytest.raises(ValueError):
-            Loader.initialise(
+            Query.initialise(
                 self.backward_dates[0],
                 self.backward_dates_pair[0],
                 self.backward_dates[1],
@@ -110,7 +110,7 @@ class TestLoader:
             )
 
     def test_enumerated_tables(self, tmp_path):
-        obj = Loader.initialise(
+        obj = Query.initialise(
             self.same_forecast_dates[0],
             self.same_forecast_dates[1],
             self.consecutive_dates[0],
@@ -126,7 +126,7 @@ class TestLoader:
         raw.mkdir()
         processed = tmp_path / "processed"
         processed.mkdir()
-        obj = Loader.initialise(
+        obj = Query.initialise(
             self.same_forecast_dates[0],
             self.same_forecast_dates[1],
             self.consecutive_dates[0],
@@ -136,13 +136,13 @@ class TestLoader:
             raw_cache=raw,
             processed_cache=processed,
         )
-        assert type(obj) is Loader
+        assert type(obj) is Query
 
     def test_distinct_dir_error(self, tmp_path):
         testdir = tmp_path / "same"
         testdir.mkdir()
         with pytest.raises(ValueError):
-            Loader.initialise(
+            Query.initialise(
                 self.same_forecast_dates[0],
                 self.same_forecast_dates[1],
                 self.consecutive_dates[0],
@@ -156,7 +156,7 @@ class TestLoader:
     def test_dir_creation(self, tmp_path):
         testdir = tmp_path / "yettobe"
         with pytest.raises(ValueError):
-            Loader.initialise(
+            Query.initialise(
                 self.same_forecast_dates[0],
                 self.same_forecast_dates[1],
                 self.consecutive_dates[0],
@@ -169,7 +169,7 @@ class TestLoader:
 
     @pytest.mark.xfail(raises=ValueError)
     def test_mtpasa_duidavailability(self, tmp_path):
-        Loader.initialise(
+        Query.initialise(
             self.backward_dates[0],
             self.backward_dates_pair[0],
             self.backward_dates[1],

@@ -6,21 +6,21 @@
 
 ## Classes
 
-### Loader Class
+### Query Class
 
 ```{note}
-Use the {meth}`initialise() <nemseer.loader.Loader.initialise()>` class method to create an instance of the {class}`Loader <nemseer.loader.Loader>` object, as this method assembles metadata relevant to NEMSEER cache searching.
+Use the {meth}`initialise() <nemseer.query.Query.initialise()>` class method to create an instance of the {class}`Query <nemseer.query.Query>` object, as this method assembles metadata relevant to NEMSEER cache searching.
 ```
 
 ```{eval-rst}
-.. autoclass:: nemseer.loader.Loader
+.. autoclass:: nemseer.query.Query
    :members:
 ```
 
 ### Downloader Class
 
 ```{note}
-Use the {meth}`from_Loader() <nemseer.downloader.ForecastTypeDownloader.from_Loader()>` class method to create an instance of the {class}`ForecastTypeLoader <nemseer.downloader.ForecastTypeDownloader>` object.
+Use the {meth}`from_Query() <nemseer.downloader.ForecastTypeDownloader.from_Query()>` class method to create an instance of the {class}`ForecastTypeLoader <nemseer.downloader.ForecastTypeDownloader>` object.
 ```
 
 ```{eval-rst}

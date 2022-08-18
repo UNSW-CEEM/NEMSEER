@@ -15,8 +15,8 @@ from tqdm.auto import tqdm
 
 from .data_handlers import clean_forecast_csv
 from .downloader_helpers.data import MMSDM_ARCHIVE_URL, USER_AGENTS
-from .loader import (
-    Loader,
+from .query import (
+    Query,
     _construct_sqlloader_filename,
     _enumerate_tables,
     generate_sqlloader_filenames,
@@ -303,7 +303,7 @@ def _validate_tables_on_forecast_start(instance, attribute, value):
     """Validates tables for the provided forecast type.
 
     Checks user-supplied tables against tables available in MMS Historical
-    Data SQL Loader for the month and year of forecast_start.
+    Data SQLLoader for the month and year of forecast_start.
     """
     start_dt = instance.forecast_start
     tables = _get_all_sqlloader_forecast_tables(
@@ -326,18 +326,18 @@ class ForecastTypeDownloader:
     raw_cache: Optional[str] = field(default=None)
 
     @classmethod
-    def from_Loader(cls, loader: Loader):
-        """Constructor method for ForecastTypeDownloader from Loader."""
-        tables = loader.tables
-        if "CONSTRAINTSOLUTION" in tables and loader.forecast_type == "P5MIN":
+    def from_Query(cls, query: Query):
+        """Constructor method for ForecastTypeDownquery from Query."""
+        tables = query.tables
+        if "CONSTRAINTSOLUTION" in tables and query.forecast_type == "P5MIN":
             tables = _enumerate_tables(tables, "CONSTRAINTSOLUTION", 4)
 
         return cls(
-            forecast_start=loader.forecast_start,
-            forecast_end=loader.forecast_end,
-            forecast_type=loader.forecast_type,
+            forecast_start=query.forecast_start,
+            forecast_end=query.forecast_end,
+            forecast_type=query.forecast_type,
             tables=tables,
-            raw_cache=loader.raw_cache,
+            raw_cache=query.raw_cache,
         )
 
     def download_csv(self):
