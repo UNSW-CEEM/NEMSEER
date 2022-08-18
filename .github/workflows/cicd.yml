@@ -107,9 +107,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
 
-      # Install poetry env with test group
+      # Install poetry env with test group and docs group for doctesting
       - name: Install poetry env with test group
-        run: poetry install --with=test
+        run: poetry install --with=test,docs
 
       # Run tests
       - name: Run tests
