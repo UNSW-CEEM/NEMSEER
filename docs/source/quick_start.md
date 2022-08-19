@@ -109,10 +109,12 @@ The years and months available via AEMO's MMSDM Historical Data SQLLoader can be
 
 You can also see which tables are available for a given year, month and forecast type.
 
-Below, we fetch STPASA tables available for January, 2022 (i.e. this month would include or be between `forecast_start` and `forecast_end`):
+Below, we fetch predispatch tables available for January, 2022 (i.e. this month would include or be between `forecast_start` and `forecast_end`):
 
 ```{doctest}
 >>> import nemseer
->>> nemseer.get_tables(2022, 1, "STPASA")
-[...]
+>>> nemseer.get_tables(2022, 1, "PREDISPATCH")
+['CASESOLUTION', 'CONSTRAINT', 'CONSTRAINT_D', 'INTERCONNECTORRES', 'INTERCONNECTORRES_D', 'INTERCONNECTR_SENS_D', 'LOAD', 'LOAD_D', 'MNSPBIDTRK', 'OFFERTRK', 'PRICE', 'PRICESENSITIVITIE_D', 'PRICE_D', 'REGIONSUM', 'REGIONSUM_D', 'SCENARIODEMAND', 'SCENARIODEMANDTRK']
 ```
+
+Note that for some pre-dispatch table (`CONSTRAINT`, `LOAD`, `PRICE`, `INTERCONNECTORRES` and `REGIONSUM`), there are two types of tables. Those ending with `_D` only contain the latest forecast for a particular interval.
