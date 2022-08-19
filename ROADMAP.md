@@ -5,6 +5,7 @@
 ### User Groups and Functionality
 
 Two types of functionality would be exposed:
+
 1. User functions (NEMOSIS-style) that enable the user to go end-to-end quickly. This would 'automate' the chain from raw cache/download to validation to aggregation to processed cache.
 2. Advanced interface/API. Really this is just exposing the classes to the user so they can do more with it if need be
 
@@ -12,37 +13,35 @@ Two types of functionality would be exposed:
 
 1. Query is initialised with user input
 2. Then:
-    a) Query checks metadata of netCDF via`CompiledProcessedData`. If no such metadata exists, proceed to b).
-    b) Query loads from the raw cache (via `CompiledRawData`), or dispatches a `ForecastTypeDownloader`. RawCache will consist of partioned parquet files (corresponding to original CSVs). Generic as well as forecast-specific validators should verify user inputs. Returns `CompiledRawData`.
+    a) Query checks metadata of netCDF via`ProcessedDataCompiler`. If no such metadata exists, proceed to b).
+    b) Query loads from the raw cache (via `RawDataCompiler`), or dispatches a `ForecastTypeDownloader`. `raw_cache` will consist of partioned parquet files (corresponding to original CSVs). Generic as well as forecast-specific validators should verify user inputs.
 
 3. If 2(a), then passed to `AggregatedForecastbyType` for data aggregation, filtering and building to processed cache
-4. If 2(b), could then be passed to `AggregatedForecastbyType` for specific filtering?
 
-By step 3/4, the datasets should be useful  enough to answer questions such as:
+After step 3, the datasets should be useful enough to answer questions such as:
 >I want to look at forecast convergence for 1 day of delivery, for predispatch runs as time approaches the delivery time.
 
-5. `CompiledProcessedData` is saved as netCDF or flattened to csv via pandas. Metadata inserted into netCDF.
-
+`AggregatedForecastbyType` is saved as netCDF or flattened to csv via pandas. Metadata inserted into netCDF. Should also be able to produce xarray output.
 
 ## Extensions
 
 1. A very useful thing would be to have functionality to patch in NEMOSIS and do forecasts vs actual (`ForecastActualHandler`)
 
-
 ## Class Diagram
+
+This is a little old but keeping it as a useful guide for architecture.
 
 ```mermaid
 classDiagram
 
     class Query{
       +String forecast_type
-      +datetime forecast_time_start
-      +datetime forecast_time_end
-      +datetime forecasted_time_start
-      +datetime forecasted_time_end
+      +datetime forecast_start
+      +datetime forecast_end
+      +datetime forecasted_start
+      +datetime forecasted_end
       +List tables
       +String raw_cache
-      +String raw_format
       +String processed_cache
       +Dict metadata
       +load_data()
@@ -73,30 +72,6 @@ classDiagram
       -@classmethod create_ForecastTypeValidator()
       -validate_inputs_for_forecasttype()
     }
-    class RawCacheManager{
-      +datetime forecasted_times
-      +datetime forecast_times
-      +List tables
-      +String raw_cache
-      +String desired_cache_format
-      +@classmethod create_RawCacheManager()
-      +check_if_downloaded(all except desired_cache_format)
-      +load_from_raw_cache(all except desired_cache_format)
-      +write_to_raw_cache(all inputs)
-      +delete_rawcache_data(set(cache_formats)-set(desired_cache_format))
-    }
-
-      class ProcessedCacheManager{
-      +datetime forecasted_times
-      +datetime forecast_times
-      +List tables
-      +String processed_cache
-      +Dict metadata
-      +@classmethod create_ProcessedCacheManager()
-      +check_if_available(metadata)
-      +netCDF_to_processed_cache(processed_cache)
-      +flatten_to_processed_cache(processed_cache)
-    }
 
     class AggregatedForecastbyType{
       +datetime forecasted_times
@@ -114,23 +89,19 @@ classDiagram
       +@classmethod aggregate_forecasts()
     }
 
-    class CompiledRawData{
+    class RawDataCompiler{
 
     }
-    class CompiledProcessedData{
+    class ProcessedDataCompiler{
 
     }
 
     Query -- ForecastTypeValidators :initialised by forecasttype_input_validation()\nOne for each forecast type
-    Query -- RawCacheManager :initialised by load_from_rawcache()
-    Query -- ProcessedCacheManager :initialised by check_processed_cache()
     Query -- ForecastTypeDownloader :initialised by download_and_convert_data()\nOne for each forecast_type
-    AggregatedForecastbyType -- ProcessedCacheManager : initialised by compile_to_processed_cache()
-    RawCacheManager -- CompiledRawData
-    ForecastTypeDownloader --CompiledRawData
+    ForecastTypeDownloader -- RawDataCompiler
     CompiledRawData -- AggregatedForecastbyType
-    AggregatedForecastbyType -- CompiledProcessedData
-    ProcessedCacheManager -- CompiledProcessedData
+    AggregatedForecastbyType -- RawDataCompiler
+    AggregatedForecastbyType -- ProcessedDataCompiler
     class CrossForecastTypeHandler
 
     class ForecastActualHandler
