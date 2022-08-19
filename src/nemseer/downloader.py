@@ -380,5 +380,7 @@ class ForecastTypeDownloader:
             if not csv.with_name(parquet_name).exists():
                 logging.info(f"Converting {csv.name} to parquet")
                 df.to_parquet(csv.with_name(parquet_name))
+            else:
+                logging.info(f"{parquet_name} already exists")
             if not keep_csv:
                 csv.unlink()
