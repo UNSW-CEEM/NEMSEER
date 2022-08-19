@@ -47,65 +47,86 @@ def test_table_fetch_for_p5min(get_test_year_and_month):
 
 
 class TestForecastTypeDownloader:
-    forecast_start = "2021/02/01 00:00"
-    forecast_end = "2021/02/05 00:00"
-    forecasted_start = "2021/02/08 00:00"
-    forecasted_end = "2021/02/08 23:55"
-
-    def valid_query(self, cache):
+    def valid_query(self, cache, valid_datetimes):
+        (
+            forecast_start,
+            forecast_end,
+            forecasted_start,
+            forecasted_end,
+        ) = valid_datetimes
         return Query.initialise(
-            self.forecast_start,
-            self.forecast_end,
-            self.forecasted_start,
-            self.forecasted_end,
+            forecast_start,
+            forecast_end,
+            forecasted_start,
+            forecasted_end,
             "STPASA",
             "REGIONSOLUTION",
             raw_cache=cache,
         )
 
-    def invalid_tables_query(self, cache):
+    def invalid_tables_query(self, cache, valid_datetimes):
+        (
+            forecast_start,
+            forecast_end,
+            forecasted_start,
+            forecasted_end,
+        ) = valid_datetimes
         return Query.initialise(
-            self.forecast_start,
-            self.forecast_end,
-            self.forecasted_start,
-            self.forecasted_end,
+            forecast_start,
+            forecast_end,
+            forecasted_start,
+            forecasted_end,
             "P5MIN",
             ["DISPATCHLOAD", "REGIONDISPATCHSUM"],
             raw_cache=cache,
         )
 
-    def constraint_solution_query(self, cache):
+    def constraint_solution_query(self, cache, valid_datetimes):
+        (
+            forecast_start,
+            forecast_end,
+            forecasted_start,
+            forecasted_end,
+        ) = valid_datetimes
         return Query.initialise(
-            self.forecast_start,
-            self.forecast_end,
-            self.forecasted_start,
-            self.forecasted_end,
+            forecast_start,
+            forecast_end,
+            forecasted_start,
+            forecasted_end,
             "P5MIN",
             "CONSTRAINTSOLUTION",
             raw_cache=cache,
         )
 
-    def casesolution_query(self, cache, forecast_type):
+    def casesolution_query(self, cache, forecast_type, valid_datetimes):
+        (
+            forecast_start,
+            forecast_end,
+            forecasted_start,
+            forecasted_end,
+        ) = valid_datetimes
         return Query.initialise(
-            self.forecast_start,
-            self.forecast_end,
-            self.forecasted_start,
-            self.forecasted_end,
+            forecast_start,
+            forecast_end,
+            forecasted_start,
+            forecasted_end,
             forecast_type,
             "CASESOLUTION",
             raw_cache=cache,
         )
 
-    def test_invalid_tables(self, tmp_path):
+    def test_invalid_tables(self, tmp_path, valid_datetimes):
         with pytest.raises(ValueError):
-            ForecastTypeDownloader.from_Query(self.invalid_tables_query(tmp_path))
+            ForecastTypeDownloader.from_Query(
+                self.invalid_tables_query(tmp_path, valid_datetimes)
+            )
 
-    def test_table_enumeration(self, tmp_path):
+    def test_table_enumeration(self, tmp_path, valid_datetimes):
         """
         Add other initialisations if additional tables require enumeration
         """
         ftd = ForecastTypeDownloader.from_Query(
-            self.constraint_solution_query(tmp_path)
+            self.constraint_solution_query(tmp_path, valid_datetimes)
         )
         to_check = set(
             [
@@ -117,9 +138,9 @@ class TestForecastTypeDownloader:
         )
         assert to_check.issubset(set(ftd.tables))
 
-    def test_casesolution_download_and_to_parquet(self, tmp_path):
+    def test_casesolution_download_and_to_parquet(self, tmp_path, valid_datetimes):
         for forecast_type in ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA"):
-            query = self.casesolution_query(tmp_path, forecast_type)
+            query = self.casesolution_query(tmp_path, forecast_type, valid_datetimes)
             downloader = ForecastTypeDownloader.from_Query(query)
             downloader.download_csv()
             downloader.convert_to_parquet()
