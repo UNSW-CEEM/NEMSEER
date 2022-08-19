@@ -68,16 +68,16 @@ class TestQuery:
         assert type(obj) is Query
 
     def test_all_same_dates(self, tmp_path):
-        with pytest.raises(ValueError):
-            Query.initialise(
-                self.same_forecast_dates[0],
-                self.same_forecast_dates[1],
-                self.same_forecast_dates[0],
-                self.same_forecast_dates[1],
-                "PREDISPATCH",
-                "CONSTRAINT_D",
-                tmp_path,
-            )
+        obj = Query.initialise(
+            self.same_forecast_dates[0],
+            self.same_forecast_dates[1],
+            self.same_forecast_dates[0],
+            self.same_forecast_dates[1],
+            "PREDISPATCH",
+            "CONSTRAINT_D",
+            tmp_path,
+        )
+        assert type(obj) is Query
 
     def test_incorrect_forecast_chronology(self, tmp_path):
         with pytest.raises(ValueError):

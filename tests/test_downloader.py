@@ -47,6 +47,31 @@ def test_table_fetch_for_p5min(get_test_year_and_month):
     )
 
 
+def test_table_fetch_for_pd(get_test_year_and_month):
+    pdtables = get_sqlloader_forecast_tables(*get_test_year_and_month, "PREDISPATCH")
+    assert set(pdtables) == set(
+        [
+            "CASESOLUTION",
+            "CONSTRAINT",
+            "CONSTRAINT_D",
+            "INTERCONNECTORRES",
+            "INTERCONNECTORRES_D",
+            "INTERCONNECTR_SENS_D",
+            "LOAD",
+            "LOAD_D",
+            "MNSPBIDTRK",
+            "OFFERTRK",
+            "PRICE",
+            "PRICESENSITIVITIE_D",
+            "PRICE_D",
+            "REGIONSUM",
+            "REGIONSUM_D",
+            "SCENARIODEMAND",
+            "SCENARIODEMANDTRK",
+        ]
+    )
+
+
 class TestForecastTypeDownloader:
     def valid_query(self, raw_cache, valid_datetimes):
         (
@@ -99,7 +124,7 @@ class TestForecastTypeDownloader:
             raw_cache=raw_cache,
         )
 
-    def constraint_solution_query(self, raw_cache, valid_datetimes):
+    def constraint_solution_query_p5min(self, raw_cache, valid_datetimes):
         (
             forecast_start,
             forecast_end,
@@ -113,6 +138,23 @@ class TestForecastTypeDownloader:
             forecasted_end,
             "P5MIN",
             "CONSTRAINTSOLUTION",
+            raw_cache=raw_cache,
+        )
+
+    def constraint_solution_query_pd(self, raw_cache, valid_datetimes):
+        (
+            forecast_start,
+            forecast_end,
+            forecasted_start,
+            forecasted_end,
+        ) = valid_datetimes
+        return Query.initialise(
+            forecast_start,
+            forecast_end,
+            forecasted_start,
+            forecasted_end,
+            "PREDISPATCH",
+            ["CONSTRAINT", "LOAD"],
             raw_cache=raw_cache,
         )
 
@@ -133,6 +175,40 @@ class TestForecastTypeDownloader:
             raw_cache=raw_cache,
         )
 
+    def predisp_all_query(self, raw_cache, valid_datetimes):
+        (
+            forecast_start,
+            forecast_end,
+            forecasted_start,
+            forecasted_end,
+        ) = valid_datetimes
+        return Query.initialise(
+            forecast_start,
+            forecast_end,
+            forecasted_start,
+            forecasted_end,
+            "PREDISPATCH",
+            "PRICE",
+            raw_cache=raw_cache,
+        )
+
+    def predisp_d_query(self, raw_cache, valid_datetimes):
+        (
+            forecast_start,
+            forecast_end,
+            forecasted_start,
+            forecasted_end,
+        ) = valid_datetimes
+        return Query.initialise(
+            forecast_start,
+            forecast_end,
+            forecasted_start,
+            forecasted_end,
+            "PREDISPATCH",
+            "PRICE_D",
+            raw_cache=raw_cache,
+        )
+
     def test_invalid_tables(self, tmp_path, valid_datetimes):
         with pytest.raises(ValueError):
             ForecastTypeDownloader.from_Query(
@@ -143,10 +219,13 @@ class TestForecastTypeDownloader:
         """
         Add other initialisations if additional tables require enumeration
         """
-        ftd = ForecastTypeDownloader.from_Query(
-            self.constraint_solution_query(tmp_path, valid_datetimes)
+        ftd_p5 = ForecastTypeDownloader.from_Query(
+            self.constraint_solution_query_p5min(tmp_path, valid_datetimes)
         )
-        to_check = set(
+        ftd_pd = ForecastTypeDownloader.from_Query(
+            self.constraint_solution_query_pd(tmp_path, valid_datetimes)
+        )
+        p5_to_check = set(
             [
                 "CONSTRAINTSOLUTION1",
                 "CONSTRAINTSOLUTION2",
@@ -154,7 +233,16 @@ class TestForecastTypeDownloader:
                 "CONSTRAINTSOLUTION4",
             ]
         )
-        assert to_check.issubset(set(ftd.tables))
+        pd_to_check = set(
+            [
+                "LOAD1",
+                "LOAD2",
+                "CONSTRAINT1",
+                "CONSTRAINT2",
+            ]
+        )
+        assert p5_to_check.issubset(set(ftd_p5.tables))
+        assert pd_to_check.issubset(set(ftd_pd.tables))
 
     def test_casesolution_download_and_to_parquet(self, tmp_path, valid_datetimes):
         for forecast_type in ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA"):
@@ -197,3 +285,15 @@ class TestForecastTypeDownloader:
                 == record.msg
             ]
         )
+
+    def test_predisp_handling(self, tmp_path, valid_datetimes):
+        predisp_all_query = self.predisp_all_query(tmp_path, valid_datetimes)
+        predisp_d_query = self.predisp_d_query(tmp_path, valid_datetimes)
+        for query in (predisp_d_query, predisp_all_query):
+            downloader = ForecastTypeDownloader.from_Query(query)
+            downloader.download_csv()
+            downloader.convert_to_parquet()
+        path = pathlib.Path(tmp_path)
+        assert len(list(path.iterdir())) == 2
+        assert len(list(path.glob("*PRICE_D*.parquet"))) == 1
+        assert len(list(path.glob("*PRICE*.parquet"))) == 2
