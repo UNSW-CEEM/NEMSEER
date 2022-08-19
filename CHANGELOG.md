@@ -1,6 +1,12 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## v0.3.0 (19/08/2022)
+
+- Handle PREDISP_ALL_DATA (complete pre dispatch data for each month)
+  - Associated testing
+- Update to docs
+
 ## v0.2.1 (19/08/2022)
 
 - Bug fix for Windows (PermissionError)
