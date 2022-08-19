@@ -1,5 +1,7 @@
 from datetime import datetime, timedelta
 
+_PRINT_FORMAT = "%Y/%m/%d %H:%S"
+
 
 def validate_P5MIN_datetime_inputs(
     forecast_start: datetime,
@@ -31,9 +33,11 @@ def validate_P5MIN_datetime_inputs(
                 + " Minutes in datetime inputs should correspond to:\n"
                 + f"{acceptable_minutes}"
             )
-    if forecasted_end > forecast_end + timedelta(minutes=55):
+    if forecasted_end > (allowed := forecast_end + timedelta(minutes=55)):
+        print_allowed = allowed.strftime(_PRINT_FORMAT)
         raise ValueError(
-            "For P5MIN, forecasted_end must be within 55 minutes of forecast_end"
+            "For P5MIN, forecasted_end must be within 55 minutes of forecast_end.\n"
+            + f"This corresponds to {print_allowed} for the provided forecast_end"
         )
 
 
