@@ -58,9 +58,9 @@ def _validate_forecasted_chronology(instance, attribute, value):
 
 def _validate_relative_chronology(instance, attribute, value):
     """Validates forecast_start against forecasted_start"""
-    if value >= instance.forecasted_start:
+    if value > instance.forecasted_start:
         raise ValueError(
-            "Forecasted start datetime should be after forecast start datetime."
+            "Forecasted start datetime should be at or after forecast start datetime."
         )
 
 
