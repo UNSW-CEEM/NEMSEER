@@ -1,6 +1,13 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## v0.2.1 (19/08/2022)
+
+- Bug fix for Windows (PermissionError)
+- Switch date format to `yyyy/mm/dd HH:MM` for consistency with NEMOSIS and AEMO date format
+- Rename `Loader` to `Query`
+- Lazy parquet conversion
+- More testing, including doctesting of examples in Quick Start section of docs
 
 ## v0.2.0 (16/08/2022)
 
