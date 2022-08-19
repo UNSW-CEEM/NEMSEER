@@ -375,9 +375,10 @@ class ForecastTypeDownloader:
                     f"Attempting to convert {csv} to parquet,"
                     + " but your available system memory may be too low for this."
                 )
-            logging.info(f"Converting {csv.name} to parquet")
             df = clean_forecast_csv(csv)
             parquet_name = csv.name[0:-3] + "parquet"
-            df.to_parquet(csv.with_name(parquet_name))
+            if not csv.with_name(parquet_name).exists():
+                logging.info(f"Converting {csv.name} to parquet")
+                df.to_parquet(csv.with_name(parquet_name))
             if not keep_csv:
                 csv.unlink()
