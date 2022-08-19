@@ -325,7 +325,7 @@ def get_unzipped_csv(url: str, raw_cache: Path) -> None:
     z = ZipFile(file_path)
     if (
         len(csvfn := z.namelist()) == 1
-        and (zfn := match(".*/DATA/(.*).zip", url))
+        and (zfn := match(".*DATA/(.*).zip", url))
         and (fn := match("(.*).[cC][sS][vV]", csvfn.pop()))
         and (fn.group(1) == zfn.group(1))
     ):
