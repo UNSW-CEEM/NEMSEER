@@ -1,3 +1,4 @@
+import logging
 import pathlib
 
 import pytest
@@ -47,7 +48,7 @@ def test_table_fetch_for_p5min(get_test_year_and_month):
 
 
 class TestForecastTypeDownloader:
-    def valid_query(self, cache, valid_datetimes):
+    def valid_query(self, raw_cache, valid_datetimes):
         (
             forecast_start,
             forecast_end,
@@ -61,10 +62,27 @@ class TestForecastTypeDownloader:
             forecasted_end,
             "STPASA",
             "REGIONSOLUTION",
-            raw_cache=cache,
+            raw_cache=raw_cache,
         )
 
-    def invalid_tables_query(self, cache, valid_datetimes):
+    def valid_casesolution(self, raw_cache, valid_datetimes):
+        (
+            forecast_start,
+            forecast_end,
+            forecasted_start,
+            forecasted_end,
+        ) = valid_datetimes
+        return Query.initialise(
+            forecast_start,
+            forecast_end,
+            forecasted_start,
+            forecasted_end,
+            "STPASA",
+            "CASESOLUTION",
+            raw_cache=raw_cache,
+        )
+
+    def invalid_tables_query(self, raw_cache, valid_datetimes):
         (
             forecast_start,
             forecast_end,
@@ -78,10 +96,10 @@ class TestForecastTypeDownloader:
             forecasted_end,
             "P5MIN",
             ["DISPATCHLOAD", "REGIONDISPATCHSUM"],
-            raw_cache=cache,
+            raw_cache=raw_cache,
         )
 
-    def constraint_solution_query(self, cache, valid_datetimes):
+    def constraint_solution_query(self, raw_cache, valid_datetimes):
         (
             forecast_start,
             forecast_end,
@@ -95,10 +113,10 @@ class TestForecastTypeDownloader:
             forecasted_end,
             "P5MIN",
             "CONSTRAINTSOLUTION",
-            raw_cache=cache,
+            raw_cache=raw_cache,
         )
 
-    def casesolution_query(self, cache, forecast_type, valid_datetimes):
+    def casesolution_query(self, raw_cache, forecast_type, valid_datetimes):
         (
             forecast_start,
             forecast_end,
@@ -112,7 +130,7 @@ class TestForecastTypeDownloader:
             forecasted_end,
             forecast_type,
             "CASESOLUTION",
-            raw_cache=cache,
+            raw_cache=raw_cache,
         )
 
     def test_invalid_tables(self, tmp_path, valid_datetimes):
@@ -148,3 +166,34 @@ class TestForecastTypeDownloader:
         assert len(list(path.iterdir())) == 5
         assert all([True for file in path.iterdir() if "CASESOLUTION" in file.name])
         assert all([True for file in path.iterdir() if ".parquet" in file.name])
+
+    def test_skip_existing_component_of_query(self, caplog, download_file_to_cache):
+        query = download_file_to_cache
+        query.tables.append("CASESOLUTION")
+        downloader = ForecastTypeDownloader.from_Query(query)
+        caplog.set_level(logging.INFO)
+        downloader.download_csv()
+        assert any(
+            [
+                record.msg
+                for record in caplog.get_records("call")
+                if "REGIONRESULT for 2/2021 in raw_cache" == record.msg
+            ]
+        )
+
+    def test_parquet_conversion(self, caplog, tmp_path, valid_datetimes):
+        downloader = ForecastTypeDownloader.from_Query(
+            self.valid_casesolution(tmp_path, valid_datetimes)
+        )
+        caplog.set_level(logging.INFO)
+        downloader.download_csv()
+        downloader.convert_to_parquet(keep_csv=True)
+        downloader.convert_to_parquet()
+        assert any(
+            [
+                record.msg
+                for record in caplog.get_records("call")
+                if "PUBLIC_DVD_STPASA_CASESOLUTION_202102010000.parquet already exists"
+                == record.msg
+            ]
+        )

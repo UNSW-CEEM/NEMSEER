@@ -2,7 +2,13 @@ from datetime import datetime
 
 import pytest
 
-from nemseer.query import Query, _dt_converter, _enumerate_tables, _tablestr_converter
+from nemseer.query import (
+    Query,
+    _dt_converter,
+    _enumerate_tables,
+    _tablestr_converter,
+    generate_sqlloader_filenames,
+)
 
 
 def test_minimal_dateinput():
@@ -178,3 +184,18 @@ class TestQuery:
             "DUIDAVAILABILITY",
             tmp_path,
         )
+
+    def test_p5constraintsolution_filename_generation(self):
+        _, fnames = generate_sqlloader_filenames(
+            datetime.strptime(self.same_forecast_dates[0], "%Y/%m/%d %H:%S"),
+            datetime.strptime(self.same_forecast_dates[1], "%Y/%m/%d %H:%S"),
+            "P5MIN",
+            ["CONSTRAINTSOLUTION"],
+        )
+        test_fnames = [
+            f"PUBLIC_DVD_P5MIN_CONSTRAINTSOLUTION{i}_202102010000" for i in range(1, 5)
+        ]
+        assert set(fnames) == set(test_fnames)
+
+    def test_check_raw_cache(self, download_file_to_cache):
+        assert download_file_to_cache.check_data_in_cache()
