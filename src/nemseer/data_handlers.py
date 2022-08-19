@@ -1,3 +1,6 @@
+from pathlib import Path
+from typing import Union
+
 import pandas as pd
 
 
@@ -59,7 +62,7 @@ def _parse_id_cols(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def clean_forecast_csv(filepath_or_buffer: str) -> pd.DataFrame:
+def clean_forecast_csv(filepath_or_buffer: Union[str, Path]) -> pd.DataFrame:
     """Given a forecast csv filepath or buffer, reads and cleans the forecast csv.
 
     Cleans artefacts in the forecast csv files.

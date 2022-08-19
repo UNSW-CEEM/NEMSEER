@@ -56,7 +56,7 @@ def _validate_forecasted_chronology(instance, attribute, value):
         )
 
 
-def _validate_relative_chronology(instance, attribute, value):
+def _validate_relative_chronology(instance, attribute, value) -> None:
     """Validates forecast_start against forecasted_start"""
     if value > instance.forecasted_start:
         raise ValueError(
@@ -64,14 +64,14 @@ def _validate_relative_chronology(instance, attribute, value):
         )
 
 
-def _validate_path(instance, attribute, value):
+def _validate_path(instance, attribute, value) -> None:
     """Check the path is a directory and creates it if it is not"""
     if not value.is_dir():
         value.mkdir()
         logger.info(f"Created directory at {value.absolute()}")
 
 
-def _validate_raw_not_processed(instance, attribute, value):
+def _validate_raw_not_processed(instance, attribute, value) -> None:
     """Check that `raw_cache` and `processed_cache` are distinct."""
     if instance.processed_cache:
         if value.absolute() == instance.processed_cache.absolute():
@@ -80,7 +80,7 @@ def _validate_raw_not_processed(instance, attribute, value):
             )
 
 
-def _enumerate_tables(tables: List[str], table_str: str, range_to: int):
+def _enumerate_tables(tables: List[str], table_str: str, range_to: int) -> List[str]:
     """Given a table name, populates a list with enumerated table names
 
     For example, given 'CONSTRAINTSOLUTION' and `range_to`=3, will populate
@@ -202,14 +202,14 @@ class Query:
     )
     tables: List[str] = field(converter=_tablestr_converter)
     metadata: Dict
-    raw_cache: str = field(
+    raw_cache: Path = field(
         converter=Path,
         validator=[
             _validate_path,
             _validate_raw_not_processed,
         ],
     )
-    processed_cache: Optional[str] = field(
+    processed_cache: Optional[Path] = field(
         default=None,
         converter=converters.optional(Path),
         validator=validators.optional(_validate_path),

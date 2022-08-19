@@ -4,7 +4,7 @@ from datetime import datetime
 from itertools import cycle
 from pathlib import Path
 from re import match
-from typing import Dict, Generator, List, Optional
+from typing import Dict, Generator, List
 from zipfile import ZipFile
 
 import psutil
@@ -299,7 +299,7 @@ def get_unzipped_csv(url: str, raw_cache: Path) -> None:
         raise ValueError(f"Unexpected contents in zipfile from {url}")
 
 
-def _validate_tables_on_forecast_start(instance, attribute, value):
+def _validate_tables_on_forecast_start(instance, attribute, value) -> None:
     """Validates tables for the provided forecast type.
 
     Checks user-supplied tables against tables available in MMS Historical
@@ -323,7 +323,7 @@ class ForecastTypeDownloader:
     forecast_end: datetime
     forecast_type: str
     tables: List[str] = field(validator=_validate_tables_on_forecast_start)
-    raw_cache: Optional[str] = field(default=None)
+    raw_cache: Path
 
     @classmethod
     def from_Query(cls, query: Query):
@@ -340,7 +340,7 @@ class ForecastTypeDownloader:
             raw_cache=query.raw_cache,
         )
 
-    def download_csv(self):
+    def download_csv(self) -> None:
         """Downloads and unzips zip files given query loaded into ForecastTypeDownloader
 
         This method will only download and unzip the relevant zip/csv if the
@@ -350,19 +350,23 @@ class ForecastTypeDownloader:
             self.forecast_start, self.forecast_end, self.forecast_type, self.tables
         )
         for ((year, month), fname) in zip(yearmonths, fnames):
-            raw_table = match(f"^PUBLIC_DVD_{self.forecast_type}(.*)_[0-9]*$", fname)
-            table = raw_table.group(1).lstrip("_")
-            if (self.raw_cache / Path(fname + ".parquet")).exists():
-                logging.info(f"{table} for {month}/{year} in raw_cache")
-                continue
+            if raw_table := match(
+                f"^PUBLIC_DVD_{self.forecast_type}(.*)_[0-9]*$", fname
+            ):
+                table = raw_table.group(1).lstrip("_")
+                if (self.raw_cache / Path(fname + ".parquet")).exists():
+                    logging.info(f"{table} for {month}/{year} in raw_cache")
+                    continue
+                else:
+                    url = _construct_sqlloader_forecastdata_url(
+                        year, month, self.forecast_type, table
+                    )
+                    logger.info(f"Downloading and unzipping {table} for {month}/{year}")
+                    get_unzipped_csv(url, self.raw_cache)
             else:
-                url = _construct_sqlloader_forecastdata_url(
-                    year, month, self.forecast_type, table
-                )
-                logger.info(f"Downloading and unzipping {table} for {month}/{year}")
-                get_unzipped_csv(url, self.raw_cache)
+                raise ValueError(f"Invalid file name: {fname}")
 
-    def convert_to_parquet(self, keep_csv=False):
+    def convert_to_parquet(self, keep_csv=False) -> None:
         """Converts all CSVs in the `raw_cache` to parquet
 
         Logs a warning if the filesize is greater than half of available memory.
