@@ -14,7 +14,7 @@ from bs4 import BeautifulSoup
 from tqdm.auto import tqdm
 
 from .data_handlers import clean_forecast_csv
-from .downloader_helpers.data import MMSDM_ARCHIVE_URL, USER_AGENTS
+from .downloader_helpers.data import MMSDM_ARCHIVE_URL, PREDISP_ALL_DATA, USER_AGENTS
 from .query import (
     Query,
     _construct_sqlloader_filename,
@@ -115,8 +115,10 @@ def _rerequest_to_obtain_soup(
     return soup
 
 
-def _construct_sqlloader_yearmonth_url(year: int, month: int) -> str:
-    """Constructs MMSDM Historical Data SQLLoader URL for a given year and month
+def _construct_DATA_yearmonth_url(year: int, month: int) -> str:
+    """Constructs MMSDM Historical Data SQLLoader DATA URL for a given year and month
+
+    Used to access most forecast data, excluding the tables in `PREDISP_ALL_DATA`
 
     Args:
         year: Year
@@ -124,13 +126,31 @@ def _construct_sqlloader_yearmonth_url(year: int, month: int) -> str:
     Returns:
         Constructed URL as a string.
     """
-    url = (
+    base_url = (
         MMSDM_ARCHIVE_URL
         + f"{year}/MMSDM_{year}_"
         + f'{str(month).rjust(2, "0")}/MMSDM_Historical_Data_SQLLoader/'
-        + "DATA/"
     )
-    return url
+    return base_url + "DATA/"
+
+
+def _construct_PREDISP_ALL_DATA_yearmonth_url(year: int, month: int) -> str:
+    """Constructs SQLLoader URL for complete PREDISPATCH data for a given year and month
+
+    Used to access tables in `PREDISP_ALL_DATA`
+
+    Args:
+        year: Year
+        month: Month
+    Returns:
+        Constructed URL as a string.
+    """
+    base_url = (
+        MMSDM_ARCHIVE_URL
+        + f"{year}/MMSDM_{year}_"
+        + f'{str(month).rjust(2, "0")}/MMSDM_Historical_Data_SQLLoader/'
+    )
+    return base_url + "PREDISP_ALL_DATA/"
 
 
 def _construct_sqlloader_forecastdata_url(
@@ -138,17 +158,21 @@ def _construct_sqlloader_forecastdata_url(
 ) -> str:
     """Constructs URL that points to a MMSDM Historical Data SQLLoader zip file
 
-    Handles exceptions to naming rules for `PREDISPATCH`
+    Handles exceptions to naming rules and complete tables (`PREDISP_ALL_DATA`)
+    for `PREDISPATCH`
 
     Args:
     """
-    base_url = _construct_sqlloader_yearmonth_url(year, month)
+    if forecast_type == "PREDISPATCH" and table in PREDISP_ALL_DATA:
+        base_url = _construct_PREDISP_ALL_DATA_yearmonth_url(year, month)
+    else:
+        base_url = _construct_DATA_yearmonth_url(year, month)
     fn = _construct_sqlloader_filename(year, month, forecast_type, table)
     url = base_url + fn + ".zip"
     return url
 
 
-def _get_captured_group_from_links(year: int, month: int, regex: str) -> List[str]:
+def _get_captured_group_from_links(url: str, regex: str) -> List[str]:
     """Returns list of unique captured groups from MMSDM Historical Data SQLLoader page
 
     For a year and month in the MMSDM Historical Data SQLLoader, returns captured groups
@@ -162,7 +186,6 @@ def _get_captured_group_from_links(year: int, month: int, regex: str) -> List[st
     Returns:
         A list of unique captured groups (one for each link on the page of tables)
     """
-    url = _construct_sqlloader_yearmonth_url(year, month)
     soup = _rerequest_to_obtain_soup(url, next(_build_useragent_generator(1)))
     links = [link.get("href") for link in soup.find_all("a")]
     tables = []
@@ -188,8 +211,15 @@ def _get_all_sqlloader_forecast_tables(
         List of tables associated with that forecast type for that period
     """
     table_capture = f".*/PUBLIC_DVD_{forecast_type}([A-Z_0-9]*)_[0-9]*.zip"
-    tables = _get_captured_group_from_links(year, month, table_capture)
-    return tables
+    data_url = _construct_DATA_yearmonth_url(year, month)
+    tables = _get_captured_group_from_links(data_url, table_capture)
+    if forecast_type == "PREDISPATCH":
+        predisp_all_url = _construct_PREDISP_ALL_DATA_yearmonth_url(year, month)
+        predisp_all_tables = _get_captured_group_from_links(
+            predisp_all_url, table_capture
+        )
+        tables.extend(predisp_all_tables)
+    return sorted(tables)
 
 
 def get_sqlloader_forecast_tables(
@@ -212,8 +242,15 @@ def get_sqlloader_forecast_tables(
     """
     _validate_forecast_type(forecast_type)
     table_capture = f".*/PUBLIC_DVD_{forecast_type}([A-Z_]*)[0-9]?_[0-9]*.zip"
-    tables = _get_captured_group_from_links(year, month, table_capture)
-    return tables
+    data_url = _construct_DATA_yearmonth_url(year, month)
+    tables = _get_captured_group_from_links(data_url, table_capture)
+    if forecast_type == "PREDISPATCH":
+        predisp_all_url = _construct_PREDISP_ALL_DATA_yearmonth_url(year, month)
+        predisp_all_tables = _get_captured_group_from_links(
+            predisp_all_url, table_capture
+        )
+        tables.extend(predisp_all_tables)
+    return sorted(tables)
 
 
 def get_sqlloader_years_and_months() -> Dict[int, List[int]]:
@@ -329,8 +366,15 @@ class ForecastTypeDownloader:
     def from_Query(cls, query: Query):
         """Constructor method for ForecastTypeDownquery from Query."""
         tables = query.tables
-        if "CONSTRAINTSOLUTION" in tables and query.forecast_type == "P5MIN":
-            tables = _enumerate_tables(tables, "CONSTRAINTSOLUTION", 4)
+        enumerated_cases = {
+            "P5MIN": [("CONSTRAINTSOLUTION", 4)],
+            "PREDISPATCH": [("CONSTRAINT", 2), ("LOAD", 2)],
+        }
+        for ftype in enumerated_cases:
+            if query.forecast_type == ftype:
+                for table, enumerate_to in enumerated_cases[ftype]:
+                    if table in tables:
+                        tables = _enumerate_tables(tables, table, enumerate_to)
 
         return cls(
             forecast_start=query.forecast_start,

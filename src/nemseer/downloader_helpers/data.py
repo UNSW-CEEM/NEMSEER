@@ -1,6 +1,11 @@
 # Wholesale electricity data archive base URL
 MMSDM_ARCHIVE_URL = "http://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
 
+# Tables which should be directed to the PREDISP_ALL_DATA URL
+# The corresponding tables in the DATA folder (which end with "_D") only contain the
+# latest forecasted value
+PREDISP_ALL_DATA = ("CONSTRAINT", "INTERCONNECTORRES", "PRICE", "LOAD", "REGIONSUM")
+
 # MTPASA DUID Availability
 MTPASA_DUID_URL = "http://nemweb.com.au/Reports/Current/MTPASA_DUIDAvailability/"
 
