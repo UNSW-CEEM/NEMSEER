@@ -61,7 +61,7 @@ USER_AGENTS = [
         + "Qt/4.8.1 Safari/E7FBAF"
     ),
     (
-        " Mozilla/5.0 (X11; Linux armv7l) AppleWebKit/537.36 (KHTML, like Gecko)"
+        "Mozilla/5.0 (X11; Linux armv7l) AppleWebKit/537.36 (KHTML, like Gecko)"
         + "Raspbian Chromium/74.0.3729.157 Chrome/74.0.3729.157 Safari/537.36"
     ),
 ]
