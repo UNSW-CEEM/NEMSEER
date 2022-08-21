@@ -1,6 +1,11 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## v0.3.1 (22/08/2022)
+
+- Patch for functionality in v0.3.0
+- Refactor `downloader` to reduce redundant code
+
 ## v0.3.0 (19/08/2022)
 
 - Handle PREDISP_ALL_DATA (complete pre dispatch data for each month)
