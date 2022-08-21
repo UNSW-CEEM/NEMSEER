@@ -161,7 +161,11 @@ def _construct_sqlloader_forecastdata_url(
     Returns:
         URL to zip file
     """
-    if forecast_type == "PREDISPATCH" and table in PREDISP_ALL_DATA:
+    if (
+        forecast_type == "PREDISPATCH"
+        and (table_basename := match(r"([A-Z]*)[0-9]?", table))
+        and table_basename.group(1) in PREDISP_ALL_DATA
+    ):
         data_url = _construct_yearmonth_url(year, month, forecast_type, all_data=True)
     else:
         data_url = _construct_yearmonth_url(year, month, forecast_type)
