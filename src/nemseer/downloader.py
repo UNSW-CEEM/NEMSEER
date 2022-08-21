@@ -115,14 +115,22 @@ def _rerequest_to_obtain_soup(
     return soup
 
 
-def _construct_DATA_yearmonth_url(year: int, month: int) -> str:
-    """Constructs MMSDM Historical Data SQLLoader DATA URL for a given year and month
+def _construct_yearmonth_url(
+    year: int, month: int, forecast_type: str, all_data: bool = False
+) -> str:
+    """Constructs MMSDM Historical Data SQLLoader Base URL for a given year and month.
 
-    Used to access most forecast data, excluding the tables in `PREDISP_ALL_DATA`
+    Handles exceptions to naming rules and complete tables (`PREDISP_ALL_DATA`)
+    for `PREDISPATCH` when `forecast_type` = "PREDISPATCH" and `all_data` = True.
+
+    N.B. Can be extended to handle `P5MIN_ALL_DATA`, but this appears to be similar to
+    `P5MIN` data in `DATA` directory. Files in this directory have `ALL` in the name.
 
     Args:
         year: Year
         month: Month
+        forecast_type: AEMO forecast types (`P5MIN`, `PREDISPATCH`, `STPASA`, `MTPASA`)
+        all_data (optional): Default False. Points to `ALL_DATA` folder for PD
     Returns:
         Constructed URL as a string.
     """
@@ -131,26 +139,11 @@ def _construct_DATA_yearmonth_url(year: int, month: int) -> str:
         + f"{year}/MMSDM_{year}_"
         + f'{str(month).rjust(2, "0")}/MMSDM_Historical_Data_SQLLoader/'
     )
-    return base_url + "DATA/"
-
-
-def _construct_PREDISP_ALL_DATA_yearmonth_url(year: int, month: int) -> str:
-    """Constructs SQLLoader URL for complete PREDISPATCH data for a given year and month
-
-    Used to access tables in `PREDISP_ALL_DATA`
-
-    Args:
-        year: Year
-        month: Month
-    Returns:
-        Constructed URL as a string.
-    """
-    base_url = (
-        MMSDM_ARCHIVE_URL
-        + f"{year}/MMSDM_{year}_"
-        + f'{str(month).rjust(2, "0")}/MMSDM_Historical_Data_SQLLoader/'
-    )
-    return base_url + "PREDISP_ALL_DATA/"
+    if forecast_type == "PREDISPATCH" and all_data:
+        data_url = base_url + "PREDISP_ALL_DATA/"
+    else:
+        data_url = base_url + "DATA/"
+    return data_url
 
 
 def _construct_sqlloader_forecastdata_url(
@@ -159,16 +152,25 @@ def _construct_sqlloader_forecastdata_url(
     """Constructs URL that points to a MMSDM Historical Data SQLLoader zip file
 
     Handles exceptions to naming rules and complete tables (`PREDISP_ALL_DATA`)
-    for `PREDISPATCH`
+    for `PREDISPATCH`.
 
     Args:
+        year: Year
+        month: Month
+        forecast_type: AEMO forecast types (`P5MIN`, `PREDISPATCH`, `STPASA`, `MTPASA`)
+    Returns:
+        URL to zip file
     """
-    if forecast_type == "PREDISPATCH" and table in PREDISP_ALL_DATA:
-        base_url = _construct_PREDISP_ALL_DATA_yearmonth_url(year, month)
+    if (
+        forecast_type == "PREDISPATCH"
+        and (table_basename := match(r"([A-Z_]*)[0-9]?", table))
+        and table_basename.group(1) in PREDISP_ALL_DATA
+    ):
+        data_url = _construct_yearmonth_url(year, month, forecast_type, all_data=True)
     else:
-        base_url = _construct_DATA_yearmonth_url(year, month)
+        data_url = _construct_yearmonth_url(year, month, forecast_type)
     fn = _construct_sqlloader_filename(year, month, forecast_type, table)
-    url = base_url + fn + ".zip"
+    url = data_url + fn + ".zip"
     return url
 
 
@@ -195,39 +197,15 @@ def _get_captured_group_from_links(url: str, regex: str) -> List[str]:
     return list(set(tables))
 
 
-def _get_all_sqlloader_forecast_tables(
-    year: int, month: int, forecast_type: str
-) -> List[str]:
-    """Available tables for particular forecast type on MMSDM Historical Data SQLLoader
-
-    Private validator function that returns actual tables available via NEMWeb,
-    including all tables that are enumerated.
-
-    Args:
-        year: Year
-        month: Month
-        forecast_type: AEMO forecast types (`P5MIN`, `PREDISPATCH`, `STPASA`, `MTPASA`)
-    Returns:
-        List of tables associated with that forecast type for that period
-    """
-    table_capture = f".*/PUBLIC_DVD_{forecast_type}([A-Z_0-9]*)_[0-9]*.zip"
-    data_url = _construct_DATA_yearmonth_url(year, month)
-    tables = _get_captured_group_from_links(data_url, table_capture)
-    if forecast_type == "PREDISPATCH":
-        predisp_all_url = _construct_PREDISP_ALL_DATA_yearmonth_url(year, month)
-        predisp_all_tables = _get_captured_group_from_links(
-            predisp_all_url, table_capture
-        )
-        tables.extend(predisp_all_tables)
-    return sorted(tables)
-
-
 def get_sqlloader_forecast_tables(
-    year: int, month: int, forecast_type: str
+    year: int, month: int, forecast_type: str, actual: bool = False
 ) -> List[str]:
     """Requestable tables of particular forecast type on MMSDM Historical Data SQLLoader
 
-    Provides a list of tables that can be requested via `nemseer`.
+    If `actual` = False, provides a list of tables that can be requested via `nemseer`.
+
+    If `actual` = True, returns actual tables available via NEMWeb, including all
+    tables that are enumerated.
 
     N.B.:
       - Removes numbering from enumerated tables for `P5MIN`
@@ -241,11 +219,16 @@ def get_sqlloader_forecast_tables(
         List of tables associated with that forecast type for that period
     """
     _validate_forecast_type(forecast_type)
-    table_capture = f".*/PUBLIC_DVD_{forecast_type}([A-Z_]*)[0-9]?_[0-9]*.zip"
-    data_url = _construct_DATA_yearmonth_url(year, month)
+    if actual:
+        table_capture = f".*/PUBLIC_DVD_{forecast_type}([A-Z_0-9]*)_[0-9]*.zip"
+    else:
+        table_capture = f".*/PUBLIC_DVD_{forecast_type}([A-Z_]*)[0-9]?_[0-9]*.zip"
+    data_url = _construct_yearmonth_url(year, month, forecast_type)
     tables = _get_captured_group_from_links(data_url, table_capture)
     if forecast_type == "PREDISPATCH":
-        predisp_all_url = _construct_PREDISP_ALL_DATA_yearmonth_url(year, month)
+        predisp_all_url = _construct_yearmonth_url(
+            year, month, forecast_type, all_data=True
+        )
         predisp_all_tables = _get_captured_group_from_links(
             predisp_all_url, table_capture
         )
@@ -343,14 +326,17 @@ def _validate_tables_on_forecast_start(instance, attribute, value) -> None:
     Data SQLLoader for the month and year of forecast_start.
     """
     start_dt = instance.forecast_start
-    tables = _get_all_sqlloader_forecast_tables(
-        start_dt.year, start_dt.month, instance.forecast_type
+    actual_tables = get_sqlloader_forecast_tables(
+        start_dt.year, start_dt.month, instance.forecast_type, actual=True
     )
-    if not set(value).issubset(set(tables)):
+    requestable_tables = get_sqlloader_forecast_tables(
+        start_dt.year, start_dt.month, instance.forecast_type, actual=False
+    )
+    if not set(value).issubset(set(actual_tables)):
         raise ValueError(
             "Table(s) not available from MMS Historical Data SQL Loader"
             + f" (for {start_dt.month}/{start_dt.year}).\n"
-            + f"Tables include: {tables}"
+            + f"Tables include: {requestable_tables}"
         )
 
 
