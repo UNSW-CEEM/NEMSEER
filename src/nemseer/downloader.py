@@ -163,7 +163,7 @@ def _construct_sqlloader_forecastdata_url(
     """
     if (
         forecast_type == "PREDISPATCH"
-        and (table_basename := match(r"([A-Z]*)[0-9]?", table))
+        and (table_basename := match(r"([A-Z_]*)[0-9]?", table))
         and table_basename.group(1) in PREDISP_ALL_DATA
     ):
         data_url = _construct_yearmonth_url(year, month, forecast_type, all_data=True)
@@ -326,14 +326,17 @@ def _validate_tables_on_forecast_start(instance, attribute, value) -> None:
     Data SQLLoader for the month and year of forecast_start.
     """
     start_dt = instance.forecast_start
-    tables = get_sqlloader_forecast_tables(
+    actual_tables = get_sqlloader_forecast_tables(
         start_dt.year, start_dt.month, instance.forecast_type, actual=True
     )
-    if not set(value).issubset(set(tables)):
+    requestable_tables = get_sqlloader_forecast_tables(
+        start_dt.year, start_dt.month, instance.forecast_type, actual=False
+    )
+    if not set(value).issubset(set(actual_tables)):
         raise ValueError(
             "Table(s) not available from MMS Historical Data SQL Loader"
             + f" (for {start_dt.month}/{start_dt.year}).\n"
-            + f"Tables include: {tables}"
+            + f"Tables include: {requestable_tables}"
         )
 
 
