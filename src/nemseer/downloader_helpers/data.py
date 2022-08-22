@@ -9,6 +9,14 @@ PREDISP_ALL_DATA = ("CONSTRAINT", "INTERCONNECTORRES", "PRICE", "LOAD", "REGIONS
 # MTPASA DUID Availability
 MTPASA_DUID_URL = "http://nemweb.com.au/Reports/Current/MTPASA_DUIDAvailability/"
 
+# Enumerated tables for each forecast type
+# First element of tuple is table name
+# Second element of tuple is number which to enumerate table to
+ENUMERATED_TABLES = {
+    "P5MIN": [("CONSTRAINTSOLUTION", 4)],
+    "PREDISPATCH": [("CONSTRAINT", 2), ("LOAD", 2)],
+}
+
 # User agents
 USER_AGENTS = [
     (

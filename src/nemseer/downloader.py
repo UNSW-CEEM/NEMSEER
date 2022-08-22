@@ -14,7 +14,12 @@ from bs4 import BeautifulSoup
 from tqdm.auto import tqdm
 
 from .data_handlers import clean_forecast_csv
-from .downloader_helpers.data import MMSDM_ARCHIVE_URL, PREDISP_ALL_DATA, USER_AGENTS
+from .downloader_helpers.data import (
+    ENUMERATED_TABLES,
+    MMSDM_ARCHIVE_URL,
+    PREDISP_ALL_DATA,
+    USER_AGENTS,
+)
 from .query import (
     Query,
     _construct_sqlloader_filename,
@@ -351,15 +356,11 @@ class ForecastTypeDownloader:
 
     @classmethod
     def from_Query(cls, query: Query):
-        """Constructor method for ForecastTypeDownquery from Query."""
+        """Constructor method for ForecastTypeDownloader from Query."""
         tables = query.tables
-        enumerated_cases = {
-            "P5MIN": [("CONSTRAINTSOLUTION", 4)],
-            "PREDISPATCH": [("CONSTRAINT", 2), ("LOAD", 2)],
-        }
-        for ftype in enumerated_cases:
+        for ftype in ENUMERATED_TABLES:
             if query.forecast_type == ftype:
-                for table, enumerate_to in enumerated_cases[ftype]:
+                for table, enumerate_to in ENUMERATED_TABLES[ftype]:
                     if table in tables:
                         tables = _enumerate_tables(tables, table, enumerate_to)
 
