@@ -186,12 +186,12 @@ class TestQuery:
         )
 
     def test_p5constraintsolution_filename_generation(self):
-        _, fnames = generate_sqlloader_filenames(
+        fnames = generate_sqlloader_filenames(
             datetime.strptime(self.same_forecast_dates[0], "%Y/%m/%d %H:%S"),
             datetime.strptime(self.same_forecast_dates[1], "%Y/%m/%d %H:%S"),
             "P5MIN",
             ["CONSTRAINTSOLUTION"],
-        )
+        ).values()
         test_fnames = [
             f"PUBLIC_DVD_P5MIN_CONSTRAINTSOLUTION{i}_202102010000" for i in range(1, 5)
         ]
