@@ -1,8 +1,11 @@
+import grequests  # type: ignore
 import pytest
 
 from nemseer.downloader import get_sqlloader_years_and_months
 from nemseer.nemseer import download_raw_data
 from nemseer.query import Query
+
+assert grequests
 
 
 @pytest.fixture(scope="module")

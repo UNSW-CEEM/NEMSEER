@@ -2,12 +2,14 @@ import logging
 import pathlib
 
 import pytest
+import requests
 
 from nemseer.downloader import (
     ForecastTypeDownloader,
     _construct_sqlloader_forecastdata_url,
     get_sqlloader_forecast_tables,
     get_sqlloader_years_and_months,
+    get_unzipped_csv,
 )
 from nemseer.downloader_helpers.data import MMSDM_ARCHIVE_URL
 from nemseer.query import Query
@@ -243,6 +245,15 @@ class TestForecastTypeDownloader:
         )
         assert p5_to_check.issubset(set(ftd_p5.tables))
         assert pd_to_check.issubset(set(ftd_pd.tables))
+
+    def test_raise_on_bad_url(self, tmp_path):
+        with pytest.raises(requests.exceptions.HTTPError):
+            bad_url = (
+                "http://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+                + "2021/MMSDM_2021_04/MMSDM_Historical_Data_SQLLoader/PREDISP_ALL_DATA"
+                + "PUBLIC_DVD_PREDISPATCHINTERCONNECTORRES_202104010000.zip"
+            )
+            get_unzipped_csv(bad_url, tmp_path)
 
     def test_casesolution_download_and_to_parquet(self, tmp_path, valid_datetimes):
         for forecast_type in ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA"):
