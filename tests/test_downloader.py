@@ -4,6 +4,7 @@ import pathlib
 import pytest
 import requests
 
+from nemseer.data import MMSDM_ARCHIVE_URL
 from nemseer.downloader import (
     ForecastTypeDownloader,
     _construct_sqlloader_forecastdata_url,
@@ -11,7 +12,6 @@ from nemseer.downloader import (
     get_sqlloader_years_and_months,
     get_unzipped_csv,
 )
-from nemseer.downloader_helpers.data import MMSDM_ARCHIVE_URL
 from nemseer.query import Query
 
 
