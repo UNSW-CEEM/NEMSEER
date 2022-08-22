@@ -300,9 +300,10 @@ def get_unzipped_csv(url: str, raw_cache: Path) -> None:
     file_name = Path(url).name
     header = _build_nemweb_get_header(next(_build_useragent_generator(1)))
     file_path = raw_cache / Path(file_name)
-    with requests.get(url, headers=header, stream=True) as r:
-        total_length = int(r.headers.get("Content-Length", 0))
-        with tqdm.wrapattr(r.raw, "read", desc=file_name, total=total_length) as raw:
+    with requests.get(url, headers=header, stream=True) as resp:
+        total_length = int(resp.headers.get("Content-Length", 0))
+        resp.raise_for_status()
+        with tqdm.wrapattr(resp.raw, "read", desc=file_name, total=total_length) as raw:
             with open(file_path, "wb") as fout:
                 shutil.copyfileobj(raw, fout)
     z = ZipFile(file_path)
