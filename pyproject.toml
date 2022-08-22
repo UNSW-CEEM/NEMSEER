@@ -70,6 +70,7 @@ optional = true
 # pytest and pytest-cov for coverage
 pytest = "^7"
 pytest-cov = "^3"
+grequests = "^0.6.0"
 
 # Config for pytest and pytest-cov
 [tool.pytest.ini_options]
