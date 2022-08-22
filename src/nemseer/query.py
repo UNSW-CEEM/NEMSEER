@@ -6,6 +6,8 @@ from typing import Dict, List, Optional, Tuple, Union
 from attrs import converters, define, field, validators
 from dateutil import rrule
 
+from .data import ENUMERATED_TABLES
+
 logger = logging.getLogger(__name__)
 
 
@@ -126,8 +128,10 @@ def generate_sqlloader_filenames(
     forecast_end: datetime,
     forecast_type: str,
     tables: List[str],
-) -> Tuple[List[Tuple[int, int]], List[str]]:
-    """Generates a list of MMSDM Historical Data SQLLoader file names based on query
+) -> Dict[Tuple[int, int, str], str]:
+    """Generates MMSDM Historical Data SQLLoader file names based on provided query data
+
+    Returns a tuple of query metadata (`table`, `year`, `month`) mapped to each filename
 
     Args:
         forecast_start: Forecasts made at or after this datetime are queried.
@@ -135,23 +139,24 @@ def generate_sqlloader_filenames(
         forecast_type: `MTPASA`, `STPASA`, `PDPASA`, `PREDISPATCH` or `P5MIN`.
         tables: Table or tables required, provided as a List.
     Returns:
-        A list of year-month tuples and corresponding format-agnostic
-        (SQLLOader) filenames
+        A tuple of query metadata (`table`, `year`, `month`) mapped to each
+        format-agnostic (SQLLOader) filename
     """
     intervening_dates = rrule.rrule(
         rrule.MONTHLY, dtstart=forecast_start, until=forecast_end
     )
-    year_months = []
-    fnames = []
-    if "CONSTRAINTSOLUTION" in tables and forecast_type == "P5MIN":
-        tables = _enumerate_tables(tables, "CONSTRAINTSOLUTION", 4)
+    filename_data = {}
+    for ftype in ENUMERATED_TABLES:
+        if forecast_type == ftype:
+            for table, enumerate_to in ENUMERATED_TABLES[ftype]:
+                if table in tables:
+                    tables = _enumerate_tables(tables, table, enumerate_to)
     for table in tables:
         for date in intervening_dates:
             (year, month) = (date.year, date.month)
             fname = _construct_sqlloader_filename(year, month, forecast_type, table)
-            fnames.append(fname)
-            year_months.append((year, month))
-    return year_months, fnames
+            filename_data[(year, month, table)] = fname
+    return filename_data
 
 
 @define
@@ -256,9 +261,9 @@ class Query:
         If all requested data is already in the `raw_cache` as parquet, returns True
         Otherwise returns False.
         """
-        _, fnames = generate_sqlloader_filenames(
+        fnames = generate_sqlloader_filenames(
             self.forecast_start, self.forecast_end, self.forecast_type, self.tables
-        )
+        ).values()
         check = [
             (self.raw_cache / Path(fname + ".parquet")).exists() for fname in fnames
         ]
