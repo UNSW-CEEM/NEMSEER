@@ -8,7 +8,7 @@ def _parse_datetime_cols(df: pd.DataFrame) -> pd.DataFrame:
     """Finds datetime columns in the DataFrame and converts them to datetime
 
     Args:
-        df: pandas.DataFrame()
+        df: pandas.DataFrame
     Returns:
         DataFrame with datetime columns converted according to standard AEMO format
     """
@@ -42,7 +42,7 @@ def _parse_id_cols(df: pd.DataFrame) -> pd.DataFrame:
     """Finds relevant ID columns in the DataFrame and converts them to cateogries
 
     Args:
-        df: pandas.DataFrame()
+        df: pandas.DataFrame
     Returns:
         DataFrame with ID columns converted to categories
     """
@@ -59,6 +59,24 @@ def _parse_id_cols(df: pd.DataFrame) -> pd.DataFrame:
     id_cols_present = id_cols.intersection(set(df.columns.tolist()))
     for col in id_cols_present:
         df.loc[:, col] = df[col].astype("category")
+    return df
+
+
+def _parse_predispatch_seq_no(df: pd.DataFrame) -> pd.DataFrame:
+    """Parses `PREDISPATCHSEQNO` as datetime and adds `PREDISPATCH_RUN_DATETIME`
+
+    Args:
+        df: pandas.DataFrame
+    Returns:
+        DataFrame with additional column `PREDISPATCH_RUN_DATETIME`
+    """
+    df["PREDISPATCHSEQNO"] = df["PREDISPATCHSEQNO"].astype(int).astype(str)
+    parsed = df["PREDISPATCHSEQNO"].str.extract(r"^([0-9]{8})([0-9]{2})$")
+    year_month_day = pd.to_datetime(parsed[0], format="%Y%m%d")
+    hour_min = ((parsed[1].astype(int) - 1) * pd.Timedelta(minutes=30)).add(
+        pd.Timedelta(hours=4, minutes=30)
+    )
+    df["PREDISPATCH_RUN_DATETIME"] = year_month_day + hour_min  # type: ignore
     return df
 
 
@@ -80,4 +98,6 @@ def clean_forecast_csv(filepath_or_buffer: Union[str, Path]) -> pd.DataFrame:
     df = df.drop(drop_cols, axis="columns")
     df = _parse_datetime_cols(df)
     df = _parse_id_cols(df)
+    if "PREDISPATCHSEQNO" in df.columns:
+        df = _parse_predispatch_seq_no(df)
     return df
