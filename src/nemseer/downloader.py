@@ -302,6 +302,7 @@ def get_unzipped_csv(url: str, raw_cache: Path) -> None:
     def _invalid_zip_to_file(invalid_files: Path, filename: str) -> None:
         """Ensure that any invalid file is noted in the `invalid_files` text file"""
         with open(invalid_files, "a+") as f:
+            f.seek(0)
             existing = [line.strip() for line in f.readlines()]
             if filename in existing:
                 pass
