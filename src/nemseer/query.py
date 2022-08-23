@@ -23,7 +23,9 @@ def _dt_converter(value: str) -> datetime:
         format = "%Y/%m/%d %H:%M"
         return datetime.strptime(value, format)
     except ValueError:
-        raise ValueError("Datetime should be provided as follows: yyyy/mm/dd HH:MM")
+        raise ValueError(
+            "Datetime invalid. Datetime should be provided as follows: yyyy/mm/dd HH:MM"
+        )
 
 
 def _tablestr_converter(value: Union[str, List[str]]) -> List[str]:
