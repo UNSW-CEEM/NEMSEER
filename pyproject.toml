@@ -12,12 +12,12 @@ python = ">= 3.8, < 3.11"
 attrs = "^21"
 beautifulsoup4 = "^4"
 dask = "^2022.7.1"
+fastparquet = "^0.8.2"
 netCDF4 = "^1.6.0"
 numpy = "^1.23.0"
 packaging = "^21.3"
 pandas = "^1.2"
 psutil = "^5.9.1"
-pyarrow = "^8.0.0"
 requests = "^2"
 tqdm = "^4.64.0"
 xarray = "^2022"
@@ -73,6 +73,7 @@ pytest-cov = "^3"
 grequests = "^0.6.0"
 
 # Config for pytest and pytest-cov
+pytest-mock = "^3.8.2"
 [tool.pytest.ini_options]
 # path to tests for pytest
 testpaths = ["tests"]
