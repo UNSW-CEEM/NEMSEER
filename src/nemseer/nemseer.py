@@ -19,8 +19,8 @@ def download_raw_data(
     Downloads raw forecast data and converts to parquet.
 
     Arguments:
-        forecast_start: Forecasts made at or after this datetime are queried.
-        forecast_end: Forecasts made before or at this datetime are queried.
+        forecast_start: Forecast runs at or after this datetime are queried.
+        forecast_end: Forecast runs before or at this datetime are queried.
         forecasted_start: Forecasts pertaining to times at or after this
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
