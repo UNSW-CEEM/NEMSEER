@@ -242,15 +242,15 @@ class Query:
             "tables": tables,
         }
         return cls(
-            forecast_start=forecast_start,
-            forecast_end=forecast_end,
-            forecasted_start=forecasted_start,
-            forecasted_end=forecasted_end,
-            forecast_type=forecast_type,
-            tables=tables,
-            metadata=metadata,
-            raw_cache=raw_cache,
-            processed_cache=processed_cache,
+            forecast_start=forecast_start,  # type: ignore
+            forecast_end=forecast_end,  # type: ignore
+            forecasted_start=forecasted_start,  # type: ignore
+            forecasted_end=forecasted_end,  # type: ignore
+            forecast_type=forecast_type,  # type: ignore
+            tables=tables,  # type: ignore
+            metadata=metadata,  # type: ignore
+            raw_cache=raw_cache,  # type: ignore
+            processed_cache=processed_cache,  # type: ignore
         )
 
     def check_data_in_cache(self) -> bool:
