@@ -1,5 +1,6 @@
 import logging
 import pathlib
+from zipfile import BadZipFile
 
 import pytest
 import requests
@@ -296,6 +297,18 @@ class TestForecastTypeDownloader:
                 == record.msg
             ]
         )
+
+    def test_bad_zipfile_handling(self, tmp_path, mocker, valid_datetimes):
+        def mock_extractall(self, raw_cache):
+            raise BadZipFile
+
+        mocker.patch("nemseer.downloader.ZipFile.extractall", mock_extractall)
+        query = self.casesolution_query(tmp_path, "STPASA", valid_datetimes)
+        downloader = ForecastTypeDownloader.from_Query(query)
+        downloader.download_csv()
+        with open(tmp_path / ".invalid_aemo_files.txt", "r") as f:
+            line = f.readline()
+        assert not line == "PUBLIC_DVD_STPASA_CASESOLUTION_202102010000"
 
     def test_predisp_handling(self, tmp_path, valid_datetimes):
         predisp_all_query = self.predisp_all_query(tmp_path, valid_datetimes)

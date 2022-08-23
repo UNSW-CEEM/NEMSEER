@@ -5,7 +5,7 @@ from itertools import cycle
 from pathlib import Path
 from re import match
 from typing import Dict, Generator, List
-from zipfile import ZipFile
+from zipfile import BadZipFile, ZipFile
 
 import psutil
 import requests
@@ -290,6 +290,7 @@ def get_unzipped_csv(url: str, raw_cache: Path) -> None:
 
     1. Downloads zip file in chunks to limit memory use and enable progress bar
     2. Validates that the zip contains a single file that has the same name as the zip
+    3. If the zip file is invalid, writes the file stub to `.invalid_aemo_files.txt`
 
     Args:
         url: URL of zip
@@ -297,6 +298,17 @@ def get_unzipped_csv(url: str, raw_cache: Path) -> None:
     Returns:
         None. Extracts csvs to `raw_cache`.
     """
+
+    def _invalid_zip_to_file(invalid_files: Path, filename: str) -> None:
+        """Ensure that any invalid file is noted in the `invalid_files` text file"""
+        with open(invalid_files, "a+") as f:
+            existing = [line.strip() for line in f.readlines()]
+            if filename in existing:
+                pass
+            else:
+                f.write(f"{filename}\n")
+        return None
+
     file_name = Path(url).name
     header = _build_nemweb_get_header(next(_build_useragent_generator(1)))
     file_path = raw_cache / Path(file_name)
@@ -313,8 +325,13 @@ def get_unzipped_csv(url: str, raw_cache: Path) -> None:
         and (fn := match("(.*).[cC][sS][vV]", csvfn.pop()))
         and (fn.group(1) == zfn.group(1))
     ):
-        z.extractall(raw_cache)
-        z.close()
+        try:
+            z.extractall(raw_cache)
+            z.close()
+        except BadZipFile:
+            logging.error(f"{z.testzip()} invalid or corrupted")
+            invalid_files = raw_cache / Path(".invalid_aemo_files.txt")
+            _invalid_zip_to_file(invalid_files, fn.group(1))
         Path(file_path).unlink()
     else:
         raise ValueError(f"Unexpected contents in zipfile from {url}")
