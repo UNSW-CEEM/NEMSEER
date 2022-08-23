@@ -69,6 +69,6 @@ These validators are specific to each `forecast_type`. They are used prior to in
 - `forecast` times are compatible with `forecasted` times. These will depend on the forecast windows of each `forecast_type`
 
 ```{eval-rst}
-.. automodule:: nemseer.forecast_specific.validators
+.. automodule:: nemseer.forecast_type_validators
    :members:
 ```
