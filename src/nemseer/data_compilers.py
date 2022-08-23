@@ -16,17 +16,30 @@ def _map_files_to_table(
     run_end: datetime,
     forecast_type: str,
     tables: List[str],
-):
-    # TODO: type annotation for return
-    metadata, filenames = generate_sqlloader_filenames(
-        run_start, run_end, forecast_type, tables
-    ).items()
+) -> Dict[str, List[str]]:
+    """Maps filenames of interest to each queried table
+
+    Translates output from `generate_sqlloader_filenames` to map filenames of interest
+    to a queried table name.
+
+    Args:
+        forecast_start: Forecasts made at or after this datetime are queried.
+        forecast_end: Forecasts made before or at this datetime are queried.
+        forecast_type: `MTPASA`, `STPASA`, `PDPASA`, `PREDISPATCH` or `P5MIN`.
+        tables: Tables queried.
+    Returns:
+        A dictionary mapping the queried table name to filenames associated with that
+        queried table.
+    """
+    metadata_to_filename = generate_sqlloader_filenames(
+        forecast_start, forecast_end, forecast_type, tables
+    )
     table_file_map = {}
     for table in tables:
         filenames_to_map = list()
-        for (data, filename) in zip(metadata, filenames):
-            if data[2] == "table":
-                filenames_to_map.append(filename)
+        for metadata in metadata_to_filename.keys():
+            if metadata[2] == table:
+                filenames_to_map.append(metadata_to_filename[metadata])
         table_file_map[table] = filenames_to_map
     return table_file_map
 
@@ -46,7 +59,7 @@ class DataCompiler:
     processed_cache: Union[None, Path]
 
     @classmethod
-    def from_Query(cls, query: Query):
+    def from_Query(cls, query: Query) -> "DataCompiler":
         """Constructor method for DataCompiler from Query."""
         tables = query.tables
         for ftype in ENUMERATED_TABLES:
