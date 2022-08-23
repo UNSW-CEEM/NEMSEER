@@ -49,7 +49,7 @@ Ready to contribute? Here's how to set up `nemseer` for local development.
     - The command below applies to UNIX systems (Mac/Linux)
 
         ```console
-        $ curl -sSL https://install.python-poetry.org | python3 - --version 1.2.0b2
+        $ curl -sSL https://install.python-poetry.org | python3 - --version 1.2.0b3
         ```
 
     - The command below applies to Windows. Run it in PowerShell (make sure you run PowerShell as an administrator).
@@ -57,7 +57,7 @@ Ready to contribute? Here's how to set up `nemseer` for local development.
       - For activating environments etc. you may need to alter your [PowerShell Execution Policy to `RemoteSigned`](https://windowsloop.com/change-powershell-execution-policy/)
 
         ```powershell
-          (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py - --version=1.2.0b2
+          (Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py - --version=1.2.0b3
         ```
 
 3. Install `nemseer` using `poetry`:
