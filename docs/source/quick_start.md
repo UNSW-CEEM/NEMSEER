@@ -4,8 +4,8 @@ As of v0.2.0, you can download raw forecast data via `nemseer` and cache it in t
 
 ## Forecast dates
 
-1. `forecast_start`: Forecasts made at or after this datetime are queried.
-2. `forecast_end`: Forecasts made before or at this datetime are queried.
+1. `forecast_start`: Forecast runs at or after this datetime are queried.
+2. `forecast_end`: Forecast runs before or at this datetime are queried.
 3. `forecasted_start`: Forecasts pertaining to times at or after this datetime are retained.
 4. `forecasted_end`: Forecasts pertaining to times before or at this datetime are retained.
 
