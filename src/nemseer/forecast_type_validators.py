@@ -3,6 +3,33 @@ from datetime import datetime, timedelta
 _PRINT_FORMAT = "%Y/%m/%d %H:%S"
 
 
+def _determine_last_market_day_end_for_half_hourly(dt: datetime) -> datetime:
+    """Returns end of last trading day for which price offer submission has closed by
+    the supplied datetime.
+
+    Only valid for forecasts datetimes with half-hourly increments, and that are run
+    at or less frequently than every half hour.
+
+    Args:
+        dt: Datetime to find end of next
+    Returns:
+        Datetime corresponding to end of the last trading day for which price offer
+        submission has closed by the supplied datetime.
+    """
+    if dt.hour >= 13:
+        end_date = (dt + timedelta(days=2)).date()
+    else:
+        end_date = (dt + timedelta(days=1)).date()
+    end_dt = datetime(
+        year=end_date.year,
+        month=end_date.month,
+        day=end_date.day,
+        hour=4,
+        minute=0,
+    )
+    return end_dt
+
+
 def validate_P5MIN_datetime_inputs(
     forecast_start: datetime,
     forecast_end: datetime,
@@ -37,6 +64,7 @@ def validate_P5MIN_datetime_inputs(
     Raises:
         ValueError: If any validation conditions are failed.
     """
+    # Check 1
     acceptable_minutes = set(range(0, 60, 5))
     for dt_input in (forecast_start, forecast_end, forecasted_start, forecasted_end):
         if dt_input.minute not in acceptable_minutes:
@@ -45,6 +73,7 @@ def validate_P5MIN_datetime_inputs(
                 + " Minutes in datetime inputs should correspond to: "
                 + f"{acceptable_minutes}"
             )
+    # Check 2
     if forecasted_end > (allowed := forecast_end + timedelta(minutes=55)):
         print_allowed = allowed.strftime(_PRINT_FORMAT)
         raise ValueError(
@@ -97,6 +126,7 @@ def validate_PREDISPATCH_datetime_inputs(
     Raises:
         ValueError: If any validation conditions are failed.
     """
+    # Check 1
     acceptable_minutes = set((0, 30))
     for dt_input in (forecast_start, forecast_end, forecasted_start, forecasted_end):
         if dt_input.minute not in acceptable_minutes:
@@ -105,17 +135,8 @@ def validate_PREDISPATCH_datetime_inputs(
                 + " Minutes in datetime inputs should correspond to: "
                 + f"{acceptable_minutes}"
             )
-    if forecast_end.hour >= 13:
-        check_date = (forecast_end + timedelta(days=2)).date()
-    else:
-        check_date = (forecast_end + timedelta(days=1)).date()
-    check_dt = datetime(
-        year=check_date.year,
-        month=check_date.month,
-        day=check_date.day,
-        hour=4,
-        minute=0,
-    )
+    # Check 2
+    check_dt = _determine_last_market_day_end_for_half_hourly(forecast_end)
     if forecasted_end > check_dt:
         print_allowed = check_dt.strftime(_PRINT_FORMAT)
         raise ValueError(
@@ -152,10 +173,91 @@ def validate_PDPASA_datetime_inputs(
     return None
 
 
-def validate_STPASA_inputs():
+def validate_STPASA_inputs(
+    forecast_start: datetime,
+    forecast_end: datetime,
+    forecasted_start: datetime,
+    forecasted_end: datetime,
+) -> None:
+    """Validates `STPASA` forecast datetime inputs
+
+    From `AEMO PASA Outputs <https://aemo.com.au/energy-systems/electricity/
+    national-electricity-market-nem/data-nem/market-management-system-mms-data/
+    projected-assessment-of-system-adequacy-pasa>`_:
+
+      [ST PASA] is published every 2 hours and provides detailed disclosure of
+      short-term is published every 2 hours and provides detailed disclosure of
+      short-term power-system supply/demand balance prospects for six days
+      following the next trading day. The information is provided for each half-hour
+      within the report period
+
+    Noting that:
+
+    - A market/trading day extends from 0400 to 0400 on the next day.
+    - `ST PASA` is the "reverse" of `PREDISPATCH`
+      - `ST PASA` **starts** after the end of the next trading day for which bids have
+      been submitted
+
+    The National Electricity Rules and some of AEMO's procedures state that ST PASA
+    is run every two hours. As of June 2021, the frequency was increased to hourly. See
+    `Spot Market Operations Timetable <https://www.aemo.com.au/-/media/Files/
+    Electricity/NEM/Security_and_Reliability/Dispatch/
+    Spot-Market-Operations-Timetable.pdf>`_.
+
+
+    Validation checks:
+
+    1. Minute component of forecast datetimes is on an hourly basis (i.e. 0 minutes)
+    2. Minute component of forecasted datetimes is on a 30 minute basis
+    2. :attr:`forecasted_start` is not equal to or earlier than the end of the
+    last trading day for which bid band prices have closed
+    (the end of that day being 04:00) by :attr:`forecast_start`
+    3. :attr:`forecasted_end` is no later than 6 days from the end of the last trading
+    day for which bid band prices have closed by :attr:`forecast_end`
+
+    Args:
+        forecast_start: Forecast runs at or after this datetime are queried.
+        forecast_end: Forecast runs before or at this datetime are queried.
+        forecasted_start: Forecasts pertaining to times at or after this
+            datetime are retained.
+        forecasted_end: Forecasts pertaining to times before or at this
+            datetime are retaned.
+    Raises:
+        ValueError: If any validation conditions are failed.
     """
-    .. todo:: Create `STPASA` validator
-    """
+    # Check 1
+    for forecast_input in (forecast_start, forecast_end):
+        if forecast_input.minute != 0:
+            raise ValueError(
+                "ST PASA forecast_start and forecast_end must be on the hour"
+            )
+    # Check 2
+    forecasted_minutes = set((0, 30))
+    for dt_input in (forecasted_start, forecasted_end):
+        if dt_input.minute not in forecasted_minutes:
+            raise ValueError(
+                "ST PASA forecasts are provided for every half hour "
+                + "in the forecast period\n"
+                + " Minutes in forecasted_start and forecasted_end "
+                + f" should correspond to: {forecasted_minutes}"
+            )
+    # Check 3
+    end_of_last = _determine_last_market_day_end_for_half_hourly(forecast_start)
+    start_check_dt = end_of_last + timedelta(minutes=30)
+    if forecasted_start < start_check_dt:
+        print_allowed = start_check_dt.strftime(_PRINT_FORMAT)
+        raise ValueError(
+            f"For ST PASA, forecasted_start must be no earlier than {print_allowed} "
+            + "based on the supplied forecast_start"
+        )
+    # Check 4
+    end_check_dt = end_of_last + timedelta(days=6)
+    if forecasted_end > end_check_dt:
+        print_allowed = end_check_dt.strftime(_PRINT_FORMAT)
+        raise ValueError(
+            f"For ST PASA, forecasted_end must be no later than {print_allowed} "
+            + "based on the supplied forecast_end"
+        )
     return None
 
 
