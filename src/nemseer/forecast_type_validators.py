@@ -47,9 +47,11 @@ def validate_P5MIN_datetime_inputs(
 
     Validation checks:
 
-    1. Minute component of datetime inputs is on a 5 minute basis
-    2. :attr:`forecasted_end` is not more than 55 minutes (12 cycles) from
-    :attr:`forecast_end`
+    Check 1:
+      Minute component of datetime inputs is on a 5 minute basis
+    Check 2:
+      :attr:`forecasted_end` is not more than 55 minutes (12 cycles) from
+      :attr:`forecast_end`
 
     These 12 dispatch cycles include the immediate interval
     (i.e. where `RUN_DATETIME` = `INTERVAL_DATETIME`)
@@ -111,10 +113,12 @@ def validate_PREDISPATCH_datetime_inputs(
 
     Validation checks:
 
-    1. Minute component of datetime inputs is on a 30 minute basis
-    2. :attr:`forecasted_end` is no later than the end of the last trading day for which
-    bid band prices have closed (the end of that day being 04:00) by
-    :attr:`forecast_end`
+    Check 1:
+      Minute component of datetime inputs is on a 30 minute basis
+    Check 2:
+      :attr:`forecasted_end` is no later than the end of the last trading day for which
+      bid band prices have closed (the end of that day being 04:00) by
+      :attr:`forecast_end`
 
     Args:
         forecast_start: Forecast runs at or after this datetime are queried.
@@ -207,13 +211,17 @@ def validate_STPASA_inputs(
 
     Validation checks:
 
-    1. Minute component of forecast datetimes is on an hourly basis (i.e. 0 minutes)
-    2. Minute component of forecasted datetimes is on a 30 minute basis
-    2. :attr:`forecasted_start` is not equal to or earlier than the end of the
-    last trading day for which bid band prices have closed
-    (the end of that day being 04:00) by :attr:`forecast_start`
-    3. :attr:`forecasted_end` is no later than 6 days from the end of the last trading
-    day for which bid band prices have closed by :attr:`forecast_end`
+    Check 1:
+      Minute component of forecast datetimes is on an hourly basis (i.e. 0 minutes)
+    Check 2:
+      Minute component of forecasted datetimes is on a 30 minute basis
+    Check 3:
+      :attr:`forecasted_start` is not equal to or earlier than the end of the
+      last trading day for which bid band prices have closed
+      (the end of that day being 04:00) by :attr:`forecast_start`
+    Check 4:
+      :attr:`forecasted_end` is no later than 6 days from the end of the last trading
+      day for which bid band prices have closed by :attr:`forecast_end`
 
     Args:
         forecast_start: Forecast runs at or after this datetime are queried.
@@ -261,9 +269,57 @@ def validate_STPASA_inputs(
     return None
 
 
-def validate_MTPASA_inputs():
+def validate_MTPASA_inputs(
+    forecast_start: datetime,
+    forecast_end: datetime,
+    forecasted_start: datetime,
+    forecasted_end: datetime,
+) -> None:
     """
-    .. todo:: Create `MTPASA` validator
-    .. todo:: Handle MTPASA DUID Availability
+    From `AEMO PASA Outputs <https://aemo.com.au/energy-systems/electricity/
+    national-electricity-market-nem/data-nem/market-management-system-mms-data/
+    projected-assessment-of-system-adequacy-pasa>`_:
+
+      [ST PASA] is produced weekly (on Tuesdays) and lists the medium-term
+      supply/demand prospects for the period two years in advance.
+      The information is provided for each day within the report period.
+
+    Noting that:
+
+    - `MT PASA` is actually run at half-hourly resolution
+      - But results are aggregated and reported for each day
+    - Timing of "RUN_DATETIME" appears to be inconsistent on inspection
+      - No validation on :attr:`forecast_start` and :attr:`forecast_end`
+      - Compiler will instead collect all forecasts between provided forecast datetimes
+
+    Validation checks:
+
+    Check 1:
+      `forecasted_end` is within 2 years and 16 days of `forecast_end`. A 16 day offset
+      appears to be in older data.Newer data appears to have a 6 day offset.
+
+    Todo:
+        Handle MTPASA DUID Availability
+
+    Args:
+        forecast_start: Forecast runs at or after this datetime are queried.
+        forecast_end: Forecast runs before or at this datetime are queried.
+        forecasted_start: Forecasts pertaining to times at or after this
+            datetime are retained.
+        forecasted_end: Forecasts pertaining to times before or at this
+            datetime are retaned.
+    Raises:
+        ValueError: If any validation conditions are failed.
     """
+    if forecast_end.month == 2 and forecast_end.day == 29:
+        plus_six_years = forecast_end.replace(year=forecast_end.year + 6, day=28)
+    else:
+        plus_six_years = forecast_end.replace(year=forecast_end.year + 6)
+    check_end_date = plus_six_years + timedelta(days=16)
+    if forecasted_end > check_end_date:
+        print_allowed = check_end_date.strftime(_PRINT_FORMAT)
+        raise ValueError(
+            f"For MT PASA, forecasted_end must be no later than {print_allowed} "
+            + "based on the supplied forecast_end"
+        )
     return None
