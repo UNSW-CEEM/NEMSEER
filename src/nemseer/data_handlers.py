@@ -10,7 +10,9 @@ def _parse_datetime_cols(df: pd.DataFrame) -> pd.DataFrame:
     Args:
         df: pandas.DataFrame
     Returns:
-        DataFrame with datetime columns converted according to standard AEMO format
+        :class:`pandas.DataFrame` with datetime columns converted according to standard
+        AEMO
+        format
     """
     dt_cols = {
         "DATETIME",
@@ -44,7 +46,7 @@ def _parse_id_cols(df: pd.DataFrame) -> pd.DataFrame:
     Args:
         df: pandas.DataFrame
     Returns:
-        DataFrame with ID columns converted to categories
+        :class:`pandas.DataFrame` with ID columns converted to categories
     """
     id_cols = {
         "CONSTRAINTID",
@@ -68,7 +70,7 @@ def _parse_predispatch_seq_no(df: pd.DataFrame) -> pd.DataFrame:
     Args:
         df: pandas.DataFrame
     Returns:
-        DataFrame with additional column `PREDISPATCH_RUN_DATETIME`
+        :class:`pandas.DataFrame` with additional column `PREDISPATCH_RUN_DATETIME`
     """
     df["PREDISPATCHSEQNO"] = df["PREDISPATCHSEQNO"].astype(int).astype(str)
     parsed = df["PREDISPATCHSEQNO"].str.extract(r"^([0-9]{8})([0-9]{2})$")
@@ -86,9 +88,9 @@ def clean_forecast_csv(filepath_or_buffer: Union[str, Path]) -> pd.DataFrame:
     Cleans artefacts in the forecast csv files.
 
     Args:
-        filepath_or_buffer: As for pandas.read_csv()
+        filepath_or_buffer: As for :func:`pandas.read_csv`
     Returns:
-        Cleaned DataFrame
+        Cleaned :class:`pandas.DataFrame` with forecast data
     """
     # skip AEMO metadata
     df = pd.read_csv(filepath_or_buffer, skiprows=1, low_memory=False)
