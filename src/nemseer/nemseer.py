@@ -25,7 +25,7 @@ def download_raw_data(
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
             datetime are retained.
-        forecast_type: `MTPASA`, `STPASA`, `PDPASA`, `PREDISPATCH` or `P5MIN`.
+        forecast_type: One of :data:`nemseer.forecast_types`
         tables: Table or tables required. A single table can be supplied as
             a string. Multiple tables can be supplied as a list of strings.
         raw_cache: Path to download files

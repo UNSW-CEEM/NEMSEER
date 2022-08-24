@@ -78,7 +78,7 @@ def _validate_path(instance, attribute, value) -> None:
 
 
 def _validate_raw_not_processed(instance, attribute, value) -> None:
-    """Check that `raw_cache` and `processed_cache` are distinct."""
+    """Check that :attr:`raw_cache` and :attr:`processed_cache` are distinct."""
     if instance.processed_cache:
         if value.absolute() == instance.processed_cache.absolute():
             raise ValueError(
@@ -262,13 +262,14 @@ class Query:
         )
 
     def check_data_in_cache(self) -> bool:
-        """Checks whether *all* requested data is already in the `raw_cache` as parquet
+        """Checks whether *all* requested data is already in the :attr:`raw_cache` as
+        parquet
 
         :meth:`nemseer.downloader.ForecastTypeDownloader.download_csv()`
-        handles partial `raw_cache` completeness
+        handles partial :attr:`raw_cache` completeness
 
-        If all requested data is already in the `raw_cache` as parquet, returns True.
-        Otherwise returns False.
+        If all requested data is already in the :attr:`raw_cache` as parquet,
+        returns True. Otherwise returns False.
         """
         fnames = generate_sqlloader_filenames(
             self.forecast_start, self.forecast_end, self.forecast_type, self.tables

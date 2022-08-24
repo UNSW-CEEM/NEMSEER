@@ -26,6 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 def _validate_forecast_type(forecast_type: str):
+    """Check user-supplied forecast type is valid"""
     valid_types = ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA")
     if forecast_type not in valid_types:
         raise ValueError(f"Forecast type should be one of {valid_types}")
@@ -129,7 +130,7 @@ def _construct_yearmonth_url(
     Args:
         year: Year
         month: Month
-        forecast_type: AEMO forecast types (`P5MIN`, `PREDISPATCH`, `STPASA`, `MTPASA`)
+        forecast_type: One of :data:`nemseer.forecast_types`
         all_data (optional): Default False. Points to `ALL_DATA` folder for PD
     Returns:
         Constructed URL as a string.
@@ -157,7 +158,7 @@ def _construct_sqlloader_forecastdata_url(
     Args:
         year: Year
         month: Month
-        forecast_type: AEMO forecast types (`P5MIN`, `PREDISPATCH`, `STPASA`, `MTPASA`)
+        forecast_type: One of :data:`nemseer.forecast_types`
     Returns:
         URL to zip file
     """
@@ -183,7 +184,7 @@ def _get_captured_group_from_links(url: str, regex: str) -> List[str]:
     Args:
         year: Year
         month: Month
-        forecast_type: AEMO forecast types (`P5MIN`, `PREDISPATCH`, `STPASA`, `MTPASA`)
+        forecast_type: One of :data:`nemseer.forecast_types`
         regex: Regular expression pattern, with one group capture
     Returns:
         A list of unique captured groups (one for each link on the page of tables)
@@ -214,7 +215,8 @@ def get_sqlloader_forecast_tables(
     Args:
         year: Year
         month: Month
-        forecast_type: AEMO forecast types (`P5MIN`, `PREDISPATCH`, `STPASA`, `MTPASA`)
+        forecast_type: One of :data:`nemseer.forecast_types`
+
     Returns:
         List of tables associated with that forecast type for that period
     """
@@ -286,7 +288,7 @@ def get_sqlloader_years_and_months() -> Dict[int, List[int]]:
 
 
 def get_unzipped_csv(url: str, raw_cache: Path) -> None:
-    """Unzipped (single) csv file downloaded from `url` to `raw_cache`
+    """Unzipped (single) csv file downloaded from `url` to :attr:`raw_cache`
 
     1. Downloads zip file in chunks to limit memory use and enable progress bar
     2. Validates that the zip contains a single file that has the same name as the zip
@@ -296,7 +298,7 @@ def get_unzipped_csv(url: str, raw_cache: Path) -> None:
         url: URL of zip
         raw_cache: Path to save zip
     Returns:
-        None. Extracts csvs to `raw_cache`.
+        None. Extracts csvs to :attr:`raw_cache`.
     """
 
     def _invalid_zip_to_file(invalid_files: Path, filename: str) -> None:
@@ -369,7 +371,8 @@ class ForecastTypeDownloader:
 
     @classmethod
     def from_Query(cls, query: Query):
-        """Constructor method for ForecastTypeDownloader from Query."""
+        """Constructor method for :class:`ForecastTypeDownloader` from
+        :class:`Query <nemseer.query.Query>`"""
         tables = query.tables
         for ftype in ENUMERATED_TABLES:
             if query.forecast_type == ftype:
@@ -386,10 +389,11 @@ class ForecastTypeDownloader:
         )
 
     def download_csv(self) -> None:
-        """Downloads and unzips zip files given query loaded into ForecastTypeDownloader
+        """Downloads and unzips zip files given query loaded into
+        :class:`ForecastTypeDownloader`
 
         This method will only download and unzip the relevant zip/csv if the
-        corresponding `.parquet` file is not located in the specified `raw_cache`.
+        corresponding `.parquet` file is not located in the specified :attr:`raw_cache`.
         """
         filename_data = generate_sqlloader_filenames(
             self.forecast_start, self.forecast_end, self.forecast_type, self.tables
@@ -408,10 +412,10 @@ class ForecastTypeDownloader:
                 get_unzipped_csv(url, self.raw_cache)
 
     def convert_to_parquet(self, keep_csv=False) -> None:
-        """Converts all CSVs in the `raw_cache` to parquet
+        """Converts all CSVs in the :attr:`raw_cache` to parquet
 
-        Logs a warning if the filesize is greater than half of available memory.
-        pandas DataFrames consume more than the file size in memory.
+        Logs a warning if the filesize is greater than half of available memory as
+        :class:`pandas.DataFrame` consumes more than the file size in memory.
         """
         csvs = list(Path(self.raw_cache).glob("*.[Cc][Ss][Vv]"))
         for csv in csvs:
