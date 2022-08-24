@@ -74,7 +74,7 @@ Ready to contribute? Here's how to set up `nemseer` for local development.
 
     - If you are on Windows and attempting to install dependencies results in an error such as the one below, refer to the [fix below](https://github.com/UNSW-CEEM/NEMSEER/blob/master/CONTRIBUTING.md#fix-for-running-poetry-on-windows):
 
-      ```cmd
+      ```powershell
       Command "C:\Users\Abi Prakash\AppData\Local\Programs\Python\Python38\python.exe" -W ignore - errored with the following return code 1, and output:
       The system cannot find the path specified.
       C:\Users\Abi Prakash\AppData\Local\Programs\Python\Python38
