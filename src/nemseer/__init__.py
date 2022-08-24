@@ -18,3 +18,4 @@ logging.basicConfig(
 __all__ = ["download_raw_data", "get_tables", "get_data_daterange"]
 
 forecast_types = ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA")
+"""Forecast types requestable through nemseer"""
