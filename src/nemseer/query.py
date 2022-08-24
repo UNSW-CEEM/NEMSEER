@@ -18,6 +18,8 @@ def _dt_converter(value: str) -> datetime:
         value: String with format %Y/%m/%d %H:%M
     Returns:
         Datetime object
+    Raises:
+        ValueError: If provided datetime string is invalid
     """
     try:
         format = "%Y/%m/%d %H:%M"
@@ -111,7 +113,7 @@ def _construct_sqlloader_filename(
     Args:
         year: Year
         month: Month
-        forecast_type: `P5MIN`, `PREDISPATCH`, `PDPASA`, `STPASA` or `MTPASA`
+        forecast_type: One of :data:`nemseer.forecast_types`
         table: The name of the table required
     Returns:
         Filename string without file type
@@ -136,9 +138,9 @@ def generate_sqlloader_filenames(
     Returns a tuple of query metadata (`table`, `year`, `month`) mapped to each filename
 
     Args:
-        forecast_start: Forecasts made at or after this datetime are queried.
-        forecast_end: Forecasts made before or at this datetime are queried.
-        forecast_type: `MTPASA`, `STPASA`, `PDPASA`, `PREDISPATCH` or `P5MIN`.
+        forecast_start: Forecast runs at or after this datetime are queried.
+        forecast_end: Forecast runs before or at this datetime are queried.
+        forecast_type: One of :data:`nemseer.forecast_types`
         tables: Table or tables required, provided as a List.
     Returns:
         A tuple of query metadata (`table`, `year`, `month`) mapped to each
@@ -163,29 +165,33 @@ def generate_sqlloader_filenames(
 
 @define
 class Query:
-    """`Query` validates user inputs and dispatches data fetchers.
+    """`Query` validates user inputs and dispatches data downloaders and compilers
 
-    Construct `Query` using the `Query.initialise()` constructor. This
+    Construct :class:`Query` using the :meth:`Query.initialise()` constructor. This
     ensures query metadata is constructed approriately.
 
     Query:
 
     - Validates user input data
-        - Checks datetime are yyyy/mm/dd HH:MM
+        - Checks datetime fit `yyyy/mm/dd HH:MM` format
         - Checks datetime chronology (e.g. end is after start)
+        - Checks requested datetimes are valid for each `forecast_type`
         - Validates `forecast_type`
-        - *Validates user-supplied tables against what is available on NEMWeb*
-    - Retains query metadata (via constructor class method `initialise`)
-    - Can dispatch various Managers and Downloaders
+        - Validates user-requested tables against what is available on NEMWeb
+    - Retains query metadata (via constructor class method
+      :meth:`nemseer.query.Query.initialise`)
+    - Can dispatch
+      :class:`ForecastTypeDownloader <nemseer.downloader.ForecastTypeDownloader>` and
+      :class:`DataCompiler <nemseer.data_compilers.DataCompiler>`
 
     Attributes:
-        forecast_start: Forecasts made at or after this datetime are queried.
-        forecast_end: Forecasts made before or at this datetime are queried.
+        forecast_start: Forecast runs at or after this datetime are queried.
+        forecast_end: Forecast runs before or at this datetime are queried.
         forecasted_start: Forecasts pertaining to times at or after this
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
             datetime are retaned.
-        forecast_type: `MTPASA`, `STPASA`, `PDPASA`, `PREDISPATCH` or `P5MIN`.
+        forecast_type: One of :data:`nemseer.forecast_types`
         tables: Table or tables required. A single table can be supplied as
             a string. Multiple tables can be supplied as a list of strings.
         metadata: Metadata dictionary. Constructed by `Query.initialise()`.
@@ -234,7 +240,7 @@ class Query:
         raw_cache: str,
         processed_cache: Optional[str] = None,
     ) -> "Query":
-        """Constructor method for Query. Assembles query metatdata."""
+        """Constructor method for :class:`Query`. Assembles query metatdata."""
         metadata = {
             "forecast_start": forecast_start,
             "forecast_end": forecast_end,
@@ -258,9 +264,10 @@ class Query:
     def check_data_in_cache(self) -> bool:
         """Checks whether *all* requested data is already in the `raw_cache` as parquet
 
-        `downloader` methods handle partial `raw_cache` completeness
+        :meth:`nemseer.downloader.ForecastTypeDownloader.download_csv()`
+        handles partial `raw_cache` completeness
 
-        If all requested data is already in the `raw_cache` as parquet, returns True
+        If all requested data is already in the `raw_cache` as parquet, returns True.
         Otherwise returns False.
         """
         fnames = generate_sqlloader_filenames(

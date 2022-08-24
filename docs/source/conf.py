@@ -41,6 +41,7 @@ release = "0.3.1"
 # MyST is a CommonMark parser that plugs into Sphinx. Enables you to write docs in md.
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.autosectionlabel",
     "sphinx.ext.napoleon",
     "sphinx.ext.intersphinx",
     "sphinx.ext.doctest",
@@ -48,6 +49,11 @@ extensions = [
     "sphinx.ext.viewcode",
     "myst_parser",
 ]
+
+
+# Prefix document path to section labels, to use:
+# `path/to/file:heading` instead of just `heading`
+autosectionlabel_prefix_document = True
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

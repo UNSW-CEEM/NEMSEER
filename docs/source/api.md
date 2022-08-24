@@ -30,6 +30,13 @@ Use the {meth}`from_Query() <nemseer.downloader.ForecastTypeDownloader.from_Quer
 
 ## Functions
 
+### Query handlers
+
+```{eval-rst}
+.. automodule:: nemseer.query
+   :members: generate_sqlloader_filenames
+```
+
 ### Scrapers and downloaders
 
 **Scrapers**: These functions scrape NEMWeb to assist `nemseer` in validating inputs and providing feedback to users.
