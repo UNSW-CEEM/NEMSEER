@@ -125,10 +125,30 @@ def validate_PREDISPATCH_datetime_inputs(
     return None
 
 
-def validate_PDPASA_inputs():
+def validate_PDPASA_datetime_inputs(
+    forecast_start: datetime,
+    forecast_end: datetime,
+    forecasted_start: datetime,
+    forecasted_end: datetime,
+) -> None:
+    """Validates `PDPASA` forecast datetime inputs
+
+    Points to :func:`validate_PREDISPATCH_datetime_inputs()` as validation for
+    PREDISPATCH and PDPASA are the same.
+
+    Args:
+        forecast_start: Forecast runs at or after this datetime are queried.
+        forecast_end: Forecast runs before or at this datetime are queried.
+        forecasted_start: Forecasts pertaining to times at or after this
+            datetime are retained.
+        forecasted_end: Forecasts pertaining to times before or at this
+            datetime are retaned.
+    Raises:
+        ValueError: If any validation conditions are failed.
     """
-    .. todo:: Create `PDPASA` validator
-    """
+    validate_PREDISPATCH_datetime_inputs(
+        forecast_start, forecast_end, forecasted_start, forecasted_end
+    )
     return None
 
 
