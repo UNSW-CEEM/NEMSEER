@@ -135,7 +135,7 @@ def validate_PREDISPATCH_datetime_inputs(
     for dt_input in (forecast_start, forecast_end, forecasted_start, forecasted_end):
         if dt_input.minute not in acceptable_minutes:
             raise ValueError(
-                "PREDISPATCH is run every 30 minutes.\n"
+                "PREDISPATCH/PDPASA is run every 30 minutes.\n"
                 + " Minutes in datetime inputs should correspond to: "
                 + f"{acceptable_minutes}"
             )
@@ -144,8 +144,8 @@ def validate_PREDISPATCH_datetime_inputs(
     if forecasted_end > check_dt:
         print_allowed = check_dt.strftime(_PRINT_FORMAT)
         raise ValueError(
-            f"For PREDISPATCH, forecasted_end must be no later than {print_allowed} "
-            + "based on the supplied forecast_end"
+            "For PREDISPATCH/PDPASA, forecasted_end must be no later than"
+            + f" {print_allowed} based on the supplied forecast_end"
         )
     return None
 
