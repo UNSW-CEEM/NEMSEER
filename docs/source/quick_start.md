@@ -11,7 +11,7 @@ As of v0.2.0, you can download raw forecast data via `nemseer` and cache it in t
 
 ## Downloading raw data
 
-You can download data to a cache using `download_raw_data()`. Note that `forecasted` times need to be provided but are not used.
+You can download data to a cache using [{func}`download_raw_data() <nemseer.download_raw_data>`. Note that `forecasted` times need to be provided but are not used.
 
 ```{testsetup}
 from pathlib import Path
@@ -79,7 +79,7 @@ Inputs are validated and suggestions are given where inputs are invalid (e.g. va
 
 ## What else can I query?
 
-`nemseer.download_raw_data()` provides feedback on whether dates and the forecast type are valid. It will also let you know which tables are available if you enter an invalid table.
+{func}`download_raw_data() <nemseer.download_raw_data>` provides feedback on whether dates and the forecast type are valid. It will also let you know which tables are available if you enter an invalid table.
 
 If you want to query this information separately, you can use the calls below.
 
@@ -109,7 +109,7 @@ The years and months available via AEMO's MMSDM Historical Data SQLLoader can be
 
 You can also see which tables are available for a given year, month and forecast type.
 
-Below, we fetch predispatch tables available for January, 2022 (i.e. this month would include or be between `forecast_start` and `forecast_end`):
+Below, we fetch pre-dispatch tables available for January, 2022 (i.e. this month would include or be between `forecast_start` and `forecast_end`):
 
 ```{doctest}
 >>> import nemseer
@@ -117,4 +117,8 @@ Below, we fetch predispatch tables available for January, 2022 (i.e. this month 
 ['CASESOLUTION', 'CONSTRAINT', 'CONSTRAINT_D', 'INTERCONNECTORRES', 'INTERCONNECTORRES_D', 'INTERCONNECTR_SENS_D', 'LOAD', 'LOAD_D', 'MNSPBIDTRK', 'OFFERTRK', 'PRICE', 'PRICESENSITIVITIE_D', 'PRICE_D', 'REGIONSUM', 'REGIONSUM_D', 'SCENARIODEMAND', 'SCENARIODEMANDTRK']
 ```
 
-Note that for some pre-dispatch table (`CONSTRAINT`, `LOAD`, `PRICE`, `INTERCONNECTORRES` and `REGIONSUM`), there are two types of tables. Those ending with `_D` only contain the latest forecast for a particular interval.
+##### `PREDISPATCH` tables
+
+```{note}
+For some pre-dispatch table (`CONSTRAINT`, `LOAD`, `PRICE`, `INTERCONNECTORRES` and `REGIONSUM`), there are two types of tables. Those ending with `_D` only contain the latest forecast for a particular interval, whereas those without `_D` have all relevant forecasts for an interval of interest.
+```
