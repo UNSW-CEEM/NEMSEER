@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-_PRINT_FORMAT = "%Y/%m/%d %H:%S"
+_PRINT_FORMAT = "%Y/%m/%d %H:%M"
 
 
 def _determine_last_market_day_end_for_half_hourly(dt: datetime) -> datetime:
@@ -177,7 +177,7 @@ def validate_PDPASA_datetime_inputs(
     return None
 
 
-def validate_STPASA_inputs(
+def validate_STPASA_datetime_inputs(
     run_start: datetime,
     run_end: datetime,
     forecasted_start: datetime,
@@ -267,7 +267,7 @@ def validate_STPASA_inputs(
     return None
 
 
-def validate_MTPASA_inputs(
+def validate_MTPASA_datetime_inputs(
     run_start: datetime,
     run_end: datetime,
     forecasted_start: datetime,
@@ -293,6 +293,9 @@ def validate_MTPASA_inputs(
     Validation checks:
 
     Check 1:
+      `forecasted_start` and `forecasted_end` are at 00:00 for each supplied date.
+      This is because results are reported for a day.
+    Check 2:
       `forecasted_end` is within 2 years and 16 days of `run_end`. A 16 day offset
       appears to be in older data.Newer data appears to have a 6 day offset.
 
@@ -309,11 +312,19 @@ def validate_MTPASA_inputs(
     Raises:
         ValueError: If any validation conditions are failed.
     """
+    # Check 1
+    for forecasted_input in (forecasted_start, forecasted_end):
+        if forecasted_input.hour != 0 or forecasted_input.minute != 0:
+            raise ValueError(
+                "Results for MT PASA reported for each day. Forecasted start/end should"
+                + "be supplied with hh:mm of 00:00"
+            )
+    # Check 2
     if run_end.month == 2 and run_end.day == 29:
-        plus_six_years = run_end.replace(year=run_end.year + 6, day=28)
+        plus_two_years = run_end.replace(year=run_end.year + 2, day=28)
     else:
-        plus_six_years = run_end.replace(year=run_end.year + 6)
-    check_end_date = plus_six_years + timedelta(days=16)
+        plus_two_years = run_end.replace(year=run_end.year + 2)
+    check_end_date = plus_two_years + timedelta(days=16)
     if forecasted_end > check_end_date:
         print_allowed = check_end_date.strftime(_PRINT_FORMAT)
         raise ValueError(
