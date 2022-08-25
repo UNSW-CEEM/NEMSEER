@@ -59,14 +59,16 @@ Valid inputs for {func}`clean_forecast_csv <nemseer.data_handlers.clean_forecast
    :members:
 ```
 
-## Forecast-specific validators
+## Forecast-specific helpers
+
+### Validators
 
 These validators are specific to each `forecast_type`. They are used prior to initiating any downloads or other query actions (i.e. via {class}`Query <nemseer.query.Query>`), and check the following:
 
-- The requested table(s) is (are) available for the provided `forecast_start` and `forecast_end`
+- The requested table(s) is (are) available for the provided `run_start` and `run_end`
 - `forecast` times are compatible with `forecasted` times. These will depend on the forecast windows of each `forecast_type`
 
 ```{eval-rst}
-.. automodule:: nemseer.forecast_type_validators
+.. automodule:: nemseer.forecast_type.validators
    :members:
 ```

@@ -1,3 +1,6 @@
+import random
+from datetime import datetime, timedelta
+
 import grequests  # type: ignore
 import pytest
 
@@ -19,25 +22,25 @@ def get_test_year_and_month():
 
 @pytest.fixture(scope="module")
 def valid_datetimes():
-    forecast_start = "2021/02/01 00:00"
-    forecast_end = "2021/02/05 00:00"
+    run_start = "2021/02/01 00:00"
+    run_end = "2021/02/05 00:00"
     forecasted_start = "2021/02/08 00:00"
     forecasted_end = "2021/02/08 23:55"
-    return forecast_start, forecast_end, forecasted_start, forecasted_end
+    return run_start, run_end, forecasted_start, forecasted_end
 
 
 @pytest.fixture(scope="module")
 def download_file_to_cache(tmp_path_factory, valid_datetimes):
     (
-        forecast_start,
-        forecast_end,
+        run_start,
+        run_end,
         forecasted_start,
         forecasted_end,
     ) = valid_datetimes
     tmp_dir = tmp_path_factory.mktemp("raw_cache")
     download_raw_data(
-        forecast_start,
-        forecast_end,
+        run_start,
+        run_end,
         forecasted_start,
         forecasted_end,
         "MTPASA",
@@ -45,11 +48,25 @@ def download_file_to_cache(tmp_path_factory, valid_datetimes):
         tmp_dir,
     )
     return Query.initialise(
-        forecast_start,
-        forecast_end,
+        run_start,
+        run_end,
         forecasted_start,
         forecasted_end,
         "MTPASA",
         "REGIONRESULT",
         tmp_dir,
     )
+
+
+@pytest.fixture(scope="module")
+def gen_datetime():
+    """Generate a datetime in format yyyy-mm-dd hh:mm:ss.000000
+
+    From this gist: https://gist.github.com/rg3915/db907d7455a4949dbe69
+    """
+    min_year = 2012
+    max_year = datetime.now().year
+    start = datetime(min_year, 1, 1, 00, 00, 00)
+    years = max_year - min_year + 1
+    end = start + timedelta(days=365 * years)
+    return start + (end - start) * random.random()

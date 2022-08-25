@@ -4,8 +4,8 @@ As of v0.2.0, you can download raw forecast data via `nemseer` and cache it in t
 
 ## Forecast dates
 
-1. `forecast_start`: Forecast runs at or after this datetime are queried.
-2. `forecast_end`: Forecast runs before or at this datetime are queried.
+1. `run_start`: Forecast runs at or after this datetime are queried.
+2. `run_end`: Forecast runs before or at this datetime are queried.
 3. `forecasted_start`: Forecasts pertaining to times at or after this datetime are retained.
 4. `forecasted_end`: Forecasts pertaining to times before or at this datetime are retained.
 
@@ -27,8 +27,8 @@ Path("./nemseer_cache/").rmdir()
 ```{doctest}
 >>> import nemseer
 >>> nemseer.download_raw_data(
-... forecast_start="2020/01/01 00:00",
-... forecast_end="2020/01/01 00:00",
+... run_start="2020/01/01 00:00",
+... run_end="2020/01/01 00:00",
 ... forecasted_start="2020/01/02 00:00",
 ... forecasted_end="2020/01/02 00:00",
 ... forecast_type="P5MIN",
@@ -109,7 +109,7 @@ The years and months available via AEMO's MMSDM Historical Data SQLLoader can be
 
 You can also see which tables are available for a given year, month and forecast type.
 
-Below, we fetch pre-dispatch tables available for January, 2022 (i.e. this month would include or be between `forecast_start` and `forecast_end`):
+Below, we fetch pre-dispatch tables available for January, 2022 (i.e. this month would include or be between `run_start` and `run_end`):
 
 ```{doctest}
 >>> import nemseer

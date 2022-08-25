@@ -36,8 +36,8 @@ classDiagram
 
     class Query{
       +String forecast_type
-      +datetime forecast_start
-      +datetime forecast_end
+      +datetime run_start
+      +datetime run_end
       +datetime forecasted_start
       +datetime forecasted_end
       +List tables

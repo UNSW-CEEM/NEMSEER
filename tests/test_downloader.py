@@ -78,14 +78,14 @@ def test_table_fetch_for_pd(get_test_year_and_month):
 class TestForecastTypeDownloader:
     def valid_query(self, raw_cache, valid_datetimes):
         (
-            forecast_start,
-            forecast_end,
+            run_start,
+            run_end,
             forecasted_start,
             forecasted_end,
         ) = valid_datetimes
         return Query.initialise(
-            forecast_start,
-            forecast_end,
+            run_start,
+            run_end,
             forecasted_start,
             forecasted_end,
             "STPASA",
@@ -95,14 +95,14 @@ class TestForecastTypeDownloader:
 
     def valid_casesolution(self, raw_cache, valid_datetimes):
         (
-            forecast_start,
-            forecast_end,
+            run_start,
+            run_end,
             forecasted_start,
             forecasted_end,
         ) = valid_datetimes
         return Query.initialise(
-            forecast_start,
-            forecast_end,
+            run_start,
+            run_end,
             forecasted_start,
             forecasted_end,
             "STPASA",
@@ -112,14 +112,14 @@ class TestForecastTypeDownloader:
 
     def invalid_tables_query(self, raw_cache, valid_datetimes):
         (
-            forecast_start,
-            forecast_end,
+            run_start,
+            run_end,
             forecasted_start,
             forecasted_end,
         ) = valid_datetimes
         return Query.initialise(
-            forecast_start,
-            forecast_end,
+            run_start,
+            run_end,
             forecasted_start,
             forecasted_end,
             "P5MIN",
@@ -129,14 +129,14 @@ class TestForecastTypeDownloader:
 
     def constraint_solution_query_p5min(self, raw_cache, valid_datetimes):
         (
-            forecast_start,
-            forecast_end,
+            run_start,
+            run_end,
             forecasted_start,
             forecasted_end,
         ) = valid_datetimes
         return Query.initialise(
-            forecast_start,
-            forecast_end,
+            run_start,
+            run_end,
             forecasted_start,
             forecasted_end,
             "P5MIN",
@@ -146,14 +146,14 @@ class TestForecastTypeDownloader:
 
     def constraint_solution_query_pd(self, raw_cache, valid_datetimes):
         (
-            forecast_start,
-            forecast_end,
+            run_start,
+            run_end,
             forecasted_start,
             forecasted_end,
         ) = valid_datetimes
         return Query.initialise(
-            forecast_start,
-            forecast_end,
+            run_start,
+            run_end,
             forecasted_start,
             forecasted_end,
             "PREDISPATCH",
@@ -163,14 +163,14 @@ class TestForecastTypeDownloader:
 
     def casesolution_query(self, raw_cache, forecast_type, valid_datetimes):
         (
-            forecast_start,
-            forecast_end,
+            run_start,
+            run_end,
             forecasted_start,
             forecasted_end,
         ) = valid_datetimes
         return Query.initialise(
-            forecast_start,
-            forecast_end,
+            run_start,
+            run_end,
             forecasted_start,
             forecasted_end,
             forecast_type,
@@ -180,14 +180,14 @@ class TestForecastTypeDownloader:
 
     def predisp_all_query(self, raw_cache, valid_datetimes):
         (
-            forecast_start,
-            forecast_end,
+            run_start,
+            run_end,
             forecasted_start,
             forecasted_end,
         ) = valid_datetimes
         return Query.initialise(
-            forecast_start,
-            forecast_end,
+            run_start,
+            run_end,
             forecasted_start,
             forecasted_end,
             "PREDISPATCH",
@@ -197,14 +197,14 @@ class TestForecastTypeDownloader:
 
     def predisp_d_query(self, raw_cache, valid_datetimes):
         (
-            forecast_start,
-            forecast_end,
+            run_start,
+            run_end,
             forecasted_start,
             forecasted_end,
         ) = valid_datetimes
         return Query.initialise(
-            forecast_start,
-            forecast_end,
+            run_start,
+            run_end,
             forecasted_start,
             forecasted_end,
             "PREDISPATCH",

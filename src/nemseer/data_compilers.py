@@ -12,14 +12,14 @@ logger = logging.getLogger(__name__)
 
 
 def _map_files_to_table(
-    forecast_start: datetime,
-    forecast_end: datetime,
+    run_start: datetime,
+    run_end: datetime,
     forecast_type: str,
     tables: List[str],
 ):
     # TODO: type annotation for return
     metadata, filenames = generate_sqlloader_filenames(
-        forecast_start, forecast_end, forecast_type, tables
+        run_start, run_end, forecast_type, tables
     ).items()
     table_file_map = {}
     for table in tables:
@@ -35,8 +35,8 @@ def _map_files_to_table(
 class DataCompiler:
     """`DataCompiler` compiles data"""
 
-    forecast_start: datetime
-    forecast_end: datetime
+    run_start: datetime
+    run_end: datetime
     forecasted_start: datetime
     forecasted_end: datetime
     forecast_type: str
@@ -59,8 +59,8 @@ class DataCompiler:
         else:
             processed_cache = None
         return cls(
-            forecast_start=query.forecast_start,
-            forecast_end=query.forecast_end,
+            run_start=query.run_start,
+            run_end=query.run_end,
             forecasted_start=query.forecasted_start,
             forecasted_end=query.forecasted_end,
             forecast_type=query.forecast_type,

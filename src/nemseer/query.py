@@ -44,12 +44,12 @@ def _tablestr_converter(value: Union[str, List[str]]) -> List[str]:
         return list(value)
 
 
-def _validate_forecast_chronology(instance, attribute, value):
-    """Validates forecast_start against forecast_end"""
-    if value > instance.forecast_end:
+def _validate_run_chronology(instance, attribute, value):
+    """Validates run_start against run_end"""
+    if value > instance.run_end:
         raise ValueError(
             "Forecast end datetime must be greater than or equal to"
-            + " forecast start datetime."
+            + " run start datetime."
         )
 
 
@@ -63,10 +63,10 @@ def _validate_forecasted_chronology(instance, attribute, value):
 
 
 def _validate_relative_chronology(instance, attribute, value) -> None:
-    """Validates forecast_start against forecasted_start"""
+    """Validates run_start against forecasted_start"""
     if value > instance.forecasted_start:
         raise ValueError(
-            "Forecasted start datetime should be at or after forecast start datetime."
+            "Forecasted start datetime should be at or after run start datetime."
         )
 
 
@@ -128,8 +128,8 @@ def _construct_sqlloader_filename(
 
 
 def generate_sqlloader_filenames(
-    forecast_start: datetime,
-    forecast_end: datetime,
+    run_start: datetime,
+    run_end: datetime,
     forecast_type: str,
     tables: List[str],
 ) -> Dict[Tuple[int, int, str], str]:
@@ -138,17 +138,15 @@ def generate_sqlloader_filenames(
     Returns a tuple of query metadata (`table`, `year`, `month`) mapped to each filename
 
     Args:
-        forecast_start: Forecast runs at or after this datetime are queried.
-        forecast_end: Forecast runs before or at this datetime are queried.
+        run_start: Forecast runs at or after this datetime are queried.
+        run_end: Forecast runs before or at this datetime are queried.
         forecast_type: One of :data:`nemseer.forecast_types`
         tables: Table or tables required, provided as a List.
     Returns:
         A tuple of query metadata (`table`, `year`, `month`) mapped to each
         format-agnostic (SQLLOader) filename
     """
-    intervening_dates = rrule.rrule(
-        rrule.MONTHLY, dtstart=forecast_start, until=forecast_end
-    )
+    intervening_dates = rrule.rrule(rrule.MONTHLY, dtstart=run_start, until=run_end)
     filename_data = {}
     for ftype in ENUMERATED_TABLES:
         if forecast_type == ftype:
@@ -185,8 +183,8 @@ class Query:
       :class:`DataCompiler <nemseer.data_compilers.DataCompiler>`
 
     Attributes:
-        forecast_start: Forecast runs at or after this datetime are queried.
-        forecast_end: Forecast runs before or at this datetime are queried.
+        run_start: Forecast runs at or after this datetime are queried.
+        run_end: Forecast runs before or at this datetime are queried.
         forecasted_start: Forecasts pertaining to times at or after this
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
@@ -201,11 +199,11 @@ class Query:
 
     """
 
-    forecast_start: datetime = field(
+    run_start: datetime = field(
         converter=_dt_converter,
-        validator=[_validate_forecast_chronology, _validate_relative_chronology],
+        validator=[_validate_run_chronology, _validate_relative_chronology],
     )
-    forecast_end: datetime = field(converter=_dt_converter)
+    run_end: datetime = field(converter=_dt_converter)
     forecasted_start: datetime = field(
         converter=_dt_converter, validator=[_validate_forecasted_chronology]
     )
@@ -231,8 +229,8 @@ class Query:
     @classmethod
     def initialise(
         cls,
-        forecast_start: str,
-        forecast_end: str,
+        run_start: str,
+        run_end: str,
         forecasted_start: str,
         forecasted_end: str,
         forecast_type: str,
@@ -242,16 +240,16 @@ class Query:
     ) -> "Query":
         """Constructor method for :class:`Query`. Assembles query metatdata."""
         metadata = {
-            "forecast_start": forecast_start,
-            "forecast_end": forecast_end,
+            "run_start": run_start,
+            "run_end": run_end,
             "forecasted_start": forecasted_start,
             "forecasted_end": forecasted_end,
             "forecast_type": forecast_type,
             "tables": tables,
         }
         return cls(
-            forecast_start=forecast_start,  # type: ignore
-            forecast_end=forecast_end,  # type: ignore
+            run_start=run_start,  # type: ignore
+            run_end=run_end,  # type: ignore
             forecasted_start=forecasted_start,  # type: ignore
             forecasted_end=forecasted_end,  # type: ignore
             forecast_type=forecast_type,  # type: ignore
@@ -272,7 +270,7 @@ class Query:
         returns True. Otherwise returns False.
         """
         fnames = generate_sqlloader_filenames(
-            self.forecast_start, self.forecast_end, self.forecast_type, self.tables
+            self.run_start, self.run_end, self.forecast_type, self.tables
         ).values()
         check = [
             (self.raw_cache / Path(fname + ".parquet")).exists() for fname in fnames
