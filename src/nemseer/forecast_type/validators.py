@@ -31,8 +31,8 @@ def _determine_last_market_day_end_for_half_hourly(dt: datetime) -> datetime:
 
 
 def validate_P5MIN_datetime_inputs(
-    forecast_start: datetime,
-    forecast_end: datetime,
+    run_start: datetime,
+    run_end: datetime,
     forecasted_start: datetime,
     forecasted_end: datetime,
 ) -> None:
@@ -51,14 +51,14 @@ def validate_P5MIN_datetime_inputs(
       Minute component of datetime inputs is on a 5 minute basis
     Check 2:
       :attr:`forecasted_end` is not more than 55 minutes (12 cycles) from
-      :attr:`forecast_end`
+      :attr:`run_end`
 
     These 12 dispatch cycles include the immediate interval
     (i.e. where `RUN_DATETIME` = `INTERVAL_DATETIME`)
 
     Args:
-        forecast_start: Forecast runs at or after this datetime are queried.
-        forecast_end: Forecast runs before or at this datetime are queried.
+        run_start: Forecast runs at or after this datetime are queried.
+        run_end: Forecast runs before or at this datetime are queried.
         forecasted_start: Forecasts pertaining to times at or after this
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
@@ -68,7 +68,7 @@ def validate_P5MIN_datetime_inputs(
     """
     # Check 1
     acceptable_minutes = set(range(0, 60, 5))
-    for dt_input in (forecast_start, forecast_end, forecasted_start, forecasted_end):
+    for dt_input in (run_start, run_end, forecasted_start, forecasted_end):
         if dt_input.minute not in acceptable_minutes:
             raise ValueError(
                 "P5MIN is run every 5 minutes.\n"
@@ -76,18 +76,18 @@ def validate_P5MIN_datetime_inputs(
                 + f"{acceptable_minutes}"
             )
     # Check 2
-    if forecasted_end > (allowed := forecast_end + timedelta(minutes=55)):
+    if forecasted_end > (allowed := run_end + timedelta(minutes=55)):
         print_allowed = allowed.strftime(_PRINT_FORMAT)
         raise ValueError(
-            "For P5MIN, forecasted_end must be within 55 minutes of forecast_end.\n"
-            + f"This corresponds to {print_allowed} for the provided forecast_end"
+            "For P5MIN, forecasted_end must be within 55 minutes of run_end.\n"
+            + f"This corresponds to {print_allowed} for the provided run_end"
         )
     return None
 
 
 def validate_PREDISPATCH_datetime_inputs(
-    forecast_start: datetime,
-    forecast_end: datetime,
+    run_start: datetime,
+    run_end: datetime,
     forecasted_start: datetime,
     forecasted_end: datetime,
 ) -> None:
@@ -118,11 +118,11 @@ def validate_PREDISPATCH_datetime_inputs(
     Check 2:
       :attr:`forecasted_end` is no later than the end of the last trading day for which
       bid band prices have closed (the end of that day being 04:00) by
-      :attr:`forecast_end`
+      :attr:`run_end`
 
     Args:
-        forecast_start: Forecast runs at or after this datetime are queried.
-        forecast_end: Forecast runs before or at this datetime are queried.
+        run_start: Forecast runs at or after this datetime are queried.
+        run_end: Forecast runs before or at this datetime are queried.
         forecasted_start: Forecasts pertaining to times at or after this
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
@@ -132,7 +132,7 @@ def validate_PREDISPATCH_datetime_inputs(
     """
     # Check 1
     acceptable_minutes = set((0, 30))
-    for dt_input in (forecast_start, forecast_end, forecasted_start, forecasted_end):
+    for dt_input in (run_start, run_end, forecasted_start, forecasted_end):
         if dt_input.minute not in acceptable_minutes:
             raise ValueError(
                 "PREDISPATCH/PDPASA is run every 30 minutes.\n"
@@ -140,19 +140,19 @@ def validate_PREDISPATCH_datetime_inputs(
                 + f"{acceptable_minutes}"
             )
     # Check 2
-    check_dt = _determine_last_market_day_end_for_half_hourly(forecast_end)
+    check_dt = _determine_last_market_day_end_for_half_hourly(run_end)
     if forecasted_end > check_dt:
         print_allowed = check_dt.strftime(_PRINT_FORMAT)
         raise ValueError(
             "For PREDISPATCH/PDPASA, forecasted_end must be no later than"
-            + f" {print_allowed} based on the supplied forecast_end"
+            + f" {print_allowed} based on the supplied run_end"
         )
     return None
 
 
 def validate_PDPASA_datetime_inputs(
-    forecast_start: datetime,
-    forecast_end: datetime,
+    run_start: datetime,
+    run_end: datetime,
     forecasted_start: datetime,
     forecasted_end: datetime,
 ) -> None:
@@ -162,8 +162,8 @@ def validate_PDPASA_datetime_inputs(
     PREDISPATCH and PDPASA are the same.
 
     Args:
-        forecast_start: Forecast runs at or after this datetime are queried.
-        forecast_end: Forecast runs before or at this datetime are queried.
+        run_start: Forecast runs at or after this datetime are queried.
+        run_end: Forecast runs before or at this datetime are queried.
         forecasted_start: Forecasts pertaining to times at or after this
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
@@ -172,14 +172,14 @@ def validate_PDPASA_datetime_inputs(
         ValueError: If any validation conditions are failed.
     """
     validate_PREDISPATCH_datetime_inputs(
-        forecast_start, forecast_end, forecasted_start, forecasted_end
+        run_start, run_end, forecasted_start, forecasted_end
     )
     return None
 
 
 def validate_STPASA_inputs(
-    forecast_start: datetime,
-    forecast_end: datetime,
+    run_start: datetime,
+    run_end: datetime,
     forecasted_start: datetime,
     forecasted_end: datetime,
 ) -> None:
@@ -218,14 +218,14 @@ def validate_STPASA_inputs(
     Check 3:
       :attr:`forecasted_start` is not equal to or earlier than the end of the
       last trading day for which bid band prices have closed
-      (the end of that day being 04:00) by :attr:`forecast_start`
+      (the end of that day being 04:00) by :attr:`run_start`
     Check 4:
       :attr:`forecasted_end` is no later than 6 days from the end of the last trading
-      day for which bid band prices have closed by :attr:`forecast_end`
+      day for which bid band prices have closed by :attr:`run_end`
 
     Args:
-        forecast_start: Forecast runs at or after this datetime are queried.
-        forecast_end: Forecast runs before or at this datetime are queried.
+        run_start: Forecast runs at or after this datetime are queried.
+        run_end: Forecast runs before or at this datetime are queried.
         forecasted_start: Forecasts pertaining to times at or after this
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
@@ -234,11 +234,9 @@ def validate_STPASA_inputs(
         ValueError: If any validation conditions are failed.
     """
     # Check 1
-    for forecast_input in (forecast_start, forecast_end):
+    for forecast_input in (run_start, run_end):
         if forecast_input.minute != 0:
-            raise ValueError(
-                "ST PASA forecast_start and forecast_end must be on the hour"
-            )
+            raise ValueError("ST PASA run_start and run_end must be on the hour")
     # Check 2
     forecasted_minutes = set((0, 30))
     for dt_input in (forecasted_start, forecasted_end):
@@ -250,13 +248,13 @@ def validate_STPASA_inputs(
                 + f" should correspond to: {forecasted_minutes}"
             )
     # Check 3
-    end_of_last = _determine_last_market_day_end_for_half_hourly(forecast_start)
+    end_of_last = _determine_last_market_day_end_for_half_hourly(run_start)
     start_check_dt = end_of_last + timedelta(minutes=30)
     if forecasted_start < start_check_dt:
         print_allowed = start_check_dt.strftime(_PRINT_FORMAT)
         raise ValueError(
             f"For ST PASA, forecasted_start must be no earlier than {print_allowed} "
-            + "based on the supplied forecast_start"
+            + "based on the supplied run_start"
         )
     # Check 4
     end_check_dt = end_of_last + timedelta(days=6)
@@ -264,14 +262,14 @@ def validate_STPASA_inputs(
         print_allowed = end_check_dt.strftime(_PRINT_FORMAT)
         raise ValueError(
             f"For ST PASA, forecasted_end must be no later than {print_allowed} "
-            + "based on the supplied forecast_end"
+            + "based on the supplied run_end"
         )
     return None
 
 
 def validate_MTPASA_inputs(
-    forecast_start: datetime,
-    forecast_end: datetime,
+    run_start: datetime,
+    run_end: datetime,
     forecasted_start: datetime,
     forecasted_end: datetime,
 ) -> None:
@@ -289,21 +287,21 @@ def validate_MTPASA_inputs(
     - `MT PASA` is actually run at half-hourly resolution
       - But results are aggregated and reported for each day
     - Timing of "RUN_DATETIME" appears to be inconsistent on inspection
-      - No validation on :attr:`forecast_start` and :attr:`forecast_end`
+      - No validation on :attr:`run_start` and :attr:`run_end`
       - Compiler will instead collect all forecasts between provided forecast datetimes
 
     Validation checks:
 
     Check 1:
-      `forecasted_end` is within 2 years and 16 days of `forecast_end`. A 16 day offset
+      `forecasted_end` is within 2 years and 16 days of `run_end`. A 16 day offset
       appears to be in older data.Newer data appears to have a 6 day offset.
 
     Todo:
         Handle MTPASA DUID Availability
 
     Args:
-        forecast_start: Forecast runs at or after this datetime are queried.
-        forecast_end: Forecast runs before or at this datetime are queried.
+        run_start: Forecast runs at or after this datetime are queried.
+        run_end: Forecast runs before or at this datetime are queried.
         forecasted_start: Forecasts pertaining to times at or after this
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
@@ -311,15 +309,15 @@ def validate_MTPASA_inputs(
     Raises:
         ValueError: If any validation conditions are failed.
     """
-    if forecast_end.month == 2 and forecast_end.day == 29:
-        plus_six_years = forecast_end.replace(year=forecast_end.year + 6, day=28)
+    if run_end.month == 2 and run_end.day == 29:
+        plus_six_years = run_end.replace(year=run_end.year + 6, day=28)
     else:
-        plus_six_years = forecast_end.replace(year=forecast_end.year + 6)
+        plus_six_years = run_end.replace(year=run_end.year + 6)
     check_end_date = plus_six_years + timedelta(days=16)
     if forecasted_end > check_end_date:
         print_allowed = check_end_date.strftime(_PRINT_FORMAT)
         raise ValueError(
             f"For MT PASA, forecasted_end must be no later than {print_allowed} "
-            + "based on the supplied forecast_end"
+            + "based on the supplied run_end"
         )
     return None

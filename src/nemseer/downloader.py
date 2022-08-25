@@ -340,13 +340,13 @@ def get_unzipped_csv(url: str, raw_cache: Path) -> None:
         raise ValueError(f"Unexpected contents in zipfile from {url}")
 
 
-def _validate_tables_on_forecast_start(instance, attribute, value) -> None:
+def _validate_tables_on_run_start(instance, attribute, value) -> None:
     """Validates tables for the provided forecast type.
 
     Checks user-supplied tables against tables available in MMS Historical
-    Data SQLLoader for the month and year of forecast_start.
+    Data SQLLoader for the month and year of run_start.
     """
-    start_dt = instance.forecast_start
+    start_dt = instance.run_start
     actual_tables = get_sqlloader_forecast_tables(
         start_dt.year, start_dt.month, instance.forecast_type, actual=True
     )
@@ -363,10 +363,10 @@ def _validate_tables_on_forecast_start(instance, attribute, value) -> None:
 
 @define(kw_only=True)
 class ForecastTypeDownloader:
-    forecast_start: datetime
-    forecast_end: datetime
+    run_start: datetime
+    run_end: datetime
     forecast_type: str
-    tables: List[str] = field(validator=_validate_tables_on_forecast_start)
+    tables: List[str] = field(validator=_validate_tables_on_run_start)
     raw_cache: Path
 
     @classmethod
@@ -381,8 +381,8 @@ class ForecastTypeDownloader:
                         tables = _enumerate_tables(tables, table, enumerate_to)
 
         return cls(
-            forecast_start=query.forecast_start,
-            forecast_end=query.forecast_end,
+            run_start=query.run_start,
+            run_end=query.run_end,
             forecast_type=query.forecast_type,
             tables=tables,
             raw_cache=query.raw_cache,
@@ -396,7 +396,7 @@ class ForecastTypeDownloader:
         corresponding `.parquet` file is not located in the specified :attr:`raw_cache`.
         """
         filename_data = generate_sqlloader_filenames(
-            self.forecast_start, self.forecast_end, self.forecast_type, self.tables
+            self.run_start, self.run_end, self.forecast_type, self.tables
         )
         for metadata in filename_data.keys():
             fname = filename_data[metadata]

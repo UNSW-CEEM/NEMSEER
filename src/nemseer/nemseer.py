@@ -5,8 +5,8 @@ from .query import Query
 
 
 def download_raw_data(
-    forecast_start: str,
-    forecast_end: str,
+    run_start: str,
+    run_end: str,
     forecasted_start: str,
     forecasted_end: str,
     forecast_type: str,
@@ -19,8 +19,8 @@ def download_raw_data(
     Downloads raw forecast data and converts to parquet.
 
     Arguments:
-        forecast_start: Forecast runs at or after this datetime are queried.
-        forecast_end: Forecast runs before or at this datetime are queried.
+        run_start: Forecast runs at or after this datetime are queried.
+        run_end: Forecast runs before or at this datetime are queried.
         forecasted_start: Forecasts pertaining to times at or after this
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
@@ -31,8 +31,8 @@ def download_raw_data(
         raw_cache: Path to download files
     """
     query = Query.initialise(
-        forecast_start=forecast_start,
-        forecast_end=forecast_end,
+        run_start=run_start,
+        run_end=run_end,
         forecasted_start=forecasted_start,
         forecasted_end=forecasted_end,
         forecast_type=forecast_type,
