@@ -1,6 +1,14 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## v0.3.2 (25/08/2022)
+
+- Expand testing, including testing all to check zip content exits for all possible URLs
+- Add hidden file handler for corrupted CSV/zips from NEMWeb
+- Improve doc referencing
+- Rename `forecast_start/end` to `run_start/end`
+- Add forecast-type datetime validation and corresponding testing
+
 ## v0.3.1 (22/08/2022)
 
 - Patch for functionality in v0.3.0
