@@ -21,7 +21,7 @@ def get_test_year_and_month():
 
 
 @pytest.fixture(scope="module")
-def valid_datetimes():
+def valid_download_datetimes():
     run_start = "2021/02/01 00:00"
     run_end = "2021/02/05 00:00"
     forecasted_start = "2021/02/08 00:00"
@@ -30,13 +30,13 @@ def valid_datetimes():
 
 
 @pytest.fixture(scope="module")
-def download_file_to_cache(tmp_path_factory, valid_datetimes):
+def download_file_to_cache(tmp_path_factory, valid_download_datetimes):
     (
         run_start,
         run_end,
         forecasted_start,
         forecasted_end,
-    ) = valid_datetimes
+    ) = valid_download_datetimes
     tmp_dir = tmp_path_factory.mktemp("raw_cache")
     download_raw_data(
         run_start,
