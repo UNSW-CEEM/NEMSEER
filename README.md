@@ -28,7 +28,7 @@ pip install nemseer
 
 <sub><sup>Source: [Reserve services in the National Electricity Market, AEMC, 2021](https://www.aemc.gov.au/sites/default/files/2020-12/AEMC_Reserve%20services%20in%20the%20NEM%20directions%20paper_05.01.2021.pdf)</sup></sub>
 
-Whereas PASA processes are primarily used to assess resource adequacy (i.e. *"can operational demand be met in the forecast horizon with a sufficient safety (reserve) margin?"*) based on technical inputs and assumptions for resources in the market, pre-dispatch processes incorporate the latest set of market participant offers and thus produce regional prices forecasts[^1] for energy and frequency control ancillary services [(FCAS)](https://aemo.com.au/-/media/files/electricity/nem/security_and_reliability/ancillary_services/guide-to-ancillary-services-in-the-national-electricity-market.pdf). A more detailed overview of the various pre-dispatch and PASA processes can be found in the [glossary](glossary.md).
+Whereas PASA processes are primarily used to assess resource adequacy (i.e. *"can operational demand be met in the forecast horizon with a sufficient safety (reserve) margin?"*) based on technical inputs and assumptions for resources in the market, pre-dispatch processes incorporate the latest set of market participant offers and thus produce regional prices forecasts[^1] for energy and frequency control ancillary services [(FCAS)](https://aemo.com.au/-/media/files/electricity/nem/security_and_reliability/ancillary_services/guide-to-ancillary-services-in-the-national-electricity-market.pdf). A more detailed overview of the various pre-dispatch and PASA processes can be found in the [glossary](https://nemseer.readthedocs.io/en/latest/glossary.html).
 
 [^1]: We use the term *"forecast"* loosely, especially given that pre-dispatch "forecasts" change once participants update offer information (e.g. through rebidding). Rather, the purpose of these *"ahead processes"* is to provide system and market information to participants to inform their decision-making. However, to avoid confusion, we use the words "*"forecast"* and *"forecast types"* in `nemseer`.
 
@@ -50,7 +50,7 @@ Note that the methodologies for PD PASA and ST PASA are being reviewed by AEMO. 
 
 ### Glossary
 
-The [glossary](glossary) contains overviews of the PASA and pre-dispatch processes, and descriptions of terminology relevant to using `nemseer`.
+The [glossary](https://nemseer.readthedocs.io/en/latest/glossary.html) contains overviews of the PASA and pre-dispatch processes, and descriptions of terminology relevant to using `nemseer`.
 
 ### Quick start
 
