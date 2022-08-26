@@ -6,11 +6,13 @@
 [![codecov](https://codecov.io/gh/UNSW-CEEM/NEMSEER/branch/master/graph/badge.svg?token=BO69YSQIGI)](https://codecov.io/gh/UNSW-CEEM/NEMSEER)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-A package for downloading and handling forecasts for the National Electricity Market (NEM) from the Australian Energy Market Operator (AEMO).
+A package for downloading and handling historical forecast data for the National Electricity Market (NEM) produced by the Australian Energy Market Operator (AEMO).
 
-## Work in Progress
+## Development progress
 
-This package is a work in progress. For a high-level overview of development, check out the [roadmap](./ROADMAP.md).
+While this package is currently under development, `nemseer` can currently be used to download and cache historical forecast data from AEMO. Future releases will focus on handling downloaded data.
+
+For a high-level overview of development, check out the [roadmap](./ROADMAP.md).
 
 ## Installation
 
@@ -20,17 +22,17 @@ pip install nemseer
 
 ## Overview
 
-`nemseer` allows you to access AEMO [pre-dispatch](https://aemo.com.au/en/energy-systems/electricity/national-electricity-market-nem/data-nem/market-management-system-mms-data/pre-dispatch) and [Projected Assessment of System Adequacy (PASA)](https://wa.aemo.com.au/energy-systems/electricity/national-electricity-market-nem/nem-forecasting-and-planning/forecasting-and-reliability/projected-assessment-of-system-adequacy) forecast data.
+`nemseer` allows you to access historical AEMO [pre-dispatch](https://aemo.com.au/en/energy-systems/electricity/national-electricity-market-nem/data-nem/market-management-system-mms-data/pre-dispatch) and [Projected Assessment of System Adequacy (PASA)](https://wa.aemo.com.au/energy-systems/electricity/national-electricity-market-nem/nem-forecasting-and-planning/forecasting-and-reliability/projected-assessment-of-system-adequacy) forecast data available through the {term}`MMSDM Historical Data SQLLoader`.
 
 ![forecast_overview](docs/source/_static/forecast_timeframes.png)
 
 <sub><sup>Source: [Reserve services in the National Electricity Market, AEMC, 2021](https://www.aemc.gov.au/sites/default/files/2020-12/AEMC_Reserve%20services%20in%20the%20NEM%20directions%20paper_05.01.2021.pdf)</sup></sub>
 
-Whereas PASA processes attempt to assess resource adequacy (i.e. *"can operational demand be met in the forecast horizon with a sufficient safety (reserve) margin?"*) based on technical assumptions and inputs, pre-dispatch processes incorporate the latest set of market participant offers and thus produce regional prices forecasts[^1] for energy and frequency control ancillary services [(FCAS)](https://aemo.com.au/-/media/files/electricity/nem/security_and_reliability/ancillary_services/guide-to-ancillary-services-in-the-national-electricity-market.pdf).
+Whereas PASA processes are primarily used to assess resource adequacy (i.e. *"can operational demand be met in the forecast horizon with a sufficient safety (reserve) margin?"*) based on technical inputs and assumptions for resources in the market, pre-dispatch processes incorporate the latest set of market participant offers and thus produce regional prices forecasts[^1] for energy and frequency control ancillary services [(FCAS)](https://aemo.com.au/-/media/files/electricity/nem/security_and_reliability/ancillary_services/guide-to-ancillary-services-in-the-national-electricity-market.pdf). A more detailed overview of the various pre-dispatch and PASA processes can be found in the [glossary](glossary.md).
 
-[^1]: We use the term *"forecast"* loosely, especially given that pre-dispatch "forecasts" change once participants update offer information (e.g. through rebidding). Rather, the purpose of these *"ahead processes"* is to provide system and market information to participants to inform their decision-making.
+[^1]: We use the term *"forecast"* loosely, especially given that pre-dispatch "forecasts" change once participants update offer information (e.g. through rebidding). Rather, the purpose of these *"ahead processes"* is to provide system and market information to participants to inform their decision-making. However, to avoid confusion, we use the words "*"forecast"* and *"forecast types"* in `nemseer`.
 
-`nemseer` enables you to download and work with data from the following ahead processes:
+`nemseer` enables you to download and work with data from the following forecast types (where available, AEMO process and table descriptions are linked):
 
 1. 5-minute pre-dispatch (`P5MIN`: [Table descriptions](https://nemweb.com.au/Reports/Current/MMSDataModelReport/Electricity/MMS%20Data%20Model%20Report_files/MMS_222.htm#1))
 2. [Pre-dispatch](https://www.aemo.com.au/-/media/files/electricity/nem/security_and_reliability/power_system_ops/procedures/so_op_3704-predispatch.pdf?la=en) (`PREDISPATCH`: [Table descriptions](https://nemweb.com.au/Reports/Current/MMSDataModelReport/Electricity/MMS%20Data%20Model%20Report_files/MMS_260.htm#1))
@@ -42,13 +44,17 @@ Another helpful reference for PASA information is AEMO's [Reliability Standard I
 
 ### ST PASA Replacement Project
 
-Note that the methodologies for PD PASA and ST PASA are being reviewed. In particular, the ST PASA Replacement project will combine PD PASA and ST PASA into ST PASA. For more detail, refer to the [final determination of the rule change](https://www.aemc.gov.au/sites/default/files/2022-05/ERC0332%20-%20Updating%20Short%20Term%20PASA%20-%20Final%20determination.pdf) and the [AEMO ST PASA Replacement Project home page](https://aemo.com.au/en/initiatives/trials-and-initiatives/st-pasa-replacement-project).
+Note that the methodologies for PD PASA and ST PASA are being reviewed by AEMO. In particular, the ST PASA Replacement project will combine PD PASA and ST PASA into ST PASA. For more detail, refer to the [final determination of the rule change](https://www.aemc.gov.au/sites/default/files/2022-05/ERC0332%20-%20Updating%20Short%20Term%20PASA%20-%20Final%20determination.pdf) and the [AEMO ST PASA Replacement Project home page](https://aemo.com.au/en/initiatives/trials-and-initiatives/st-pasa-replacement-project).
 
 ## Usage
 
+### Glossary
+
+The [glossary](glossary) contains overviews of the PASA and pre-dispatch processes, and descriptions of terminology relevant to using `nemseer`.
+
 ### Quick start
 
-Check out the [Quick Start section](https://nemseer.readthedocs.io/en/latest/quick_start.html) in `nemseer`'s documentation.
+Check out the [Quick start](https://nemseer.readthedocs.io/en/latest/quick_start.html) for examples of how you can use `nemseer`.
 
 ## Contributing
 
@@ -63,3 +69,5 @@ Please note that this project is released with a [Code of Conduct](./CONDUCT.md)
 ## Credits
 
 `nemseer` was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter).
+
+Thanks to Nick Gorman for his help in reviewing elements of `nemseer`.

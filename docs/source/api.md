@@ -39,9 +39,9 @@ Use the {meth}`from_Query() <nemseer.downloader.ForecastTypeDownloader.from_Quer
 
 ### Scrapers and downloaders
 
-**Scrapers**: These functions scrape NEMWeb to assist `nemseer` in validating inputs and providing feedback to users.
+**Scrapers**: These functions scrape the {term}`MMSDM Historical Data SQLLoader` repository to assist `nemseer` in validating inputs and providing feedback to users.
 
-**Downloader**: The downloader function is used to download a `.zip` file.
+**Downloader**: Used to download a `.zip` file.
 
 ```{eval-rst}
 .. automodule:: nemseer.downloader
@@ -63,10 +63,7 @@ Valid inputs for {func}`clean_forecast_csv <nemseer.data_handlers.clean_forecast
 
 ### Validators
 
-These validators are specific to each `forecast_type`. They are used prior to initiating any downloads or other query actions (i.e. via {class}`Query <nemseer.query.Query>`), and check the following:
-
-- The requested table(s) is (are) available for the provided `run_start` and `run_end`
-- `forecast` times are compatible with `forecasted` times. These will depend on the forecast windows of each `forecast_type`
+These validators are specific to each {term}`forecast type`. They are used prior to initiating data compilation, and check that user-supplied datetime inputs are valid for the relevant {term}`forecast type`.
 
 ```{eval-rst}
 .. automodule:: nemseer.forecast_type.validators
