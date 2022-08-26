@@ -13,7 +13,7 @@ from nemseer.downloader import (
     get_sqlloader_years_and_months,
     get_unzipped_csv,
 )
-from nemseer.query import Query
+from nemseer.query import Query, generate_sqlloader_filenames
 
 
 def test_standard_sqlloader_url():
@@ -76,13 +76,13 @@ def test_table_fetch_for_pd(get_test_year_and_month):
 
 
 class TestForecastTypeDownloader:
-    def valid_query(self, raw_cache, valid_datetimes):
+    def valid_query(self, raw_cache, valid_download_datetimes):
         (
             run_start,
             run_end,
             forecasted_start,
             forecasted_end,
-        ) = valid_datetimes
+        ) = valid_download_datetimes
         return Query.initialise(
             run_start,
             run_end,
@@ -93,13 +93,13 @@ class TestForecastTypeDownloader:
             raw_cache=raw_cache,
         )
 
-    def valid_casesolution(self, raw_cache, valid_datetimes):
+    def valid_casesolution(self, raw_cache, valid_download_datetimes):
         (
             run_start,
             run_end,
             forecasted_start,
             forecasted_end,
-        ) = valid_datetimes
+        ) = valid_download_datetimes
         return Query.initialise(
             run_start,
             run_end,
@@ -110,13 +110,13 @@ class TestForecastTypeDownloader:
             raw_cache=raw_cache,
         )
 
-    def invalid_tables_query(self, raw_cache, valid_datetimes):
+    def invalid_tables_query(self, raw_cache, valid_download_datetimes):
         (
             run_start,
             run_end,
             forecasted_start,
             forecasted_end,
-        ) = valid_datetimes
+        ) = valid_download_datetimes
         return Query.initialise(
             run_start,
             run_end,
@@ -127,13 +127,13 @@ class TestForecastTypeDownloader:
             raw_cache=raw_cache,
         )
 
-    def constraint_solution_query_p5min(self, raw_cache, valid_datetimes):
+    def constraint_solution_query_p5min(self, raw_cache, valid_download_datetimes):
         (
             run_start,
             run_end,
             forecasted_start,
             forecasted_end,
-        ) = valid_datetimes
+        ) = valid_download_datetimes
         return Query.initialise(
             run_start,
             run_end,
@@ -144,13 +144,13 @@ class TestForecastTypeDownloader:
             raw_cache=raw_cache,
         )
 
-    def constraint_solution_query_pd(self, raw_cache, valid_datetimes):
+    def constraint_solution_query_pd(self, raw_cache, valid_download_datetimes):
         (
             run_start,
             run_end,
             forecasted_start,
             forecasted_end,
-        ) = valid_datetimes
+        ) = valid_download_datetimes
         return Query.initialise(
             run_start,
             run_end,
@@ -161,13 +161,13 @@ class TestForecastTypeDownloader:
             raw_cache=raw_cache,
         )
 
-    def casesolution_query(self, raw_cache, forecast_type, valid_datetimes):
+    def casesolution_query(self, raw_cache, forecast_type, valid_download_datetimes):
         (
             run_start,
             run_end,
             forecasted_start,
             forecasted_end,
-        ) = valid_datetimes
+        ) = valid_download_datetimes
         return Query.initialise(
             run_start,
             run_end,
@@ -178,13 +178,13 @@ class TestForecastTypeDownloader:
             raw_cache=raw_cache,
         )
 
-    def predisp_all_query(self, raw_cache, valid_datetimes):
+    def predisp_all_query(self, raw_cache, valid_download_datetimes):
         (
             run_start,
             run_end,
             forecasted_start,
             forecasted_end,
-        ) = valid_datetimes
+        ) = valid_download_datetimes
         return Query.initialise(
             run_start,
             run_end,
@@ -195,13 +195,13 @@ class TestForecastTypeDownloader:
             raw_cache=raw_cache,
         )
 
-    def predisp_d_query(self, raw_cache, valid_datetimes):
+    def predisp_d_query(self, raw_cache, valid_download_datetimes):
         (
             run_start,
             run_end,
             forecasted_start,
             forecasted_end,
-        ) = valid_datetimes
+        ) = valid_download_datetimes
         return Query.initialise(
             run_start,
             run_end,
@@ -212,21 +212,21 @@ class TestForecastTypeDownloader:
             raw_cache=raw_cache,
         )
 
-    def test_invalid_tables(self, tmp_path, valid_datetimes):
+    def test_invalid_tables(self, tmp_path, valid_download_datetimes):
         with pytest.raises(ValueError):
             ForecastTypeDownloader.from_Query(
-                self.invalid_tables_query(tmp_path, valid_datetimes)
+                self.invalid_tables_query(tmp_path, valid_download_datetimes)
             )
 
-    def test_table_enumeration(self, tmp_path, valid_datetimes):
+    def test_table_enumeration(self, tmp_path, valid_download_datetimes):
         """
         Add other initialisations if additional tables require enumeration
         """
         ftd_p5 = ForecastTypeDownloader.from_Query(
-            self.constraint_solution_query_p5min(tmp_path, valid_datetimes)
+            self.constraint_solution_query_p5min(tmp_path, valid_download_datetimes)
         )
         ftd_pd = ForecastTypeDownloader.from_Query(
-            self.constraint_solution_query_pd(tmp_path, valid_datetimes)
+            self.constraint_solution_query_pd(tmp_path, valid_download_datetimes)
         )
         p5_to_check = set(
             [
@@ -256,9 +256,13 @@ class TestForecastTypeDownloader:
             )
             get_unzipped_csv(bad_url, tmp_path)
 
-    def test_casesolution_download_and_to_parquet(self, tmp_path, valid_datetimes):
+    def test_casesolution_download_and_to_parquet(
+        self, tmp_path, valid_download_datetimes
+    ):
         for forecast_type in ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA"):
-            query = self.casesolution_query(tmp_path, forecast_type, valid_datetimes)
+            query = self.casesolution_query(
+                tmp_path, forecast_type, valid_download_datetimes
+            )
             downloader = ForecastTypeDownloader.from_Query(query)
             downloader.download_csv()
             downloader.convert_to_parquet()
@@ -281,9 +285,31 @@ class TestForecastTypeDownloader:
             ]
         )
 
-    def test_parquet_conversion(self, caplog, tmp_path, valid_datetimes):
+    def test_skip_invalid_zip(self, caplog, tmp_path, valid_download_datetimes):
+        query = self.valid_casesolution(tmp_path, valid_download_datetimes)
+        stubfile = query.raw_cache / ".invalid_aemo_files.txt"
+        fnames = generate_sqlloader_filenames(
+            query.run_start, query.run_end, query.forecast_type, query.tables
+        ).values()
+        with open(stubfile, "x") as f:
+            for fn in fnames:
+                f.write(f"{fn}\n")
+        downloader = ForecastTypeDownloader.from_Query(query)
+        caplog.set_level(logging.WARNING)
+        downloader.download_csv()
+        assert any(
+            [
+                record.msg
+                for record in caplog.get_records("call")
+                if "PUBLIC_DVD_STPASA_CASESOLUTION_202102010000 previously found to be "
+                + "invalid/corrupted. Skipping download for this file."
+                in record.msg
+            ]
+        )
+
+    def test_parquet_conversion(self, caplog, tmp_path, valid_download_datetimes):
         downloader = ForecastTypeDownloader.from_Query(
-            self.valid_casesolution(tmp_path, valid_datetimes)
+            self.valid_casesolution(tmp_path, valid_download_datetimes)
         )
         caplog.set_level(logging.INFO)
         downloader.download_csv()
@@ -298,21 +324,21 @@ class TestForecastTypeDownloader:
             ]
         )
 
-    def test_bad_zipfile_handling(self, tmp_path, mocker, valid_datetimes):
+    def test_bad_zipfile_handling(self, tmp_path, mocker, valid_download_datetimes):
         def mock_extractall(self, raw_cache):
             raise BadZipFile
 
         mocker.patch("nemseer.downloader.ZipFile.extractall", mock_extractall)
-        query = self.casesolution_query(tmp_path, "STPASA", valid_datetimes)
+        query = self.casesolution_query(tmp_path, "STPASA", valid_download_datetimes)
         downloader = ForecastTypeDownloader.from_Query(query)
         downloader.download_csv()
         with open(tmp_path / ".invalid_aemo_files.txt", "r") as f:
             line = f.readline()
         assert not line == "PUBLIC_DVD_STPASA_CASESOLUTION_202102010000"
 
-    def test_predisp_handling(self, tmp_path, valid_datetimes):
-        predisp_all_query = self.predisp_all_query(tmp_path, valid_datetimes)
-        predisp_d_query = self.predisp_d_query(tmp_path, valid_datetimes)
+    def test_predisp_handling(self, tmp_path, valid_download_datetimes):
+        predisp_all_query = self.predisp_all_query(tmp_path, valid_download_datetimes)
+        predisp_d_query = self.predisp_d_query(tmp_path, valid_download_datetimes)
         for query in (predisp_d_query, predisp_all_query):
             downloader = ForecastTypeDownloader.from_Query(query)
             downloader.download_csv()
