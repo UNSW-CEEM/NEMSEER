@@ -9,6 +9,7 @@ maxdepth: 3
 caption: Contents
 ---
 quick_start
+glossary
 nemseer
 api
 ```

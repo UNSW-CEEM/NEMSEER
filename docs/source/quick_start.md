@@ -1,13 +1,33 @@
-# Quick Start
+# Quick start
 
-As of v0.2.0, you can download raw forecast data via `nemseer` and cache it in the [parquet](https://www.databricks.com/glossary/what-is-parquet) format. Parquet files can then be loaded using Python packages such as [pandas](https://pandas.pydata.org/docs/reference/api/pandas.read_parquet.html) and [dask](https://docs.dask.org/en/stable/generated/dask.dataframe.read_parquet.html).
+As of v0.2.0, you can download raw historical forecast data from the {term}`MMSDM Historical Data SQLLoader` via `nemseer` and cache it in the [parquet](https://www.databricks.com/glossary/what-is-parquet) format.
 
-## Forecast dates
+Parquet files can then be loaded using Python packages such as [pandas](https://pandas.pydata.org/docs/reference/api/pandas.read_parquet.html) and [dask](https://docs.dask.org/en/stable/generated/dask.dataframe.read_parquet.html). Future `nemseer` functionality will focus on building out basic data handling capabilities (e.g. datetime filtering based on datetime inputs).
 
-1. `run_start`: Forecast runs at or after this datetime are queried.
-2. `run_end`: Forecast runs before or at this datetime are queried.
-3. `forecasted_start`: Forecasts pertaining to times at or after this datetime are retained.
-4. `forecasted_end`: Forecasts pertaining to times before or at this datetime are retained.
+## Glossary
+
+Refer to the [glossary](glossary.md) for an overview of key terminology. This includes descriptions of datetimes accepted as inputs in `nemseer`:
+
+- {term}`run_start`
+- {term}`run_end`
+- {term}`forecasted_start`
+- {term}`forecasted_end`
+
+```{note}
+AEMO ahead process tables with forecasted results typically have *three* datetime columns:
+
+1. A `forecasted` time which the forecast outputs pertain to
+2. A nominal {term}`run time`. For most forecast types, this is reported in the `RUN_DATETIME` column.
+   - `P5MIN`: Every 5 minutes beginning on the hour
+   - `PREDISPATCH/PDPASA`: Every 30 minutes beginning on the hour
+   - `STPASA`: On the hour, either every hour or every two hours
+     - Frequency of runs was increased in 2021
+   - `MTPASA`: Run every week on Tuesdays, datetime of run will vary
+3. An {term}`actual run time`
+  - The *actual* `run` time can differ from the *nominal* time. For example:
+     - The 18:15 `P5MIN` run (`RUN_DATETIME`) may actually be run/published at 18:10 (`LASTCHANGED`)
+     - The 18:30 `PREDISPATCH` run (`PREDISPATCHSEQNO`, which is parsed into `PREDISPATCH_RUN_DATETIME` by `nemseer`) may actually be run/published at 18:02 (`LASTCHANGED`)
+```
 
 ## Downloading raw data
 
