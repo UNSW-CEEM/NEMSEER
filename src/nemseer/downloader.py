@@ -398,6 +398,7 @@ class ForecastTypeDownloader:
         filename_data = generate_sqlloader_filenames(
             self.run_start, self.run_end, self.forecast_type, self.tables
         )
+        invalid_or_corrupted_stubfile = self.raw_cache / ".invalid_aemo_files.txt"
         for metadata in filename_data.keys():
             fname = filename_data[metadata]
             (year, month, table) = metadata
@@ -405,6 +406,19 @@ class ForecastTypeDownloader:
                 logging.info(f"{table} for {month}/{year} in raw_cache")
                 continue
             else:
+                if invalid_or_corrupted_stubfile.exists():
+                    with open(invalid_or_corrupted_stubfile, "r") as f:
+                        invalid_or_corrupted = f.readlines()
+                    check_files = [f.strip() for f in invalid_or_corrupted]
+                    if fname in check_files:
+                        logging.warning(
+                            f"{fname} previously found to be invalid/corrupted. "
+                            + "Skipping download for this file. "
+                            + "If downloading manually works, remove from "
+                            + ".invalid_aemo_files.txt in raw_cache. "
+                            + "Otherwise, contact AEMO."
+                        )
+                        continue
                 url = _construct_sqlloader_forecastdata_url(
                     year, month, self.forecast_type, table
                 )

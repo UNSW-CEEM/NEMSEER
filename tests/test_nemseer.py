@@ -1,12 +1,29 @@
+import logging
+
 import grequests  # type: ignore
 import pytest
 import requests
 
 from nemseer import forecast_types, get_tables
 from nemseer.downloader import (
+    ForecastTypeDownloader,
     _build_useragent_generator,
     _construct_sqlloader_forecastdata_url,
 )
+
+
+class TestDowloadRawData:
+    def test_download_and_query_check(self, caplog, download_file_to_cache):
+        query = download_file_to_cache
+        caplog.set_level(logging.INFO)
+        ForecastTypeDownloader.from_Query(query).download_csv()
+        assert any(
+            [
+                record.msg
+                for record in caplog.get_records("call")
+                if "REGIONRESULT for 2/2021 in raw_cache" == record.msg
+            ]
+        )
 
 
 @pytest.mark.parametrize("ftype", forecast_types)
