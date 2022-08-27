@@ -1,6 +1,12 @@
 # Changelog
 
 <!--next-version-placeholder-->
+
+## v0.4.0 (27/08/2022)
+
+- Improve docs, including addition of glossary
+- Implement invalid/corrupt file handler for raw data downloading
+
 ## v0.3.2 (25/08/2022)
 
 - Expand testing, including testing all to check zip content exits for all possible URLs
