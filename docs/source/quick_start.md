@@ -24,14 +24,14 @@ AEMO ahead process tables with forecasted results typically have *three* datetim
      - Frequency of runs was increased in 2021
    - `MTPASA`: Run every week on Tuesdays, datetime of run will vary
 3. An {term}`actual run time`
-  - The *actual* `run` time can differ from the *nominal* time. For example:
+   - The *actual* `run` time can differ from the *nominal* time. For example:
      - The 18:15 `P5MIN` run (`RUN_DATETIME`) may actually be run/published at 18:10 (`LASTCHANGED`)
      - The 18:30 `PREDISPATCH` run (`PREDISPATCHSEQNO`, which is parsed into `PREDISPATCH_RUN_DATETIME` by `nemseer`) may actually be run/published at 18:02 (`LASTCHANGED`)
 ```
 
 ## Downloading raw data
 
-You can download data to a cache using [{func}`download_raw_data() <nemseer.download_raw_data>`. Note that `forecasted` times need to be provided but are not used.
+You can download data to a cache using {func}`download_raw_data() <nemseer.download_raw_data>`. Note that `forecasted` times need to be provided but are not used.
 
 ```{testsetup}
 from pathlib import Path
