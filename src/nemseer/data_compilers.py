@@ -3,9 +3,16 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Union
 
-from attrs import define
+from attrs import define, field
 
 from .data import ENUMERATED_TABLES
+from .forecast_type.validators import (
+    validate_MTPASA_datetime_inputs,
+    validate_P5MIN_datetime_inputs,
+    validate_PDPASA_datetime_inputs,
+    validate_PREDISPATCH_datetime_inputs,
+    validate_STPASA_datetime_inputs,
+)
 from .query import Query, _enumerate_tables, generate_sqlloader_filenames
 
 logger = logging.getLogger(__name__)
@@ -32,7 +39,7 @@ def _map_files_to_table(
         queried table.
     """
     metadata_to_filename = generate_sqlloader_filenames(
-        forecast_start, forecast_end, forecast_type, tables
+        run_start, run_end, forecast_type, tables
     )
     table_file_map = {}
     for table in tables:
@@ -44,11 +51,30 @@ def _map_files_to_table(
     return table_file_map
 
 
+def _input_datetime_validation(instance, attribute, value) -> None:
+    """Dispatches the correct datetime validator based on the :term:`forecast_type`"""
+    validator_map = {
+        "P5MIN": validate_P5MIN_datetime_inputs,
+        "PREDISPATCH": validate_PREDISPATCH_datetime_inputs,
+        "PDPASA": validate_PDPASA_datetime_inputs,
+        "STPASA": validate_STPASA_datetime_inputs,
+        "MTPASA": validate_MTPASA_datetime_inputs,
+    }
+    validator_func = validator_map[instance.forecast_type]
+    validator_func(
+        instance.run_start,
+        instance.run_end,
+        instance.forecasted_start,
+        instance.forecasted_end,
+    )
+    return None
+
+
 @define
 class DataCompiler:
     """`DataCompiler` compiles data"""
 
-    run_start: datetime
+    run_start: datetime = field(validator=_input_datetime_validation)
     run_end: datetime
     forecasted_start: datetime
     forecasted_end: datetime
