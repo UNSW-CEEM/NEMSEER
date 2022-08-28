@@ -278,7 +278,7 @@ def validate_MTPASA_datetime_inputs(
     national-electricity-market-nem/data-nem/market-management-system-mms-data/
     projected-assessment-of-system-adequacy-pasa>`_:
 
-      [ST PASA] is produced weekly (on Tuesdays) and lists the medium-term
+      [MT PASA] is produced weekly (on Tuesdays) and lists the medium-term
       supply/demand prospects for the period two years in advance.
       The information is provided for each day within the report period.
 
