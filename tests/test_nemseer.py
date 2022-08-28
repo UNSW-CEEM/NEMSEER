@@ -4,9 +4,8 @@ import grequests  # type: ignore
 import pytest
 import requests
 
-from nemseer import forecast_types, get_tables
+from nemseer import download_raw_data, forecast_types, get_tables
 from nemseer.downloader import (
-    ForecastTypeDownloader,
     _build_useragent_generator,
     _construct_sqlloader_forecastdata_url,
 )
@@ -16,12 +15,21 @@ class TestDowloadRawData:
     def test_download_and_query_check(self, caplog, download_file_to_cache):
         query = download_file_to_cache
         caplog.set_level(logging.INFO)
-        ForecastTypeDownloader.from_Query(query).download_csv()
+        date_strformat = "%Y/%m/%d %H:%M"
+        download_raw_data(
+            query.run_start.strftime(date_strformat),
+            query.run_end.strftime(date_strformat),
+            query.forecasted_start.strftime(date_strformat),
+            query.forecasted_end.strftime(date_strformat),
+            query.forecast_type,
+            query.tables,
+            query.raw_cache,
+        )
         assert any(
             [
                 record.msg
                 for record in caplog.get_records("call")
-                if "REGIONRESULT for 2/2021 in raw_cache" == record.msg
+                if "Query raw data already downloaded to" in record.msg
             ]
         )
 
