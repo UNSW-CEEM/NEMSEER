@@ -3,6 +3,8 @@ from typing import Union
 
 import pandas as pd
 
+from .data import DATETIME_FORMAT
+
 
 def _parse_datetime_cols(df: pd.DataFrame) -> pd.DataFrame:
     """Finds datetime columns in the DataFrame and converts them to datetime
@@ -34,9 +36,8 @@ def _parse_datetime_cols(df: pd.DataFrame) -> pd.DataFrame:
         "OFFERDATE",
     }
     dt_cols_present = dt_cols.intersection(set(df.columns.tolist()))
-    dt_format = "%Y/%m/%d %H:%M:%S"
     for col in dt_cols_present:
-        df.loc[:, col] = pd.to_datetime(df[col], format=dt_format)
+        df.loc[:, col] = pd.to_datetime(df[col], format=DATETIME_FORMAT)
     return df
 
 

@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-_PRINT_FORMAT = "%Y/%m/%d %H:%M"
+from nemseer.data import DATETIME_FORMAT
 
 
 def _determine_last_market_day_end_for_half_hourly(dt: datetime) -> datetime:
@@ -77,7 +77,7 @@ def validate_P5MIN_datetime_inputs(
             )
     # Check 2
     if forecasted_end > (allowed := run_end + timedelta(minutes=55)):
-        print_allowed = allowed.strftime(_PRINT_FORMAT)
+        print_allowed = allowed.strftime(DATETIME_FORMAT)
         raise ValueError(
             "For P5MIN, forecasted_end must be within 55 minutes of run_end.\n"
             + f"This corresponds to {print_allowed} for the provided run_end"
@@ -142,7 +142,7 @@ def validate_PREDISPATCH_datetime_inputs(
     # Check 2
     check_dt = _determine_last_market_day_end_for_half_hourly(run_end)
     if forecasted_end > check_dt:
-        print_allowed = check_dt.strftime(_PRINT_FORMAT)
+        print_allowed = check_dt.strftime(DATETIME_FORMAT)
         raise ValueError(
             "For PREDISPATCH/PDPASA, forecasted_end must be no later than"
             + f" {print_allowed} based on the supplied run_end"
@@ -251,7 +251,7 @@ def validate_STPASA_datetime_inputs(
     end_of_last_for_start = _determine_last_market_day_end_for_half_hourly(run_start)
     start_check_dt = end_of_last_for_start + timedelta(minutes=30)
     if forecasted_start < start_check_dt:
-        print_allowed = start_check_dt.strftime(_PRINT_FORMAT)
+        print_allowed = start_check_dt.strftime(DATETIME_FORMAT)
         raise ValueError(
             f"For ST PASA, forecasted_start must be no earlier than {print_allowed} "
             + "based on the supplied run_start"
@@ -260,7 +260,7 @@ def validate_STPASA_datetime_inputs(
     end_of_last_for_end = _determine_last_market_day_end_for_half_hourly(run_end)
     end_check_dt = end_of_last_for_end + timedelta(days=6)
     if forecasted_end > end_check_dt:
-        print_allowed = end_check_dt.strftime(_PRINT_FORMAT)
+        print_allowed = end_check_dt.strftime(DATETIME_FORMAT)
         raise ValueError(
             f"For ST PASA, forecasted_end must be no later than {print_allowed} "
             + "based on the supplied run_end"
@@ -327,7 +327,7 @@ def validate_MTPASA_datetime_inputs(
         plus_two_years = run_end.replace(year=run_end.year + 2)
     check_end_date = plus_two_years + timedelta(days=16)
     if forecasted_end > check_end_date:
-        print_allowed = check_end_date.strftime(_PRINT_FORMAT)
+        print_allowed = check_end_date.strftime(DATETIME_FORMAT)
         raise ValueError(
             f"For MT PASA, forecasted_end must be no later than {print_allowed} "
             + "based on the supplied run_end"

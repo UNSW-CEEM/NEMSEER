@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Tuple, Union
 from attrs import converters, define, field, validators
 from dateutil import rrule
 
-from .data import ENUMERATED_TABLES
+from .data import DATETIME_FORMAT, ENUMERATED_TABLES
 
 logger = logging.getLogger(__name__)
 
@@ -22,8 +22,7 @@ def _dt_converter(value: str) -> datetime:
         ValueError: If provided datetime string is invalid
     """
     try:
-        format = "%Y/%m/%d %H:%M"
-        return datetime.strptime(value, format)
+        return datetime.strptime(value, DATETIME_FORMAT)
     except ValueError:
         raise ValueError(
             "Datetime invalid. Datetime should be provided as follows: yyyy/mm/dd HH:MM"
