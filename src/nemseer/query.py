@@ -112,7 +112,7 @@ def _construct_sqlloader_filename(
     Args:
         year: Year
         month: Month
-        forecast_type: One of :data:`nemseer.forecast_types`
+        forecast_type: One of :data:`nemseer.forecast_types`. See :term:`forecast types`
         table: The name of the table required
     Returns:
         Filename string without file type
@@ -139,11 +139,11 @@ def generate_sqlloader_filenames(
     Args:
         run_start: Forecast runs at or after this datetime are queried.
         run_end: Forecast runs before or at this datetime are queried.
-        forecast_type: One of :data:`nemseer.forecast_types`
+        forecast_type: One of :data:`nemseer.forecast_types`.
         tables: Table or tables required, provided as a List.
     Returns:
         A tuple of query metadata (`table`, `year`, `month`) mapped to each
-        format-agnostic (SQLLOader) filename
+        format-agnostic (:term:`SQLLoader`) filename
     """
     intervening_dates = rrule.rrule(rrule.MONTHLY, dtstart=run_start, until=run_end)
     filename_data = {}
@@ -162,7 +162,8 @@ def generate_sqlloader_filenames(
 
 @define
 class Query:
-    """`Query` validates user inputs and dispatches data downloaders and compilers
+    """:class:`Query` validates user inputs and dispatches data downloaders and
+    compilers
 
     Construct :class:`Query` using the :meth:`Query.initialise()` constructor. This
     ensures query metadata is constructed approriately.
@@ -170,10 +171,10 @@ class Query:
     Query:
 
     - Validates user input data
-        - Checks datetime fit `yyyy/mm/dd HH:MM` format
+        - Checks datetimes fit :attr:`yyyy/mm/dd HH:MM` format
         - Checks datetime chronology (e.g. end is after start)
-        - Checks requested datetimes are valid for each `forecast_type`
-        - Validates `forecast_type`
+        - Checks requested datetimes are valid for each :term:`forecast type`
+        - Validates :term:`forecast type`
         - Validates user-requested tables against what is available on NEMWeb
     - Retains query metadata (via constructor class method
       :meth:`nemseer.query.Query.initialise`)
@@ -188,13 +189,13 @@ class Query:
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
             datetime are retaned.
-        forecast_type: One of :data:`nemseer.forecast_types`
+        forecast_type: One of :data:`nemseer.forecast_types`.
         tables: Table or tables required. A single table can be supplied as
             a string. Multiple tables can be supplied as a list of strings.
         metadata: Metadata dictionary. Constructed by `Query.initialise()`.
-        raw_cache (optional): Path to build or reuse raw cache.
+        raw_cache (optional): Path to build or reuse :term:`raw_cache`.
         processed_cache (optional): Path to build or reuse processed cache. Should be
-          distinct from raw_cache
+          distinct from :attr:`raw_cache`
 
     """
 
