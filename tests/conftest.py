@@ -89,3 +89,21 @@ def gen_n_datetimes(request):
         return dts.pop()
     else:
         return dts
+
+
+@pytest.fixture
+def fix_forecasted_dt():
+    def _method(forecasted_dt: datetime, forecast_type: str):
+        """Fixes output from _gen_datetime to create a valid `forecasted` time"""
+        forecasted_dt = forecasted_dt.replace(second=0, microsecond=0)
+        if forecast_type == "P5MIN":
+            forecasted_dt = forecasted_dt.replace(minute=25)
+        elif forecast_type in ["PDPASA", "PREDISPATCH"]:
+            forecasted_dt = forecasted_dt.replace(minute=30)
+        elif forecast_type == "MTPASA":
+            forecasted_dt = forecasted_dt.replace(hour=0, minute=0)
+        else:
+            forecasted_dt = forecasted_dt.replace(minute=0)
+        return forecasted_dt
+
+    return _method
