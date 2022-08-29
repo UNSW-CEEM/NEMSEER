@@ -13,7 +13,13 @@ from attrs import define, field
 from bs4 import BeautifulSoup
 from tqdm.auto import tqdm
 
-from .data import ENUMERATED_TABLES, MMSDM_ARCHIVE_URL, PREDISP_ALL_DATA, USER_AGENTS
+from .data import (
+    ENUMERATED_TABLES,
+    FORECAST_TYPES,
+    MMSDM_ARCHIVE_URL,
+    PREDISP_ALL_DATA,
+    USER_AGENTS,
+)
 from .data_handlers import clean_forecast_csv
 from .query import (
     Query,
@@ -27,9 +33,8 @@ logger = logging.getLogger(__name__)
 
 def _validate_forecast_type(forecast_type: str):
     """Check user-supplied forecast type is valid"""
-    valid_types = ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA")
-    if forecast_type not in valid_types:
-        raise ValueError(f"Forecast type should be one of {valid_types}")
+    if forecast_type not in FORECAST_TYPES:
+        raise ValueError(f"Forecast type should be one of {FORECAST_TYPES}")
 
 
 def _build_useragent_generator(n: int) -> Generator[str, None, None]:

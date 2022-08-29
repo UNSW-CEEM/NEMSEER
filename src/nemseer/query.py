@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Tuple, Union
 from attrs import converters, define, field, validators
 from dateutil import rrule
 
-from .data import DATETIME_FORMAT, ENUMERATED_TABLES
+from .data import DATETIME_FORMAT, ENUMERATED_TABLES, FORECAST_TYPES
 
 logger = logging.getLogger(__name__)
 
@@ -207,9 +207,7 @@ class Query:
         converter=_dt_converter, validator=[_validate_forecasted_chronology]
     )
     forecasted_end: datetime = field(converter=_dt_converter)
-    forecast_type: str = field(
-        validator=validators.in_(["MTPASA", "STPASA", "PDPASA", "PREDISPATCH", "P5MIN"])
-    )
+    forecast_type: str = field(validator=validators.in_(FORECAST_TYPES))
     tables: List[str] = field(converter=_tablestr_converter)
     metadata: Dict
     raw_cache: Path = field(

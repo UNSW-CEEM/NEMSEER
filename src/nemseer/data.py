@@ -1,3 +1,6 @@
+FORECAST_TYPES = ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA")
+"""Forecast types requestable through nemseer"""
+
 MMSDM_ARCHIVE_URL = "http://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
 """Wholesale electricity data archive base URL"""
 
