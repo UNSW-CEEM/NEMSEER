@@ -29,6 +29,29 @@ DATETIME_FORMAT = "%Y/%m/%d %H:%M"
 nemseer date format
 """
 
+RUNTIME_COL = {
+    "P5MIN": "RUN_DATETIME",
+    "PREDISPATCH": "PREDISPATCH_RUN_DATETIME",
+    "PDPASA": "RUN_DATETIME",
+    "STPASA": "RUN_DATETIME",
+    "MTPASA": "RUN_DATETIME",
+}
+"""
+If it exists, `nemseer` will use the corresponding column for `run` time filtering.
+"""
+
+FORECASTED_COL = {
+    "P5MIN": "INTERVAL_DATETIME",
+    "PREDISPATCH": "DATETIME",
+    "PDPASA": "INTERVAL_DATETIME",
+    "STPASA": "INTERVAL_DATETIME",
+    "MTPASA": "DAY",
+}
+"""
+If it exists, `nemseer` will use the corresponding column for `forecasted` time
+filtering.
+"""
+
 USER_AGENTS = [
     (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
