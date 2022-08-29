@@ -1,23 +1,31 @@
-# Wholesale electricity data archive base URL
 MMSDM_ARCHIVE_URL = "http://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+"""Wholesale electricity data archive base URL"""
 
-# Tables which should be directed to the PREDISP_ALL_DATA URL
-# The corresponding tables in the DATA folder (which end with "_D") only contain the
-# latest forecasted value
 PREDISP_ALL_DATA = ("CONSTRAINT", "INTERCONNECTORRES", "PRICE", "LOAD", "REGIONSUM")
+"""
+Tables which should be directed to the PREDISP_ALL_DATA URL.
+The corresponding tables in the DATA folder (which end with "_D") only contain the
+latest forecasted value
+"""
 
-# MTPASA DUID Availability
 MTPASA_DUID_URL = "http://nemweb.com.au/Reports/Current/MTPASA_DUIDAvailability/"
+"""MTPASA DUID Availability"""
 
-# Enumerated tables for each forecast type
-# First element of tuple is table name
-# Second element of tuple is number which to enumerate table to
 ENUMERATED_TABLES = {
     "P5MIN": [("CONSTRAINTSOLUTION", 4)],
     "PREDISPATCH": [("CONSTRAINT", 2), ("LOAD", 2)],
 }
+"""
+Enumerated tables for each forecast type
+First element of tuple is table name
+Second element of tuple is number which to enumerate table to
+"""
 
-# User agents
+DATETIME_FORMAT = "%Y/%m/%d %H:%M"
+"""
+nemseer date format
+"""
+
 USER_AGENTS = [
     (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -73,3 +81,4 @@ USER_AGENTS = [
         + "Raspbian Chromium/74.0.3729.157 Chrome/74.0.3729.157 Safari/537.36"
     ),
 ]
+"""List of user-agents"""
