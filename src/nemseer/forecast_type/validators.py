@@ -72,7 +72,7 @@ def validate_P5MIN_datetime_inputs(
         if dt_input.minute not in acceptable_minutes:
             raise ValueError(
                 "P5MIN is run every 5 minutes.\n"
-                + " Minutes in datetime inputs should correspond to: "
+                + "Minutes in datetime inputs should correspond to: "
                 + f"{acceptable_minutes}"
             )
     # Check 2
@@ -136,7 +136,7 @@ def validate_PREDISPATCH_datetime_inputs(
         if dt_input.minute not in acceptable_minutes:
             raise ValueError(
                 "PREDISPATCH/PDPASA is run every 30 minutes.\n"
-                + " Minutes in datetime inputs should correspond to: "
+                + "Minutes in datetime inputs should correspond to: "
                 + f"{acceptable_minutes}"
             )
     # Check 2
@@ -318,7 +318,7 @@ def validate_MTPASA_datetime_inputs(
         if forecasted_input.hour != 0 or forecasted_input.minute != 0:
             raise ValueError(
                 "Results for MT PASA reported for each day. Forecasted start/end should"
-                + "be supplied with hh:mm of 00:00"
+                + " be supplied with hh:mm of 00:00"
             )
     # Check 2
     if run_end.month == 2 and run_end.day == 29:
