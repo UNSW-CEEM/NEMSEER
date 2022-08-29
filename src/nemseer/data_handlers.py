@@ -1,9 +1,13 @@
+import logging
+from datetime import datetime
 from pathlib import Path
 from typing import Union
 
 import pandas as pd
 
-from .data import DATETIME_FORMAT
+from .data import DATETIME_FORMAT, FORECASTED_COL, RUNTIME_COL
+
+logger = logging.getLogger(__name__)
 
 
 def _parse_datetime_cols(df: pd.DataFrame) -> pd.DataFrame:
@@ -103,4 +107,39 @@ def clean_forecast_csv(filepath_or_buffer: Union[str, Path]) -> pd.DataFrame:
     df = _parse_id_cols(df)
     if "PREDISPATCHSEQNO" in df.columns:
         df = _parse_predispatch_seq_no(df)
+    if any(dup_df := df.duplicated()):
+        dup_rows = dup_df.loc[dup_df is True]
+        logging.warning(
+            "Duplicate rows detected. Dropping the following rows:\n" + f"{dup_rows}"
+        )
+        df = df.drop_duplicates()
+    return df
+
+
+def _filter_on_datetime_col(
+    df: pd.DataFrame, dt_col: str, start: datetime, end: datetime
+) -> pd.DataFrame:
+    df = df.loc[df[dt_col] >= start, :]
+    df = df.loc[df[dt_col] <= end, :]
+    return df
+
+
+def apply_run_and_forecasted_time_filters(
+    df: pd.DataFrame,
+    forecast_type: str,
+    run_start: datetime,
+    run_end: datetime,
+    forecasted_start: datetime,
+    forecasted_end: datetime,
+) -> pd.DataFrame:
+    (runtime_col, forecasted_col) = (
+        RUNTIME_COL[forecast_type],
+        FORECASTED_COL[forecast_type],
+    )
+    for (start, end), col in zip(
+        ((run_start, run_end), (forecasted_start, forecasted_end)),
+        (runtime_col, forecasted_col),
+    ):
+        if col in df.columns:
+            df = _filter_on_datetime_col(df, col, start, end)
     return df

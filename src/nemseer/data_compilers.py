@@ -3,9 +3,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Union
 
+import pandas as pd
 from attrs import define, field
 
 from .data import ENUMERATED_TABLES
+from .data_handlers import apply_run_and_forecasted_time_filters
 from .forecast_type.validators import (
     validate_MTPASA_datetime_inputs,
     validate_P5MIN_datetime_inputs,
@@ -83,6 +85,7 @@ class DataCompiler:
     metadata: Dict
     raw_cache: Path
     processed_cache: Union[None, Path]
+    compiled_data: Union[None, Dict[str, pd.DataFrame]] = field(default=None)
 
     @classmethod
     def from_Query(cls, query: Query) -> "DataCompiler":
@@ -107,7 +110,56 @@ class DataCompiler:
             metadata=query.metadata,
             raw_cache=query.raw_cache,
             processed_cache=processed_cache,
+            compiled_data=None,
         )
+
+    def invalid_or_corrupted_files(self) -> List[str]:
+        """
+
+        Todo:
+            Make stubfile a constant in data
+        """
+        invalid_or_corrupted_stubfile = self.raw_cache / Path(".invalid_aemo_files.txt")
+        if invalid_or_corrupted_stubfile.exists():
+            with open(invalid_or_corrupted_stubfile, "r") as f:
+                invalid_or_corrupted = f.readlines()
+            check_files = [f.strip() for f in invalid_or_corrupted]
+            return check_files
+        else:
+            return []
 
     def compile_raw_data(self):
         """"""
+        file_to_table_map = _map_files_to_table(
+            self.run_start, self.run_end, self.forecast_type, self.tables
+        )
+        table_to_df_map = {}
+        invalid_files = self.invalid_or_corrupted_files()
+        for table in file_to_table_map.keys():
+            files = file_to_table_map[table]
+            filtered_files = [file for file in files if file not in invalid_files]
+            if len(filtered_files) < len(files):
+                logging.warning(
+                    "Some files not compiled as these were found to be"
+                    + " invalid/corrupt on previous download. You can force nemseer"
+                    + " to load this file by deleting it from "
+                    + ".invalid_aemo_files.txt"
+                )
+            dfs = []
+            for file in filtered_files:
+                filepath = self.raw_cache / Path(f"{file}.parquet")
+                df = pd.read_parquet(filepath)
+                df = apply_run_and_forecasted_time_filters(
+                    df,
+                    self.forecast_type,
+                    self.run_start,
+                    self.run_end,
+                    self.forecasted_start,
+                    self.forecasted_end,
+                )
+                dfs.append(df)
+            if len(dfs) == 1:
+                table_to_df_map[table] = dfs.pop()
+            else:
+                table_to_df_map[table] = pd.concat(dfs, axis=0)
+        self.compiled_data = table_to_df_map
