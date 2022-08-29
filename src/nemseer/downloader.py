@@ -208,9 +208,10 @@ def get_sqlloader_forecast_tables(
 ) -> List[str]:
     """Requestable tables of particular forecast type on MMSDM Historical Data SQLLoader
 
-    If `actual` = False, provides a list of tables that can be requested via `nemseer`.
+    If :attr:`actual` = False, provides a list of tables that can be requested via
+    `nemseer`.
 
-    If `actual` = True, returns actual tables available via NEMWeb, including all
+    If :attr:`actual` = True, returns actual tables available via NEMWeb, including all
     tables that are enumerated.
 
     N.B.:
@@ -293,7 +294,9 @@ def get_sqlloader_years_and_months() -> Dict[int, List[int]]:
 
 
 def get_unzipped_csv(url: str, raw_cache: Path) -> None:
-    """Unzipped (single) csv file downloaded from `url` to :attr:`raw_cache`
+    """Unzipped (single) csv file downloaded from `url` to :term:`raw_cache`
+
+    This function:
 
     1. Downloads zip file in chunks to limit memory use and enable progress bar
     2. Validates that the zip contains a single file that has the same name as the zip
@@ -301,7 +304,7 @@ def get_unzipped_csv(url: str, raw_cache: Path) -> None:
 
     Args:
         url: URL of zip
-        raw_cache: Path to save zip
+        raw_cache: Path to save zip. See :term:`raw_cache`.
     Returns:
         None. Extracts csvs to :attr:`raw_cache`.
     """
@@ -368,6 +371,19 @@ def _validate_tables_on_run_start(instance, attribute, value) -> None:
 
 @define(kw_only=True)
 class ForecastTypeDownloader:
+    """:class:`ForecastTypeDownloader` can initiate csv downloads and convert
+    :term:`raw_cache` csvs to the parquet format.
+
+    Attributes:
+        run_start: Forecast runs at or after this datetime are queried.
+        run_end: Forecast runs before or at this datetime are queried.
+        forecast_type: One of :data:`nemseer.forecast_types`
+        tables: Table or tables required. A single table can be supplied as
+            a string. Multiple tables can be supplied as a list of strings.
+        raw_cache: Path to download raw data to. Can reuse or build a
+            new :term:`raw_cache`.
+    """
+
     run_start: datetime
     run_end: datetime
     forecast_type: str
@@ -433,8 +449,10 @@ class ForecastTypeDownloader:
     def convert_to_parquet(self, keep_csv=False) -> None:
         """Converts all CSVs in the :attr:`raw_cache` to parquet
 
-        Logs a warning if the filesize is greater than half of available memory as
-        :class:`pandas.DataFrame` consumes more than the file size in memory.
+        Warning:
+            A warning is printed if the filesize is greater than half of available
+            memory as :class:`pandas.DataFrame` consumes more than the file size in
+            memory.
         """
         csvs = list(Path(self.raw_cache).glob("*.[Cc][Ss][Vv]"))
         for csv in csvs:
