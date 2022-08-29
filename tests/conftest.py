@@ -59,14 +59,20 @@ def download_file_to_cache(tmp_path_factory, valid_download_datetimes):
 
 
 @pytest.fixture(scope="module")
-def gen_datetime():
+def gen_datetime(n: int = 1):
     """Generate a datetime in format yyyy-mm-dd hh:mm:ss.000000
 
     From this gist: https://gist.github.com/rg3915/db907d7455a4949dbe69
     """
-    min_year = 2012
-    max_year = datetime.now().year
-    start = datetime(min_year, 1, 1, 00, 00, 00)
-    years = max_year - min_year + 1
-    end = start + timedelta(days=365 * years)
-    return start + (end - start) * random.random()
+    dts = []
+    for _ in range(0, n):
+        min_year = 2012
+        max_year = datetime.now().year
+        start = datetime(min_year, 1, 1, 00, 00, 00)
+        years = max_year - min_year + 1
+        end = start + timedelta(days=365 * years)
+        dts.append(start + (end - start) * random.random())
+    if n == 1:
+        return dts.pop()
+    else:
+        return dts
