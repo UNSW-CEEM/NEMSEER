@@ -203,7 +203,7 @@ def validate_STPASA_datetime_inputs(
       been submitted
 
     The National Electricity Rules and some of AEMO's procedures state that ST PASA
-    is run every two hours. As of June 2021, the frequency was increased to hourly. See
+    is run every two hours. The frequency was increased to hourly. See
     `Spot Market Operations Timetable <https://www.aemo.com.au/-/media/Files/
     Electricity/NEM/Security_and_Reliability/Dispatch/
     Spot-Market-Operations-Timetable.pdf>`_.
