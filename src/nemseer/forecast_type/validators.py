@@ -234,8 +234,8 @@ def validate_STPASA_datetime_inputs(
         ValueError: If any validation conditions are failed.
     """
     # Check 1
-    for forecast_input in (run_start, run_end):
-        if forecast_input.minute != 0:
+    for run_input in (run_start, run_end):
+        if run_input.minute != 0:
             raise ValueError("ST PASA run_start and run_end must be on the hour")
     # Check 2
     forecasted_minutes = set((0, 30))
@@ -248,8 +248,8 @@ def validate_STPASA_datetime_inputs(
                 + f" should correspond to: {forecasted_minutes}"
             )
     # Check 3
-    end_of_last = _determine_last_market_day_end_for_half_hourly(run_start)
-    start_check_dt = end_of_last + timedelta(minutes=30)
+    end_of_last_for_start = _determine_last_market_day_end_for_half_hourly(run_start)
+    start_check_dt = end_of_last_for_start + timedelta(minutes=30)
     if forecasted_start < start_check_dt:
         print_allowed = start_check_dt.strftime(_PRINT_FORMAT)
         raise ValueError(
@@ -257,7 +257,8 @@ def validate_STPASA_datetime_inputs(
             + "based on the supplied run_start"
         )
     # Check 4
-    end_check_dt = end_of_last + timedelta(days=6)
+    end_of_last_for_end = _determine_last_market_day_end_for_half_hourly(run_end)
+    end_check_dt = end_of_last_for_end + timedelta(days=6)
     if forecasted_end > end_check_dt:
         print_allowed = end_check_dt.strftime(_PRINT_FORMAT)
         raise ValueError(
