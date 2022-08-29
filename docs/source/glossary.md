@@ -52,6 +52,13 @@
    - Within each month, there exists a directory for most of the data queried by `nemseer` (`DATA`), including pre-dispatch data with the most recent forecast run, and directories for *"complete"* pre-dispatch and 5-minute pre-dispatch data (`PREDISP_ALL_DATA` and `P5MIN_ALL_DATA`, respectively).
      - For pre-dispatch, the complete directory contains data with all forecast runs pertaining to a particular time.
      - As the data in the complete `P5MIN` directory appears to be the same as that in `DATA`, `nemseer` does not use this directory.
+
+`raw_cache`
+   Directory to which `nemseer` downloads processed raw data. Processing by `nemseer` includes:
+   - Removing file metadata from the start and end of the file
+   - Parsing datetimes, including parsing `PREDISPATCHSEQNO` (in :term:`PREDISPATCH` tables) into a new datetime column
+   - Caching raw data in a [parquet](https://www.databricks.com/glossary/what-is-parquet) format, which enables column-based queries and uses less disk space than CSV
+   An invalid/corrupted files list (`.invalid_aemo_files.txt`) is also maintained in this directory if an invalid/corrupted zip is queried via `nemseer`. This prevents `nemseer` from downloading/compiling invalid/corrupted data from AEMO's database.
 ```
 
 [^1]: Australian Energy Market Operator. Short Term PASA Process Description. Technical report,
