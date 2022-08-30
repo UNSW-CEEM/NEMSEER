@@ -1,5 +1,8 @@
 FORECAST_TYPES = ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA")
-"""Forecast types requestable through nemseer"""
+"""Forecast types requestable through nemseer
+
+See also :term:`forecast types`, and :term:`pre-dispatch` and :term:`PASA`.
+"""
 
 MMSDM_ARCHIVE_URL = "http://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
 """Wholesale electricity data archive base URL"""
@@ -26,7 +29,7 @@ Second element of tuple is number which to enumerate table to
 
 DATETIME_FORMAT = "%Y/%m/%d %H:%M"
 """
-nemseer date format
+`nemseer` date format
 """
 
 RUNTIME_COL = {
@@ -51,6 +54,9 @@ FORECASTED_COL = {
 If it exists, `nemseer` will use the corresponding column for `forecasted` time
 filtering.
 """
+
+INVALID_STUBS_FILE = ".invalid_aemo_files.txt"
+"""File in :term:`raw_cache` that contains invalid/corrupted AEMO files"""
 
 USER_AGENTS = [
     (
