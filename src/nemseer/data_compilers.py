@@ -135,10 +135,8 @@ class DataCompiler:
         )
 
     def invalid_or_corrupted_files(self) -> List[str]:
-        """
-
-        Todo:
-            Make stubfile a constant in data
+        """A list of invalid/corrupted files as per files in `.invalid_aemo_files.txt`.
+        Returns an empty list if the stubfile does not exist.
         """
         invalid_or_corrupted_stubfile = self.raw_cache / Path(INVALID_STUBS_FILE)
         if invalid_or_corrupted_stubfile.exists():
@@ -149,8 +147,22 @@ class DataCompiler:
         else:
             return []
 
-    def compile_raw_data(self):
-        """"""
+    def compile_raw_data_to_dataframe(self) -> None:
+        """Compiles data from :term:`raw_cache` to a :class:`pandas.DataFrame`
+
+        This compiler will:
+
+        - Skip invalid/corrupted files as recorded in `.invalid_aemo_files.txt`
+        - Read :term:`raw_cache` parquet files and apply datetime filtering
+
+        Returns:
+            A single concatenated DataFrame if only one table type is requested.
+            Otherwise, returns a dictionary with concatenated DataFrames mapped to each
+            requested table type.
+        Warning:
+            Skips any files previously found to be invalid/corrupted and prints a
+            warning
+        """
         file_to_table_map = _map_files_to_table(
             self.run_start, self.run_end, self.forecast_type, self.tables
         )
@@ -172,11 +184,11 @@ class DataCompiler:
                 df = pd.read_parquet(filepath)
                 df = apply_run_and_forecasted_time_filters(
                     df,
-                    self.forecast_type,
                     self.run_start,
                     self.run_end,
                     self.forecasted_start,
                     self.forecasted_end,
+                    self.forecast_type,
                 )
                 dfs.append(df)
             if len(dfs) == 1:
