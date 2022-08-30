@@ -1,11 +1,18 @@
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Union
+from typing import List, Tuple, Union
 
 import pandas as pd
 
-from .data import DATETIME_FORMAT, FORECASTED_COL, RUNTIME_COL
+from .data import (
+    DATETIME_COLS,
+    DATETIME_FORMAT,
+    FORECASTED_COL,
+    ID_COLS,
+    RUNTIME_COL,
+    TYPE_COLS,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -20,25 +27,7 @@ def _parse_datetime_cols(df: pd.DataFrame) -> pd.DataFrame:
         AEMO
         format
     """
-    dt_cols = {
-        "DATETIME",
-        "EFFECTIVEDATE",
-        "INTERVAL_DATETIME",
-        "RUN_DATETIME",
-        "AUTHORISEDDATE",
-        "LASTCHANGED",
-        "VERSION_DATETIME",
-        "DAY",
-        "PUBLISH_DATETIME",
-        "LATEST_OFFER_DATETIME",
-        "STARTDATE",
-        "ENDDATE",
-        "PERIOD_ENDING",
-        "GENCONID_EFFECTIVEDATE",
-        "BIDSETTLEMENTDATE",
-        "SETTLEMENTDATE",
-        "OFFERDATE",
-    }
+    dt_cols = DATETIME_COLS
     dt_cols_present = dt_cols.intersection(set(df.columns.tolist()))
     for col in dt_cols_present:
         df.loc[:, col] = pd.to_datetime(df[col], format=DATETIME_FORMAT)
@@ -179,3 +168,30 @@ def apply_run_and_forecasted_time_filters(
         if col in df.columns:
             df = _filter_on_datetime_col(df, col, start, end)
     return df
+
+
+def to_xarray(df: pd.DataFrame, forecast_type: str):
+    def _determine_multiindex(
+        df: pd.DataFrame, forecast_type: str
+    ) -> Tuple[pd.MultiIndex, List[str]]:
+        multiindex_cols = []
+        names = []
+        for name, col in zip(
+            ("run_time", "forecasted_time"),
+            (RUNTIME_COL[forecast_type], FORECASTED_COL[forecast_type]),
+        ):
+            if col in df.columns:
+                names.append(name)
+                multiindex_cols.append(col)
+        for col in [col for col in df.columns if col not in multiindex_cols]:
+            if col in ID_COLS or col in TYPE_COLS:
+                names.append(col)
+                multiindex_cols.append(col)
+        multiindex = pd.MultiIndex.from_frame(df[multiindex_cols], names=names)
+        return multiindex, multiindex_cols
+
+    multiindex, multiindex_cols = _determine_multiindex(df, forecast_type)
+    df = df.set_index(multiindex)
+    df = df.drop(multiindex_cols, axis=1)
+    ds = df.to_xarray()
+    return ds
