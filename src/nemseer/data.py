@@ -48,6 +48,52 @@ FORECASTED_COL = {
 If it exists, `nemseer` uses the corresponding column for `forecasted` time filtering.
 """
 
+ID_COLS = {
+    "STUDYREGIONID",
+    "CONSTRAINTID",
+    "INTERCONNECTORID",
+    "DUID",
+    "CONNECTIONPOINTID",
+    "PARTICIPANTID",
+    "EXPORTGENCONID",
+    "IMPORTGENCONID",
+    "REGIONID",
+    "LINKID",
+    "USE_ITERATION_ID",
+    "RESERVELIMITID",
+}
+
+TYPE_COLS = {
+    "BIDTYPE",
+    "RUNTYPE",
+    "RUN_NO",
+    "DEMAND_POE_TYPE",
+    "AGGREGATION_PERIOD",
+    "PERIOD_ENDING",
+    "EFFECTIVEDATE",
+    "VERSION_DATETIME",
+}
+
+DATETIME_COLS = {
+    "DATETIME",
+    "EFFECTIVEDATE",
+    "INTERVAL_DATETIME",
+    "RUN_DATETIME",
+    "AUTHORISEDDATE",
+    "LASTCHANGED",
+    "VERSION_DATETIME",
+    "DAY",
+    "PUBLISH_DATETIME",
+    "LATEST_OFFER_DATETIME",
+    "STARTDATE",
+    "ENDDATE",
+    "PERIOD_ENDING",
+    "GENCONID_EFFECTIVEDATE",
+    "BIDSETTLEMENTDATE",
+    "SETTLEMENTDATE",
+    "OFFERDATE",
+}
+
 INVALID_STUBS_FILE = ".invalid_aemo_files.txt"
 """File in :term:`raw_cache` that contains invalid/corrupted AEMO files"""
 
