@@ -38,6 +38,11 @@ def create_test_tables():
     return test_tables
 
 
+def test_invalid_forecasted_times_for_runtime_generation():
+    with pytest.raises(ValueError):
+        generate_runtimes("2021/01/01 00:00", "2020/01/01 00:00", "STPASA")
+
+
 class TestDataCompiler:
     tables = create_test_tables()
 
