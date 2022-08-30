@@ -8,6 +8,22 @@ from .downloader import ForecastTypeDownloader
 from .query import Query
 
 
+def _initiate_downloads_from_query(query: Query, keep_csv: bool = False) -> None:
+    """Initiates download actions using :class:`nemseer.query.Query`
+    Args:
+        query: :class:`nemseer.query.Query`
+    Returns:
+        None
+    """
+    if query.check_data_in_cache():
+        pass
+    else:
+        downloader = ForecastTypeDownloader.from_Query(query)
+        downloader.download_csv()
+        downloader.convert_to_parquet(keep_csv=keep_csv)
+    return None
+
+
 def download_raw_data(
     run_start: str,
     run_end: str,
@@ -46,12 +62,7 @@ def download_raw_data(
         tables=tables,
         raw_cache=raw_cache,
     )
-    if query.check_data_in_cache():
-        pass
-    else:
-        downloader = ForecastTypeDownloader.from_Query(query)
-        downloader.download_csv()
-        downloader.convert_to_parquet(keep_csv=keep_csv)
+    _initiate_downloads_from_query(query, keep_csv=keep_csv)
 
 
 def compile_raw_data(
@@ -82,6 +93,8 @@ def compile_raw_data(
             to this directory and cached data is maintained in the parquet format.
         data_format: Default is 'df', which returns :class:`pandas DataFrame`.
             Can also request 'xr', which returns :class:`xarray.Dataset`.
+    Todo:
+        Implement xarray compiler
     """
     if data_format not in (fmts := ("df", "xr")):
         raise ValueError(f"Invalid data format. Formats include: {fmts}")
@@ -94,12 +107,7 @@ def compile_raw_data(
         tables=tables,
         raw_cache=raw_cache,
     )
-    if query.check_data_in_cache():
-        pass
-    else:
-        downloader = ForecastTypeDownloader.from_Query(query)
-        downloader.download_csv()
-        downloader.convert_to_parquet()
+    _initiate_downloads_from_query(query, keep_csv=False)
     compiler = DataCompiler.from_Query(query)
     if data_format == "df":
         compiler.compile_raw_data_to_dataframe()
