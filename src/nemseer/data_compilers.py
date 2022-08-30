@@ -4,6 +4,7 @@ from pathlib import Path
 from typing import Dict, List, Union
 
 import pandas as pd
+import xarray as xr
 from attrs import define, field
 
 from .data import ENUMERATED_TABLES, INVALID_STUBS_FILE
@@ -105,7 +106,9 @@ class DataCompiler:
     metadata: Dict
     raw_cache: Path
     processed_cache: Union[None, Path]
-    compiled_data: Union[None, Dict[str, pd.DataFrame]] = field(default=None)
+    compiled_data: Union[None, Dict[str, pd.DataFrame], Dict[str, xr.Dataset]] = field(
+        default=None
+    )
 
     @classmethod
     def from_Query(cls, query: Query) -> "DataCompiler":
@@ -190,7 +193,7 @@ class DataCompiler:
                     self.forecasted_end,
                     self.forecast_type,
                 )
-                dfs.append(df)
+                dfs.append(df.reset_index(drop=True))
             if len(dfs) == 1:
                 table_to_df_map[table] = dfs.pop()
             else:

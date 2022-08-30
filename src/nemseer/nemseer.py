@@ -1,4 +1,7 @@
-from typing import List, Union
+from typing import Dict, List, Union
+
+import pandas as pd
+import xarray as xr
 
 from .data_compilers import DataCompiler
 from .downloader import ForecastTypeDownloader
@@ -56,8 +59,7 @@ def compile_raw_data(
     forecast_type: str,
     tables: Union[str, List[str]],
     raw_cache: str,
-    keep_csv: bool = False,
-) -> "DataCompiler":
+) -> Union[Dict[str, pd.DataFrame], Dict[str, xr.Dataset], None]:
     """Downloads raw forecast data from NEMWeb MMSDM Historical Data SQLLoader
 
     Downloads raw forecast data and converts to parquet.
@@ -88,7 +90,8 @@ def compile_raw_data(
     else:
         downloader = ForecastTypeDownloader.from_Query(query)
         downloader.download_csv()
-        downloader.convert_to_parquet(keep_csv=keep_csv)
+        downloader.convert_to_parquet()
     compiler = DataCompiler.from_Query(query)
-    compiler.compile_raw_data()
-    return compiler
+    compiler.compile_raw_data_to_dataframe()
+    data = compiler.compiled_data
+    return data
