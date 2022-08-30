@@ -342,8 +342,7 @@ class TestForecastTypeDownloader:
         for query in (predisp_d_query, predisp_all_query):
             downloader = ForecastTypeDownloader.from_Query(query)
             downloader.download_csv()
-            downloader.convert_to_parquet()
         path = pathlib.Path(tmp_path)
         assert len(list(path.iterdir())) == 2
-        assert len(list(path.glob("*PRICE_D*.parquet"))) == 1
-        assert len(list(path.glob("*PRICE*.parquet"))) == 2
+        assert len(list(path.glob("*PRICE_D*.[Cc][Ss][Vv]"))) == 1
+        assert len(list(path.glob("*PRICE*.[Cc][Ss][Vv]"))) == 2
