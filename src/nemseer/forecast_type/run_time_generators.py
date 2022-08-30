@@ -56,7 +56,7 @@ def _determine_valid_latest_run_for_STPASA(forecasted_dt: datetime) -> datetime:
     return run_1400.replace(hour=14, minute=0)
 
 
-def generate_P5MIN_runtimes(
+def _generate_P5MIN_runtimes(
     forecasted_start: datetime, forecasted_end: datetime
 ) -> Tuple[datetime, datetime]:
     """Generates the earliest :term:`run_start` and latest :term:`run_end` for a set of
@@ -78,7 +78,7 @@ def generate_P5MIN_runtimes(
     return (run_start, run_end)
 
 
-def generate_PREDISPATCH_runtimes(
+def _generate_PREDISPATCH_runtimes(
     forecasted_start: datetime, forecasted_end: datetime
 ) -> Tuple[datetime, datetime]:
     """Generates the earliest :term:`run_start` and latest :term:`run_end` for a set of
@@ -102,7 +102,7 @@ def generate_PREDISPATCH_runtimes(
     return (run_start, run_end)
 
 
-def generate_PDPASA_runtimes(
+def _generate_PDPASA_runtimes(
     forecasted_start: datetime, forecasted_end: datetime
 ) -> Tuple[datetime, datetime]:
     """Generates the earliest :term:`run_start` and latest :term:`run_end` for a set of
@@ -119,13 +119,13 @@ def generate_PDPASA_runtimes(
         Tuple of datetimes containing  the widest range of possible `forecasted` times
     """
 
-    (run_start, run_end) = generate_PREDISPATCH_runtimes(
+    (run_start, run_end) = _generate_PREDISPATCH_runtimes(
         forecasted_start, forecasted_end
     )
     return (run_start, run_end)
 
 
-def generate_STPASA_runtimes(
+def _generate_STPASA_runtimes(
     forecasted_start: datetime, forecasted_end: datetime
 ) -> Tuple[datetime, datetime]:
     """Generates the earliest :term:`run_start` and latest :term:`run_end` for a set of
@@ -151,7 +151,7 @@ def generate_STPASA_runtimes(
     return (run_start, run_end)
 
 
-def generate_MTPASA_runtimes(
+def _generate_MTPASA_runtimes(
     forecasted_start: datetime, forecasted_end: datetime
 ) -> Tuple[datetime, datetime]:
     """Generates the earliest :term:`run_start` and latest :term:`run_end` for a set of
@@ -205,11 +205,11 @@ def generate_runtimes(
             + " forecasted start datetime."
         )
     generate_map = {
-        "P5MIN": generate_P5MIN_runtimes,
-        "PREDISPATCH": generate_PREDISPATCH_runtimes,
-        "PDPASA": generate_PDPASA_runtimes,
-        "STPASA": generate_STPASA_runtimes,
-        "MTPASA": generate_MTPASA_runtimes,
+        "P5MIN": _generate_P5MIN_runtimes,
+        "PREDISPATCH": _generate_PREDISPATCH_runtimes,
+        "PDPASA": _generate_PDPASA_runtimes,
+        "STPASA": _generate_STPASA_runtimes,
+        "MTPASA": _generate_MTPASA_runtimes,
     }
     generate_func = generate_map[forecast_type]
     (run_start, run_end) = generate_func(
