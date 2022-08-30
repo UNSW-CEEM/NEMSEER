@@ -80,3 +80,12 @@ These validators are specific to each {term}`forecast type`. They are used prior
 .. automodule:: nemseer.forecast_type.validators
    :members:
 ```
+
+### Run time generators
+
+Run time generators produce the widest valid {term}`run time` range for a particular {term}`forecast type` given {term}`forecasted_start` and {term}`forecasted_end`.
+
+```{eval-rst}
+.. automodule:: nemseer.forecast_type.run_time_generators
+   :private-members: _generate_P5MIN_runtimes, _generate_PREDISPATCH_runtimes, _generate_PDPASA_runtimes, _generate_STPASA_runtimes, _generate_MTPASA_runtimes
+```

@@ -149,7 +149,7 @@ def apply_run_and_forecasted_time_filters(
     forecasted times (i.e. :term:`forecasted_start` and :term:`forecasted_end`).
 
     Datetime filtering is applied to a column fetched from lookup tables that map
-    the relevant column name to each :term:`forecast_type`. If the run time/forecasted
+    the relevant column name to each :term:`forecast type`. If the run time/forecasted
     column obtained from the lookup is not present in the DataFrame, the respective
     filter is not applied.
 

@@ -60,7 +60,7 @@ def _generate_P5MIN_runtimes(
     forecasted_start: datetime, forecasted_end: datetime
 ) -> Tuple[datetime, datetime]:
     """Generates the earliest :term:`run_start` and latest :term:`run_end` for a set of
-    user-supplied :term:`forecasted_start` and :term:`forecaseted_end` times.
+    user-supplied :term:`forecasted_start` and :term:`forecasted_end` times.
 
     Calls validation function to ensure that user-supplied `forecasted` times are valid.
 
@@ -82,7 +82,7 @@ def _generate_PREDISPATCH_runtimes(
     forecasted_start: datetime, forecasted_end: datetime
 ) -> Tuple[datetime, datetime]:
     """Generates the earliest :term:`run_start` and latest :term:`run_end` for a set of
-    user-supplied :term:`forecasted_start` and :term:`forecaseted_end` times.
+    user-supplied :term:`forecasted_start` and :term:`forecasted_end` times.
 
     Calls validation function to ensure that user-supplied `forecasted` times are valid.
 
@@ -106,7 +106,7 @@ def _generate_PDPASA_runtimes(
     forecasted_start: datetime, forecasted_end: datetime
 ) -> Tuple[datetime, datetime]:
     """Generates the earliest :term:`run_start` and latest :term:`run_end` for a set of
-    user-supplied :term:`forecasted_start` and :term:`forecaseted_end` times.
+    user-supplied :term:`forecasted_start` and :term:`forecasted_end` times.
 
     Calls validation function to ensure that user-supplied `forecasted` times are valid.
 
@@ -129,7 +129,7 @@ def _generate_STPASA_runtimes(
     forecasted_start: datetime, forecasted_end: datetime
 ) -> Tuple[datetime, datetime]:
     """Generates the earliest :term:`run_start` and latest :term:`run_end` for a set of
-    user-supplied :term:`forecasted_start` and :term:`forecaseted_end` times.
+    user-supplied :term:`forecasted_start` and :term:`forecasted_end` times.
 
     Calls validation function to ensure that user-supplied `forecasted` times are valid.
 
@@ -155,7 +155,7 @@ def _generate_MTPASA_runtimes(
     forecasted_start: datetime, forecasted_end: datetime
 ) -> Tuple[datetime, datetime]:
     """Generates the earliest :term:`run_start` and latest :term:`run_end` for a set of
-    user-supplied :term:`forecasted_start` and :term:`forecaseted_end` times.
+    user-supplied :term:`forecasted_start` and :term:`forecasted_end` times.
 
     Calls validation function to ensure that user-supplied `forecasted` times are valid.
 

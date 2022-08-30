@@ -80,7 +80,7 @@ def compile_raw_data(
             a string. Multiple tables can be supplied as a list of strings.
         raw_cache: Path to create or reuse as :term:`raw_cache`. Files are downloaded
             to this directory and cached data is maintained in the parquet format.
-        data_format: Default is 'df', which returns :term:`pandas DataFrame`.
+        data_format: Default is 'df', which returns :class:`pandas DataFrame`.
             Can also request 'xr', which returns :class:`xarray.Dataset`.
     """
     if data_format not in (fmts := ("df", "xr")):
