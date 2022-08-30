@@ -192,10 +192,10 @@ class Query:
         forecast_type: One of :data:`nemseer.forecast_types`.
         tables: Table or tables required. A single table can be supplied as
             a string. Multiple tables can be supplied as a list of strings.
-        metadata: Metadata dictionary. Constructed by `Query.initialise()`.
+        metadata: Metadata dictionary. Constructed by :meth:`Query.initialise()`.
         raw_cache (optional): Path to build or reuse :term:`raw_cache`.
-        processed_cache (optional): Path to build or reuse processed cache. Should be
-          distinct from :attr:`raw_cache`
+        processed_cache (optional): Path to build or reuse :term:`processed_cache`.
+            Should be distinct from :attr:`raw_cache`
 
     """
 

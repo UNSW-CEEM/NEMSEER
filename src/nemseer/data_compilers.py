@@ -34,7 +34,7 @@ def _map_files_to_table(
     Args:
         forecast_start: Forecasts made at or after this datetime are queried.
         forecast_end: Forecasts made before or at this datetime are queried.
-        forecast_type: `MTPASA`, `STPASA`, `PDPASA`, `PREDISPATCH` or `P5MIN`.
+        forecast_type: One of :data:`nemseer.forecast_types`
         tables: Tables queried.
     Returns:
         A dictionary mapping the queried table name to filenames associated with that
@@ -74,7 +74,27 @@ def _input_datetime_validation(instance, attribute, value) -> None:
 
 @define
 class DataCompiler:
-    """`DataCompiler` compiles data"""
+    """:class:`DataCompiler` compiles data from the :term:`raw_cache` or
+    :term:`processed_cache`.
+
+    Attributes:
+        run_start: Forecast runs at or after this datetime are queried.
+        run_end: Forecast runs before or at this datetime are queried.
+        forecasted_start: Forecasts pertaining to times at or after this
+            datetime are retained.
+        forecasted_end: Forecasts pertaining to times before or at this
+            datetime are retaned.
+        forecast_type: One of :data:`nemseer.forecast_types`.
+        tables: Table or tables required. A single table can be supplied as
+            a string. Multiple tables can be supplied as a list of strings.
+        metadata: Metadata dictionary. Constructed by
+            :meth:`Query.initialise() <nemseer.query.Query.initialise()>`.
+        raw_cache (optional): Path to build or reuse :term:`raw_cache`.
+        processed_cache (optional): Path to build or reuse :term`processed cache`.
+            Should be distinct from :attr:`raw_cache`
+        compiled_data: Defaults to `None` on initialisation. Populated once data
+            is compiled by methods.
+    """
 
     run_start: datetime = field(validator=_input_datetime_validation)
     run_end: datetime
@@ -89,7 +109,8 @@ class DataCompiler:
 
     @classmethod
     def from_Query(cls, query: Query) -> "DataCompiler":
-        """Constructor method for DataCompiler from Query."""
+        """Constructor method for :class:`DataCompiler` from
+        :class:`Query <nemseer.query.Query>`."""
         tables = query.tables
         for ftype in ENUMERATED_TABLES:
             if query.forecast_type == ftype:

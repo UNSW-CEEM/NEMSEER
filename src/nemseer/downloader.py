@@ -391,7 +391,7 @@ class ForecastTypeDownloader:
     raw_cache: Path
 
     @classmethod
-    def from_Query(cls, query: Query):
+    def from_Query(cls, query: Query) -> "ForecastTypeDownloader":
         """Constructor method for :class:`ForecastTypeDownloader` from
         :class:`Query <nemseer.query.Query>`"""
         tables = query.tables
