@@ -6,7 +6,7 @@ from typing import Dict, List, Union
 import pandas as pd
 from attrs import define, field
 
-from .data import ENUMERATED_TABLES
+from .data import ENUMERATED_TABLES, INVALID_STUBS_FILE
 from .data_handlers import apply_run_and_forecasted_time_filters
 from .forecast_type.validators import (
     validate_MTPASA_datetime_inputs,
@@ -140,7 +140,7 @@ class DataCompiler:
         Todo:
             Make stubfile a constant in data
         """
-        invalid_or_corrupted_stubfile = self.raw_cache / Path(".invalid_aemo_files.txt")
+        invalid_or_corrupted_stubfile = self.raw_cache / Path(INVALID_STUBS_FILE)
         if invalid_or_corrupted_stubfile.exists():
             with open(invalid_or_corrupted_stubfile, "r") as f:
                 invalid_or_corrupted = f.readlines()

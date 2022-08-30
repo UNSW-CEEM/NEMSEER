@@ -16,6 +16,7 @@ from tqdm.auto import tqdm
 from .data import (
     ENUMERATED_TABLES,
     FORECAST_TYPES,
+    INVALID_STUBS_FILE,
     MMSDM_ARCHIVE_URL,
     PREDISP_ALL_DATA,
     USER_AGENTS,
@@ -341,7 +342,7 @@ def get_unzipped_csv(url: str, raw_cache: Path) -> None:
             z.close()
         except BadZipFile:
             logging.error(f"{z.testzip()} invalid or corrupted")
-            invalid_files = raw_cache / Path(".invalid_aemo_files.txt")
+            invalid_files = raw_cache / Path(INVALID_STUBS_FILE)
             _invalid_zip_to_file(invalid_files, fn.group(1))
         Path(file_path).unlink()
     else:
@@ -419,7 +420,7 @@ class ForecastTypeDownloader:
         filename_data = generate_sqlloader_filenames(
             self.run_start, self.run_end, self.forecast_type, self.tables
         )
-        invalid_or_corrupted_stubfile = self.raw_cache / ".invalid_aemo_files.txt"
+        invalid_or_corrupted_stubfile = self.raw_cache / Path(INVALID_STUBS_FILE)
         for metadata in filename_data.keys():
             fname = filename_data[metadata]
             (year, month, table) = metadata

@@ -72,7 +72,7 @@ def compile_raw_data(
         forecast_type: One of :data:`nemseer.forecast_types`
         tables: Table or tables required. A single table can be supplied as
             a string. Multiple tables can be supplied as a list of strings.
-        raw_cache: Path to download files
+        raw_cache: Path to download raw data to
     """
     query = Query.initialise(
         run_start=run_start,
