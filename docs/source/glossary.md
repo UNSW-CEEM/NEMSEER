@@ -47,7 +47,7 @@
    From 0400 (exclusive) to 0400 (inclusive) on the next day (i.e. `(0400 Day 1, 0400 Day 2]`).
 
 `MMSDM Historical Data SQLLOader`
-`SQLLOader`
+`SQLLoader`
    An [archive of historical market data](http://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/) used by `nemseer` for historical forecast data queries. Data is organised by year and month. The month corresponds to the month in which the forecast was run (i.e. if the month lies between {term}`run_start` and {term}`run_end`).
    - Within each month, there exists a directory for most of the data queried by `nemseer` (`DATA`), including pre-dispatch data with the most recent forecast run, and directories for *"complete"* pre-dispatch and 5-minute pre-dispatch data (`PREDISP_ALL_DATA` and `P5MIN_ALL_DATA`, respectively).
      - For pre-dispatch, the complete directory contains data with all forecast runs pertaining to a particular time.
