@@ -7,7 +7,7 @@
 `run_end`
    Forecasts with run times before or at this datetime are queried.
 
-`run_time`
+`run time`
    The time at which a forecast is *nominally* run.
 
 `forecasted_start`
