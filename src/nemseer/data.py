@@ -1,31 +1,25 @@
+#: Forecast types requestable through nemseer.
+#: See also :term:`forecast types`, and :term:`pre-dispatch` and :term:`PASA`.
 FORECAST_TYPES = ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA")
-"""Forecast types requestable through nemseer
-
-See also :term:`forecast types`, and :term:`pre-dispatch` and :term:`PASA`.
-"""
 
 MMSDM_ARCHIVE_URL = "http://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
 """Wholesale electricity data archive base URL"""
 
+#: Tables which should be directed to the PREDISP_ALL_DATA URL.
+#: The corresponding tables in the DATA folder (which end with "_D") only contain the
+#: latest forecasted value
 PREDISP_ALL_DATA = ("CONSTRAINT", "INTERCONNECTORRES", "PRICE", "LOAD", "REGIONSUM")
-"""
-Tables which should be directed to the PREDISP_ALL_DATA URL.
-The corresponding tables in the DATA folder (which end with "_D") only contain the
-latest forecasted value
-"""
 
 MTPASA_DUID_URL = "http://nemweb.com.au/Reports/Current/MTPASA_DUIDAvailability/"
 """MTPASA DUID Availability"""
 
+#: Enumerated tables for each forecast type
+#: First element of tuple is table name
+#: Second element of tuple is number which to enumerate table to
 ENUMERATED_TABLES = {
     "P5MIN": [("CONSTRAINTSOLUTION", 4)],
     "PREDISPATCH": [("CONSTRAINT", 2), ("LOAD", 2)],
 }
-"""
-Enumerated tables for each forecast type
-First element of tuple is table name
-Second element of tuple is number which to enumerate table to
-"""
 
 DATETIME_FORMAT = "%Y/%m/%d %H:%M"
 """
@@ -51,8 +45,7 @@ FORECASTED_COL = {
     "MTPASA": "DAY",
 }
 """
-If it exists, `nemseer` will use the corresponding column for `forecasted` time
-filtering.
+If it exists, `nemseer` uses the corresponding column for `forecasted` time filtering.
 """
 
 INVALID_STUBS_FILE = ".invalid_aemo_files.txt"
