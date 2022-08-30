@@ -32,7 +32,10 @@ def download_raw_data(
         forecast_type: One of :data:`nemseer.forecast_types`
         tables: Table or tables required. A single table can be supplied as
             a string. Multiple tables can be supplied as a list of strings.
-        raw_cache: Path to download files
+        raw_cache: Path to create or reuse as :term:`raw_cache`. Files are downloaded
+            to this directory and cached data is maintained in the parquet format.
+        keep_csv: Default False. If True, downloaded csvs are retained in the
+            :term:`raw_cache`.
     """
     query = Query.initialise(
         run_start=run_start,
@@ -59,6 +62,7 @@ def compile_raw_data(
     forecast_type: str,
     tables: Union[str, List[str]],
     raw_cache: str,
+    data_format: str = "df",
 ) -> Union[Dict[str, pd.DataFrame], Dict[str, xr.Dataset], None]:
     """Downloads raw forecast data from NEMWeb MMSDM Historical Data SQLLoader
 
@@ -74,8 +78,13 @@ def compile_raw_data(
         forecast_type: One of :data:`nemseer.forecast_types`
         tables: Table or tables required. A single table can be supplied as
             a string. Multiple tables can be supplied as a list of strings.
-        raw_cache: Path to download raw data to
+        raw_cache: Path to create or reuse as :term:`raw_cache`. Files are downloaded
+            to this directory and cached data is maintained in the parquet format.
+        data_format: Default is 'df', which returns :term:`pandas DataFrame`.
+            Can also request 'xr', which returns :class:`xarray.Dataset`.
     """
+    if data_format not in (fmts := ("df", "xr")):
+        raise ValueError(f"Invalid data format. Formats include: {fmts}")
     query = Query.initialise(
         run_start=run_start,
         run_end=run_end,
@@ -92,6 +101,7 @@ def compile_raw_data(
         downloader.download_csv()
         downloader.convert_to_parquet()
     compiler = DataCompiler.from_Query(query)
-    compiler.compile_raw_data_to_dataframe()
+    if data_format == "df":
+        compiler.compile_raw_data_to_dataframe()
     data = compiler.compiled_data
     return data
