@@ -5,8 +5,14 @@ import pandas as pd
 import pytest
 
 from nemseer import compile_raw_data, download_raw_data
-from nemseer.data import DATETIME_FORMAT, FORECASTED_COL, RUNTIME_COL
+from nemseer.data import (
+    DATETIME_FORMAT,
+    FORECASTED_COL,
+    INVALID_STUBS_FILE,
+    RUNTIME_COL,
+)
 from nemseer.forecast_type.run_time_generators import generate_runtimes
+from nemseer.query import generate_sqlloader_filenames
 
 
 class TestDowloadRawData:
@@ -44,6 +50,52 @@ class TestCompileRawData:
         (str_start, str_end) = (forecasted_start, forecasted_end)
         run_start, run_end = generate_runtimes(str_start, str_end, forecast_type)
         return run_start, run_end, forecasted_start, forecasted_end
+
+    def test_invalid_files_in_query(
+        self,
+        gen_datetime,
+        fix_forecasted_dt,
+        mocker,
+        tmp_path,
+        caplog,
+    ):
+        def mock_pd_concat(dfs, axis=0):
+            pass
+
+        (forecast_type, table) = ("STPASA", "REGIONSOLUTION")
+        time_delta = timedelta(hours=72)
+        (
+            run_start,
+            run_end,
+            forecasted_start,
+            forecasted_end,
+        ) = self.setup_compilation_test(
+            gen_datetime, fix_forecasted_dt, forecast_type, time_delta
+        )
+        fnames = generate_sqlloader_filenames(
+            datetime.strptime(run_start, DATETIME_FORMAT),
+            datetime.strptime(run_end, DATETIME_FORMAT),
+            forecast_type,
+            [table],
+        ).values()
+        stubfile = tmp_path / INVALID_STUBS_FILE
+        with open(stubfile, "x") as f:
+            for fn in fnames:
+                f.write(f"{fn}\n")
+        caplog.set_level(logging.WARNING)
+        mocker.patch("nemseer.data_compilers.pd.concat", mock_pd_concat)
+        compile_raw_data(
+            run_start,
+            run_end,
+            forecasted_start,
+            forecasted_end,
+            forecast_type,
+            table,
+            tmp_path,
+        )
+        assert all(
+            [INVALID_STUBS_FILE in record.msg for record in caplog.get_records("call")]
+        )
 
     def test_invalid_format(
         self,
