@@ -6,13 +6,7 @@
 [![codecov](https://codecov.io/gh/UNSW-CEEM/NEMSEER/branch/master/graph/badge.svg?token=BO69YSQIGI)](https://codecov.io/gh/UNSW-CEEM/NEMSEER)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-A package for downloading and handling historical forecast data for the National Electricity Market (NEM) produced by the Australian Energy Market Operator (AEMO).
-
-## Development progress
-
-While this package is currently under development, `nemseer` can currently be used to download and cache historical forecast data from AEMO. Future releases will focus on handling downloaded data.
-
-For a high-level overview of development, check out the [roadmap](./ROADMAP.md).
+A package for downloading and handling historical National Electricity Market (NEM) forecast data produced by the Australian Energy Market Operator (AEMO).
 
 ## Installation
 
@@ -28,9 +22,9 @@ pip install nemseer
 
 <sub><sup>Source: [Reserve services in the National Electricity Market, AEMC, 2021](https://www.aemc.gov.au/sites/default/files/2020-12/AEMC_Reserve%20services%20in%20the%20NEM%20directions%20paper_05.01.2021.pdf)</sup></sub>
 
-Whereas PASA processes are primarily used to assess resource adequacy (i.e. *"can operational demand be met in the forecast horizon with a sufficient safety (reserve) margin?"*) based on technical inputs and assumptions for resources in the market, pre-dispatch processes incorporate the latest set of market participant offers and thus produce regional prices forecasts[^1] for energy and frequency control ancillary services [(FCAS)](https://aemo.com.au/-/media/files/electricity/nem/security_and_reliability/ancillary_services/guide-to-ancillary-services-in-the-national-electricity-market.pdf). A more detailed overview of the various pre-dispatch and PASA processes can be found in the [glossary](https://nemseer.readthedocs.io/en/latest/glossary.html).
+Whereas PASA processes are primarily used to assess resource adequacy based on technical inputs and assumptions for resources in the market (i.e. used to answer questions such as *"can operational demand be met in the forecast horizon with a sufficient safety (reserve) margin?"*), pre-dispatch processes incorporate the latest set of market participant offers and thus produce regional prices forecasts[^1] for energy and frequency control ancillary services [(FCAS)](https://aemo.com.au/-/media/files/electricity/nem/security_and_reliability/ancillary_services/guide-to-ancillary-services-in-the-national-electricity-market.pdf). Overviews of the various pre-dispatch and PASA processes can be found in the [glossary](https://nemseer.readthedocs.io/en/latest/glossary.html).
 
-[^1]: We use the term *"forecast"* loosely, especially given that pre-dispatch "forecasts" change once participants update offer information (e.g. through rebidding). Rather, the purpose of these *"ahead processes"* is to provide system and market information to participants to inform their decision-making. However, to avoid confusion, we use the words "*"forecast"* and *"forecast types"* in `nemseer`.
+[^1]: We use the term *"forecast"* loosely, especially given that these *"forecasts"* change once participants update offer information (e.g. through rebidding). Rather, the purpose of these *"ahead processes"* is to provide system and market information to participants to inform their decision-making. However, to avoid confusion, we use the words *"forecast"* and *"forecast types"* in `nemseer`.
 
 `nemseer` enables you to download and work with data from the following forecast types (where available, AEMO process and table descriptions are linked):
 
@@ -50,11 +44,17 @@ Note that the methodologies for PD PASA and ST PASA are being reviewed by AEMO. 
 
 ### Glossary
 
-The [glossary](https://nemseer.readthedocs.io/en/latest/glossary.html) contains overviews of the PASA and pre-dispatch processes, and descriptions of terminology relevant to using `nemseer`.
+The [glossary](https://nemseer.readthedocs.io/en/latest/glossary.html) contains overviews of the PASA and pre-dispatch processes, and descriptions of terminology used in `nemseer`.
 
 ### Quick start
 
 Check out the [Quick start](https://nemseer.readthedocs.io/en/latest/quick_start.html) for examples of how you can use `nemseer`.
+
+## Development progress
+
+While this package is currently under development, `nemseer` can currently be used to download, cache and handle historical forecast data from AEMO. Future development will focus on implementing advanced features, such as casting compiled data to [xarray](https://docs.xarray.dev/en/stable/index.html) n-dimensional arrays and caching processed queries in a netCDF format.
+
+For a high-level overview of development, check out the [roadmap](./ROADMAP.md).
 
 ## Contributing
 
@@ -70,4 +70,4 @@ Please note that this project is released with a [Code of Conduct](./CONDUCT.md)
 
 `nemseer` was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter).
 
-Thanks to Nick Gorman for his help in reviewing elements of `nemseer`.
+Thanks to Nicholas Gorman for his help in reviewing elements of `nemseer`.
