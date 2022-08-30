@@ -84,6 +84,7 @@ autoclass_content = "class"
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "pandas": ("https://pandas.pydata.org/docs/", None),
+    "xarray": ("https://docs.xarray.dev/en/stable/", None),
 }
 
 # --  MyST options------------------------------------------------------------
