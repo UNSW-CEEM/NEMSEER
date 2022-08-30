@@ -184,7 +184,7 @@ def generate_MTPASA_runtimes(
 def generate_runtimes(
     forecasted_start: str, forecasted_end: str, forecast_type: str
 ) -> Tuple[str, str]:
-    """For a particular :term:`forecast_type`, generates valid `run` times provided that
+    """For a particular :term:`forecast type`, generates valid `run` times provided that
     user-supplied `forecasted` times are valid.
 
     Args:
