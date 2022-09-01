@@ -51,17 +51,12 @@ class TestCompileRawData:
         run_start, run_end = generate_runtimes(str_start, str_end, forecast_type)
         return run_start, run_end, forecasted_start, forecasted_end
 
-    def test_invalid_files_in_query(
+    def test_all_query_files_invalid(
         self,
         gen_datetime,
         fix_forecasted_dt,
-        mocker,
         tmp_path,
-        caplog,
     ):
-        def mock_pd_concat(dfs, axis=0):
-            pass
-
         (forecast_type, table) = ("STPASA", "REGIONSOLUTION")
         time_delta = timedelta(hours=72)
         (
@@ -81,6 +76,50 @@ class TestCompileRawData:
         stubfile = tmp_path / INVALID_STUBS_FILE
         with open(stubfile, "x") as f:
             for fn in fnames:
+                f.write(f"{fn}\n")
+        with pytest.raises(ValueError):
+            compile_raw_data(
+                run_start,
+                run_end,
+                forecasted_start,
+                forecasted_end,
+                forecast_type,
+                table,
+                tmp_path,
+            )
+
+    def test_invalid_files_in_query(
+        self,
+        gen_datetime,
+        fix_forecasted_dt,
+        mocker,
+        tmp_path,
+        caplog,
+    ):
+        def mock_pd_concat(dfs, axis=0):
+            return pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
+
+        (forecast_type, table) = ("MTPASA", "RESERVELIMIT")
+        time_delta = timedelta(hours=0)
+        (
+            run_start,
+            run_end,
+            forecasted_start,
+            forecasted_end,
+        ) = self.setup_compilation_test(
+            gen_datetime, fix_forecasted_dt, forecast_type, time_delta
+        )
+        fnames = list(
+            generate_sqlloader_filenames(
+                datetime.strptime(run_start, DATETIME_FORMAT),
+                datetime.strptime(run_end, DATETIME_FORMAT),
+                forecast_type,
+                [table],
+            ).values()
+        )
+        stubfile = tmp_path / INVALID_STUBS_FILE
+        with open(stubfile, "x") as f:
+            for fn in fnames[:-1]:
                 f.write(f"{fn}\n")
         caplog.set_level(logging.WARNING)
         mocker.patch("nemseer.data_compilers.pd.concat", mock_pd_concat)
