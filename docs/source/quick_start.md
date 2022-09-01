@@ -48,10 +48,10 @@ AEMO ahead process tables with forecasted results typically have *three* datetim
 
 ## What can I query?
 
-`nemseer` has functionality to tell you what you can query. This includes valid [forecast types](quick_start:forecast-types), [months and years](quick_start:available data daterange) for which data is available and requestable [tables](quick_start:table availability).
+`nemseer` has functionality to tell you what you can query. This includes valid [forecast types](<quick_start:forecast types>), [months and years](<quick_start:date range of available data>) for which data is available and requestable [tables](<quick_start:table availability>).
 
 ```{note}
-While these functions allow you to explicitly query this information, it's worth noting that functions for [compiling data](quick_start:compiling data) and downloading raw data validate inputs and provide feedback on invalid inputs (such as invalid forecast types or data date ranges).
+While these functions allow you to explicitly query this information, it's worth noting that functions for [compiling data](<quick_start:compiling data>) and [downloading raw data ](<quick_start:downloading raw data>) validate inputs and provide feedback when invalid inputs (such as invalid forecast types or data date ranges) are supplied.
 ```
 
 ### Forecast types
@@ -64,7 +64,7 @@ You can access valid {term}`forecast types` with the command below.
 ('P5MIN', 'PREDISPATCH', 'PDPASA', 'STPASA', 'MTPASA')
 ```
 
-### Available data date range
+### Date range of available data
 
 The years and months available via AEMO's {term}`MMSDM Historical Data SQLLoader` can be queried as follows.
 
@@ -103,7 +103,12 @@ This function:
 1. Downloads the relevant raw data and converts it into [parquet](quick_start:parquet) in the {term}`raw_cache`
 2. Returns a dictionary consisting of compiled {class}`pandas.DataFrame`s or {class}`xarray.Dataset`s (i.e. assembled and filtered based on the supplied {term}`run times` and {term}`forecasted times`) mapped to their corresponding table name.
 
-For example, we can compile {term}`STPASA` forecast data contained in the `CASESOLUTION` and `CONSTRAINTSOLUTION` tables. The query below will filter {term}`run times` between "2021/02/01 00:00" and "2021/02/28 00:00" and {term}`forecasted times`s between 09:00 on March 1 and 12:00 on March 3. The returned {class}`dict` maps each of the requested tables to their corresponding assembled and filtered datasets.
+```{attention}
+
+Data compilation to {class}`xarray.Dataset` will be implemented in future releases.
+```
+
+For example, we can compile {term}`STPASA` forecast data contained in the `CASESOLUTION` and `CONSTRAINTSOLUTION` tables. The query below will filter {term}`run times` between "2021/02/01 00:00" and "2021/02/28 00:00" and {term}`forecasted times` between 09:00 on March 1 and 12:00 on March 3. The returned {class}`dict` maps each of the requested tables to their corresponding assembled and filtered datasets.
 
 ```{doctest}
 >>> import nemseer
@@ -116,13 +121,11 @@ For example, we can compile {term}`STPASA` forecast data contained in the `CASES
 ... tables=["CASESOLUTION", "CONSTRAINTSOLUTION"],
 ... raw_cache="./nemseer_cache/",
 ... )
->>> data.keys()
-INFO: ...
-PUBLIC_DVD_STPASA_CASESOLUTION_202102010000.zip: ...
-INFO: ...
-PUBLIC_DVD_STPASA_CONSTRAINTSOLUTION_202102010000.zip: ...
+INFO: Downloading and unzipping CASESOLUTION for 2/2021
+INFO: Downloading and unzipping CONSTRAINTSOLUTION for 2/2021
 INFO: Converting PUBLIC_DVD_STPASA_CASESOLUTION_202102010000.CSV to parquet
 INFO: Converting PUBLIC_DVD_STPASA_CONSTRAINTSOLUTION_202102010000.CSV to parquet
+>>> data.keys()
 dict_keys(['CASESOLUTION', 'CONSTRAINTSOLUTION'])
 ```
 
@@ -141,24 +144,27 @@ You can also just query a single table, such as the query below:
 ... "REGIONSOLUTION",
 ... "./nemseer_cache/",
 ... )
->>> data.keys()
-INFO: ...
-PUBLIC_DVD_STPASA_REGIONSOLUTION_202102010000.zip: ...
+INFO: Downloading and unzipping REGIONSOLUTION for 2/2021
 INFO: Converting PUBLIC_DVD_STPASA_REGIONSOLUTION_202102010000.CSV to parquet
+>>> data.keys()
 dict_keys(['REGIONSOLUTION'])
 ```
+
+### Validation and feedback
 
 {func}`compile_raw_data <nemseer.compile_raw_data>` will validate user inputs and provide feedback on valid inputs. Specifically, it validates:
 
 1. Basic datetime chronologies (e.g. {term}`run_end` not before {term}`run_start`)
 2. Whether the requested {term}`forecast type` and table type(s) are valid
-3. Whether the requested {term}`run times` and `forecasted times` are valid for the requested {term}`forecast type`. In other words, forecasts that are run between {term}`run_start` and {term}`run_end` only produce data for a certain range of {term}`forecasted times`. This varies between {term}`forecast types`. For more information, refer to the [forecast-specific datetime validators](api:forecast-specific helpers).
+3. Whether the requested {term}`run times` and `forecasted times` are valid for the requested {term}`forecast type`. In other words, forecasts that are run between {term}`run_start` and {term}`run_end` only produce data for a certain range of {term}`forecasted times`. This varies between {term}`forecast types`. For more information, refer to the forecast-specific datetime {mod}`validators<nemseer.forecast_type.validators>`.
 
 ### Getting valid run times for a set of forecasted times
 
-If you're interested in forecast data for a particular datetime range (i.e. between {term}`forecasted_start` and {term}`forecasted_end`) but not sure what the valid {term}`run times` for this range are, you can use {func}`generate_runtimes <nemseer.generate_runtimes>`. This function returns the first {term}`run_start` and last {term}`run_end` between which forecast outputs for the {term}`forecasted times` are available.
+If you're interested in forecast data for a particular datetime range (i.e. between {term}`forecasted_start` and {term}`forecasted_end`) but not sure what the valid {term}`run times` for this range are, you can use {func}`generate_runtimes <nemseer.generate_runtimes>`.
 
-In the example below, we request {term}`run times` that contain data for the {term}`forecasted times` used in the [compiling data examples](quick_start:compiling data):
+This function returns the first {term}`run_start` and last {term}`run_end` between which forecast outputs for the {term}`forecasted times` are available.
+
+In the example below, we request {term}`run times` that contain data for the {term}`forecasted times` used in the [compiling data examples](<quick_start:compiling data>):
 
 ```{doctest}
 >>> import nemseer
@@ -166,7 +172,7 @@ In the example below, we request {term}`run times` that contain data for the {te
 ('2021/02/22 14:00', '2021/02/28 14:00')
 ```
 
-You can see that in the [compiling data examples](quick_start:compiling data) we had a wider {term}`run time` range. This is fine since only {term}`run times` that contain the requested {term}`forecasted times` will be retained. The inverse is not true - {func}`compile_raw_data <nemseer.compile_raw_data>` will raise errors if the requested {term}`forecasted times` are not valid for the requested `run times`.
+You can see that in the [compiling data examples](<quick_start:compiling data>) we had a wider {term}`run time` range. This is fine since filtering will only retain {term}`run times` that contain the requested {term}`forecasted times`. The inverse is not true: {func}`compile_raw_data <nemseer.compile_raw_data>` will raise errors if the requested {term}`forecasted times` are not valid/do not have forecast outputs for the requested {term}`run times`.
 
 ## Downloading raw data
 
@@ -174,7 +180,7 @@ You can download data to a cache using {func}`download_raw_data() <nemseer.downl
 
 CSVs can be retained by specifying `keep_csv=True`.
 
-Like [compiling data](quick_start:compiling data), {term}`forecasted times` need to be provided. However, unlike data compilation, these times are not used and thus no forecast-specific validation is carried out.
+Like [compiling data](<quick_start:compiling data>), {term}`forecasted times` need to be provided. However, unlike data compilation, these times are not used and thus no forecast-specific validation is carried out.
 
 ```{note}
 Further `nemseer` releases will streamline input provision for this function.
@@ -192,6 +198,6 @@ Further `nemseer` releases will streamline input provision for this function.
 ... raw_cache="./nemseer_cache/",
 ... keep_csv=False
 ... )
-INFO: ...
-INFO: ...
+INFO: Downloading and unzipping REGIONSOLUTION for 1/2020
+INFO: Converting PUBLIC_DVD_P5MIN_REGIONSOLUTION_202001010000.CSV to parquet
 ```
