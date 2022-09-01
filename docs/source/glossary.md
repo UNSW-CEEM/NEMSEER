@@ -8,8 +8,14 @@
    Forecasts with run times before or at this datetime are queried.
 
 `run time`
+`run times`
 `run_time`
    The time at which a forecast is *nominally* run.
+     - {term}`P5MIN`: Every 5 minutes beginning on the hour
+     - {term}`PREDISPATCH`/{term}`PDPASA`: Every 30 minutes beginning on the hour
+     - {term}`STPASA`: On the hour, either every hour or every two hours
+       - Frequency of runs was increased in 2021
+     - {term}`MTPASA`: Run every week on Tuesdays, datetime of run will vary
 
 `forecasted_start`
    Forecasts pertaining to times at or after this datetime are retained.
@@ -18,6 +24,7 @@
    Forecasts pertaining to times before or at this datetime are retained.
 
 `forecasted time`
+`forecasted times`
 `forecasted_time`
    The time to which a forecast's outputs pertain.
 
