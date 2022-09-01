@@ -189,11 +189,18 @@ class DataCompiler:
         for table in file_to_table_map.keys():
             files = file_to_table_map[table]
             filtered_files = [file for file in files if file not in invalid_files]
-            if len(filtered_files) < len(files):
+            if not filtered_files:
+                raise ValueError(
+                    "Query failed as all files to be compiled were found to be"
+                    + " invalid/corrupt on previous download. You can force nemseer"
+                    + " to load these files by deleting them from "
+                    + ".invalid_aemo_files.txt"
+                )
+            elif len(filtered_files) < len(files):
                 logging.warning(
                     "Some files not compiled as these were found to be"
                     + " invalid/corrupt on previous download. You can force nemseer"
-                    + " to load this file by deleting it from "
+                    + " to load these files by deleting them from "
                     + ".invalid_aemo_files.txt"
                 )
             dfs = []
@@ -209,8 +216,12 @@ class DataCompiler:
                     self.forecast_type,
                 )
                 dfs.append(df.reset_index(drop=True))
-            if len(dfs) == 1:
-                table_to_df_map[table] = dfs.pop()
-            else:
-                table_to_df_map[table] = pd.concat(dfs, axis=0)
+            concat_df = pd.concat(dfs)
+            if any(concat_df.duplicated()):
+                logging.warning(
+                    "Duplicate rows detected whilst concatenating data. "
+                    + "Dropping these rows."
+                )
+                concat_df = concat_df.drop_duplicates()
+            table_to_df_map[table] = concat_df
         self.compiled_data = table_to_df_map
