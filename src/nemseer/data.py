@@ -1,23 +1,56 @@
-# Wholesale electricity data archive base URL
-MMSDM_ARCHIVE_URL = "http://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+#: Forecast types requestable through nemseer.
+#: See also :term:`forecast types`, and :term:`pre-dispatch` and :term:`PASA`.
+FORECAST_TYPES = ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA")
 
-# Tables which should be directed to the PREDISP_ALL_DATA URL
-# The corresponding tables in the DATA folder (which end with "_D") only contain the
-# latest forecasted value
+MMSDM_ARCHIVE_URL = "http://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+"""Wholesale electricity data archive base URL"""
+
+#: Tables which should be directed to the PREDISP_ALL_DATA URL.
+#: The corresponding tables in the DATA folder (which end with "_D") only contain the
+#: latest forecasted value
 PREDISP_ALL_DATA = ("CONSTRAINT", "INTERCONNECTORRES", "PRICE", "LOAD", "REGIONSUM")
 
-# MTPASA DUID Availability
 MTPASA_DUID_URL = "http://nemweb.com.au/Reports/Current/MTPASA_DUIDAvailability/"
+"""MTPASA DUID Availability"""
 
-# Enumerated tables for each forecast type
-# First element of tuple is table name
-# Second element of tuple is number which to enumerate table to
+#: Enumerated tables for each forecast type
+#: First element of tuple is table name
+#: Second element of tuple is number which to enumerate table to
 ENUMERATED_TABLES = {
     "P5MIN": [("CONSTRAINTSOLUTION", 4)],
     "PREDISPATCH": [("CONSTRAINT", 2), ("LOAD", 2)],
 }
 
-# User agents
+DATETIME_FORMAT = "%Y/%m/%d %H:%M"
+"""
+`nemseer` date format
+"""
+
+RUNTIME_COL = {
+    "P5MIN": "RUN_DATETIME",
+    "PREDISPATCH": "PREDISPATCH_RUN_DATETIME",
+    "PDPASA": "RUN_DATETIME",
+    "STPASA": "RUN_DATETIME",
+    "MTPASA": "RUN_DATETIME",
+}
+"""
+If it exists, `nemseer` will use the corresponding column for `run` time filtering.
+"""
+
+FORECASTED_COL = {
+    "P5MIN": "INTERVAL_DATETIME",
+    "PREDISPATCH": "DATETIME",
+    "PDPASA": "INTERVAL_DATETIME",
+    "STPASA": "INTERVAL_DATETIME",
+    "MTPASA": "DAY",
+}
+"""
+If it exists, `nemseer` uses the corresponding column for `forecasted` time filtering.
+"""
+
+INVALID_STUBS_FILE = ".invalid_aemo_files.txt"
+"""File in :term:`raw_cache` that contains invalid/corrupted AEMO files"""
+
 USER_AGENTS = [
     (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -73,3 +106,4 @@ USER_AGENTS = [
         + "Raspbian Chromium/74.0.3729.157 Chrome/74.0.3729.157 Safari/537.36"
     ),
 ]
+"""List of user-agents"""

@@ -6,7 +6,7 @@ from typing import Dict, List, Optional, Tuple, Union
 from attrs import converters, define, field, validators
 from dateutil import rrule
 
-from .data import ENUMERATED_TABLES
+from .data import DATETIME_FORMAT, ENUMERATED_TABLES, FORECAST_TYPES
 
 logger = logging.getLogger(__name__)
 
@@ -22,8 +22,7 @@ def _dt_converter(value: str) -> datetime:
         ValueError: If provided datetime string is invalid
     """
     try:
-        format = "%Y/%m/%d %H:%M"
-        return datetime.strptime(value, format)
+        return datetime.strptime(value, DATETIME_FORMAT)
     except ValueError:
         raise ValueError(
             "Datetime invalid. Datetime should be provided as follows: yyyy/mm/dd HH:MM"
@@ -113,7 +112,7 @@ def _construct_sqlloader_filename(
     Args:
         year: Year
         month: Month
-        forecast_type: One of :data:`nemseer.forecast_types`
+        forecast_type: One of :data:`nemseer.forecast_types`. See :term:`forecast types`
         table: The name of the table required
     Returns:
         Filename string without file type
@@ -140,11 +139,11 @@ def generate_sqlloader_filenames(
     Args:
         run_start: Forecast runs at or after this datetime are queried.
         run_end: Forecast runs before or at this datetime are queried.
-        forecast_type: One of :data:`nemseer.forecast_types`
+        forecast_type: One of :data:`nemseer.forecast_types`.
         tables: Table or tables required, provided as a List.
     Returns:
         A tuple of query metadata (`table`, `year`, `month`) mapped to each
-        format-agnostic (SQLLOader) filename
+        format-agnostic (:term:`SQLLoader`) filename
     """
     intervening_dates = rrule.rrule(rrule.MONTHLY, dtstart=run_start, until=run_end)
     filename_data = {}
@@ -163,7 +162,8 @@ def generate_sqlloader_filenames(
 
 @define
 class Query:
-    """`Query` validates user inputs and dispatches data downloaders and compilers
+    """:class:`Query` validates user inputs and dispatches data downloaders and
+    compilers
 
     Construct :class:`Query` using the :meth:`Query.initialise()` constructor. This
     ensures query metadata is constructed approriately.
@@ -171,10 +171,10 @@ class Query:
     Query:
 
     - Validates user input data
-        - Checks datetime fit `yyyy/mm/dd HH:MM` format
+        - Checks datetimes fit :attr:`yyyy/mm/dd HH:MM` format
         - Checks datetime chronology (e.g. end is after start)
-        - Checks requested datetimes are valid for each `forecast_type`
-        - Validates `forecast_type`
+        - Checks requested datetimes are valid for each :term:`forecast type`
+        - Validates :term:`forecast type`
         - Validates user-requested tables against what is available on NEMWeb
     - Retains query metadata (via constructor class method
       :meth:`nemseer.query.Query.initialise`)
@@ -189,13 +189,13 @@ class Query:
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
             datetime are retaned.
-        forecast_type: One of :data:`nemseer.forecast_types`
+        forecast_type: One of :data:`nemseer.forecast_types`.
         tables: Table or tables required. A single table can be supplied as
             a string. Multiple tables can be supplied as a list of strings.
-        metadata: Metadata dictionary. Constructed by `Query.initialise()`.
-        raw_cache (optional): Path to build or reuse raw cache.
-        processed_cache (optional): Path to build or reuse processed cache. Should be
-          distinct from raw_cache
+        metadata: Metadata dictionary. Constructed by :meth:`Query.initialise()`.
+        raw_cache (optional): Path to build or reuse :term:`raw_cache`.
+        processed_cache (optional): Path to build or reuse :term:`processed_cache`.
+            Should be distinct from :attr:`raw_cache`
 
     """
 
@@ -208,9 +208,7 @@ class Query:
         converter=_dt_converter, validator=[_validate_forecasted_chronology]
     )
     forecasted_end: datetime = field(converter=_dt_converter)
-    forecast_type: str = field(
-        validator=validators.in_(["MTPASA", "STPASA", "PDPASA", "PREDISPATCH", "P5MIN"])
-    )
+    forecast_type: str = field(validator=validators.in_(FORECAST_TYPES))
     tables: List[str] = field(converter=_tablestr_converter)
     metadata: Dict
     raw_cache: Path = field(

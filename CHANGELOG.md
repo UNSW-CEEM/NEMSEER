@@ -2,6 +2,16 @@
 
 <!--next-version-placeholder-->
 
+## v0.5.0 (01/09/2022)
+
+- Implement data compilation to pandas DataFrame
+  - Add forecast-specific datetime validation to DataCompiler
+  - Handle invalid/corrupted files during compilation
+- Add runtime generators
+- Expand testing for new functionality
+- Move constants to data module
+- Expand glossary and update README, API and quick start pages in docs
+
 ## v0.4.0 (27/08/2022)
 
 - Improve docs, including addition of glossary

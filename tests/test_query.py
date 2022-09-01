@@ -2,6 +2,7 @@ from datetime import datetime
 
 import pytest
 
+from nemseer.data import DATETIME_FORMAT
 from nemseer.query import (
     Query,
     _dt_converter,
@@ -187,8 +188,8 @@ class TestQuery:
 
     def test_p5constraintsolution_filename_generation(self):
         fnames = generate_sqlloader_filenames(
-            datetime.strptime(self.same_forecast_dates[0], "%Y/%m/%d %H:%S"),
-            datetime.strptime(self.same_forecast_dates[1], "%Y/%m/%d %H:%S"),
+            datetime.strptime(self.same_forecast_dates[0], DATETIME_FORMAT),
+            datetime.strptime(self.same_forecast_dates[1], DATETIME_FORMAT),
             "P5MIN",
             ["CONSTRAINTSOLUTION"],
         ).values()

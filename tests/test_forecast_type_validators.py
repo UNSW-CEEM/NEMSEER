@@ -225,6 +225,20 @@ class TestSTPASAvalidator:
             is None
         )
 
+    def test_run_times_over_multiple_days(self, gen_datetime):
+        run_start = gen_datetime.replace(minute=0, second=0, microsecond=0)
+        run_end = run_start + timedelta(days=5)
+        forecasted_start = run_start + timedelta(days=3)
+        forecasted_end = _determine_last_market_day_end_for_half_hourly(
+            run_end
+        ) + timedelta(days=5)
+        assert (
+            validate_STPASA_datetime_inputs(
+                run_start, run_end, forecasted_start, forecasted_end
+            )
+            is None
+        )
+
 
 class TestMTPASAvalidator:
     def test_invalid_minutes(self):

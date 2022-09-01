@@ -58,15 +58,52 @@ def download_file_to_cache(tmp_path_factory, valid_download_datetimes):
     )
 
 
-@pytest.fixture(scope="module")
+def _gen_datetime():
+    """Generate a datetime in format yyyy-mm-dd hh:mm:ss.000000
+
+    From this gist: https://gist.github.com/rg3915/db907d7455a4949dbe69
+    """
+    min_year = 2011
+    max_year = 2021
+    start = datetime(min_year, 1, 1, 00, 00, 00)
+    years = max_year - min_year + 1
+    end = start + timedelta(days=365 * years)
+    return start + (end - start) * random.random()
+
+
+@pytest.fixture
 def gen_datetime():
     """Generate a datetime in format yyyy-mm-dd hh:mm:ss.000000
 
     From this gist: https://gist.github.com/rg3915/db907d7455a4949dbe69
     """
-    min_year = 2012
-    max_year = datetime.now().year
-    start = datetime(min_year, 1, 1, 00, 00, 00)
-    years = max_year - min_year + 1
-    end = start + timedelta(days=365 * years)
-    return start + (end - start) * random.random()
+    return _gen_datetime()
+
+
+@pytest.fixture
+def gen_n_datetimes(request):
+    dts = []
+    for _ in range(0, request.param):
+        dts.append(_gen_datetime())
+    if request.param == 1:
+        return dts.pop()
+    else:
+        return dts
+
+
+@pytest.fixture
+def fix_forecasted_dt():
+    def _method(forecasted_dt: datetime, forecast_type: str):
+        """Fixes output from _gen_datetime to create a valid `forecasted` time"""
+        forecasted_dt = forecasted_dt.replace(second=0, microsecond=0)
+        if forecast_type == "P5MIN":
+            forecasted_dt = forecasted_dt.replace(minute=25)
+        elif forecast_type in ["PDPASA", "PREDISPATCH"]:
+            forecasted_dt = forecasted_dt.replace(minute=30)
+        elif forecast_type == "MTPASA":
+            forecasted_dt = forecasted_dt.replace(hour=0, minute=0)
+        else:
+            forecasted_dt = forecasted_dt.replace(minute=0)
+        return forecasted_dt
+
+    return _method

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nemseer"
-version = "0.4.0"
+version = "0.5.0"
 description = "A package for downloading and handling forecasts for the National Electricity Market (NEM) from the Australian Energy Market Operator (AEMO)."
 authors = ["Abhijith Prakash"]
 license = "BSD 3-Clause"
@@ -11,18 +11,17 @@ readme = "README.md"
 python = ">= 3.8, < 3.11"
 attrs = "^21"
 beautifulsoup4 = "^4"
-dask = "^2022.7.1"
 netCDF4 = "^1.6.0"
 numpy = "^1.23.0"
 packaging = "^21.3"
 pandas = "^1.2"
 psutil = "^5.9.1"
+pyarrow = "^9.0.0"
 requests = "^2"
 tqdm = "^4.64.0"
 xarray = "^2022"
 
 # Packages for developers for creating documentation
-pyarrow = "^9.0.0"
 [tool.poetry.group.docs]
 optional = true
 
@@ -57,12 +56,12 @@ types-beautifulsoup4 = "^4.11.4"
 types-python-dateutil = "^2.8.19"
 types-psutil = "^5.9.5"
 pandas-stubs = "^1.4.3.220724"
+types-tqdm = "^4.64.4"
 black = "^22.6.0"
 isort = "^5.10.1"
 pre-commit = "^2.20.0"
 
 # Packages for developers for testing
-types-tqdm = "^4.64.4"
 [tool.poetry.group.test]
 optional = true
 

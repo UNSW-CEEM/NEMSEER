@@ -23,7 +23,7 @@ copyright = "2022, Abhijith (Abi) Prakash"
 author = "Abhijith (Abi) Prakash"
 
 # The full version, including alpha/beta/rc tags
-release = "0.4.0"
+release = "0.5.0"
 
 
 # -- General configuration ---------------------------------------------------
@@ -84,6 +84,7 @@ autoclass_content = "class"
 intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "pandas": ("https://pandas.pydata.org/docs/", None),
+    "xarray": ("https://docs.xarray.dev/en/stable/", None),
 }
 
 # --  MyST options------------------------------------------------------------

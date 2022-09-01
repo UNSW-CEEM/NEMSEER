@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta
 
-_PRINT_FORMAT = "%Y/%m/%d %H:%M"
+from nemseer.data import DATETIME_FORMAT
 
 
 def _determine_last_market_day_end_for_half_hourly(dt: datetime) -> datetime:
@@ -72,12 +72,12 @@ def validate_P5MIN_datetime_inputs(
         if dt_input.minute not in acceptable_minutes:
             raise ValueError(
                 "P5MIN is run every 5 minutes.\n"
-                + " Minutes in datetime inputs should correspond to: "
+                + "Minutes in datetime inputs should correspond to: "
                 + f"{acceptable_minutes}"
             )
     # Check 2
     if forecasted_end > (allowed := run_end + timedelta(minutes=55)):
-        print_allowed = allowed.strftime(_PRINT_FORMAT)
+        print_allowed = allowed.strftime(DATETIME_FORMAT)
         raise ValueError(
             "For P5MIN, forecasted_end must be within 55 minutes of run_end.\n"
             + f"This corresponds to {print_allowed} for the provided run_end"
@@ -136,13 +136,13 @@ def validate_PREDISPATCH_datetime_inputs(
         if dt_input.minute not in acceptable_minutes:
             raise ValueError(
                 "PREDISPATCH/PDPASA is run every 30 minutes.\n"
-                + " Minutes in datetime inputs should correspond to: "
+                + "Minutes in datetime inputs should correspond to: "
                 + f"{acceptable_minutes}"
             )
     # Check 2
     check_dt = _determine_last_market_day_end_for_half_hourly(run_end)
     if forecasted_end > check_dt:
-        print_allowed = check_dt.strftime(_PRINT_FORMAT)
+        print_allowed = check_dt.strftime(DATETIME_FORMAT)
         raise ValueError(
             "For PREDISPATCH/PDPASA, forecasted_end must be no later than"
             + f" {print_allowed} based on the supplied run_end"
@@ -203,7 +203,7 @@ def validate_STPASA_datetime_inputs(
       been submitted
 
     The National Electricity Rules and some of AEMO's procedures state that ST PASA
-    is run every two hours. As of June 2021, the frequency was increased to hourly. See
+    is run every two hours. The frequency was increased to hourly. See
     `Spot Market Operations Timetable <https://www.aemo.com.au/-/media/Files/
     Electricity/NEM/Security_and_Reliability/Dispatch/
     Spot-Market-Operations-Timetable.pdf>`_.
@@ -234,8 +234,8 @@ def validate_STPASA_datetime_inputs(
         ValueError: If any validation conditions are failed.
     """
     # Check 1
-    for forecast_input in (run_start, run_end):
-        if forecast_input.minute != 0:
+    for run_input in (run_start, run_end):
+        if run_input.minute != 0:
             raise ValueError("ST PASA run_start and run_end must be on the hour")
     # Check 2
     forecasted_minutes = set((0, 30))
@@ -248,18 +248,19 @@ def validate_STPASA_datetime_inputs(
                 + f" should correspond to: {forecasted_minutes}"
             )
     # Check 3
-    end_of_last = _determine_last_market_day_end_for_half_hourly(run_start)
-    start_check_dt = end_of_last + timedelta(minutes=30)
+    end_of_last_for_start = _determine_last_market_day_end_for_half_hourly(run_start)
+    start_check_dt = end_of_last_for_start + timedelta(minutes=30)
     if forecasted_start < start_check_dt:
-        print_allowed = start_check_dt.strftime(_PRINT_FORMAT)
+        print_allowed = start_check_dt.strftime(DATETIME_FORMAT)
         raise ValueError(
             f"For ST PASA, forecasted_start must be no earlier than {print_allowed} "
             + "based on the supplied run_start"
         )
     # Check 4
-    end_check_dt = end_of_last + timedelta(days=6)
+    end_of_last_for_end = _determine_last_market_day_end_for_half_hourly(run_end)
+    end_check_dt = end_of_last_for_end + timedelta(days=6)
     if forecasted_end > end_check_dt:
-        print_allowed = end_check_dt.strftime(_PRINT_FORMAT)
+        print_allowed = end_check_dt.strftime(DATETIME_FORMAT)
         raise ValueError(
             f"For ST PASA, forecasted_end must be no later than {print_allowed} "
             + "based on the supplied run_end"
@@ -317,7 +318,7 @@ def validate_MTPASA_datetime_inputs(
         if forecasted_input.hour != 0 or forecasted_input.minute != 0:
             raise ValueError(
                 "Results for MT PASA reported for each day. Forecasted start/end should"
-                + "be supplied with hh:mm of 00:00"
+                + " be supplied with hh:mm of 00:00"
             )
     # Check 2
     if run_end.month == 2 and run_end.day == 29:
@@ -326,7 +327,7 @@ def validate_MTPASA_datetime_inputs(
         plus_two_years = run_end.replace(year=run_end.year + 2)
     check_end_date = plus_two_years + timedelta(days=16)
     if forecasted_end > check_end_date:
-        print_allowed = check_end_date.strftime(_PRINT_FORMAT)
+        print_allowed = check_end_date.strftime(DATETIME_FORMAT)
         raise ValueError(
             f"For MT PASA, forecasted_end must be no later than {print_allowed} "
             + "based on the supplied run_end"

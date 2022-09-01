@@ -5,7 +5,7 @@ from zipfile import BadZipFile
 import pytest
 import requests
 
-from nemseer.data import MMSDM_ARCHIVE_URL
+from nemseer.data import INVALID_STUBS_FILE, MMSDM_ARCHIVE_URL
 from nemseer.downloader import (
     ForecastTypeDownloader,
     _construct_sqlloader_forecastdata_url,
@@ -287,7 +287,7 @@ class TestForecastTypeDownloader:
 
     def test_skip_invalid_zip(self, caplog, tmp_path, valid_download_datetimes):
         query = self.valid_casesolution(tmp_path, valid_download_datetimes)
-        stubfile = query.raw_cache / ".invalid_aemo_files.txt"
+        stubfile = query.raw_cache / INVALID_STUBS_FILE
         fnames = generate_sqlloader_filenames(
             query.run_start, query.run_end, query.forecast_type, query.tables
         ).values()
@@ -332,7 +332,7 @@ class TestForecastTypeDownloader:
         query = self.casesolution_query(tmp_path, "STPASA", valid_download_datetimes)
         downloader = ForecastTypeDownloader.from_Query(query)
         downloader.download_csv()
-        with open(tmp_path / ".invalid_aemo_files.txt", "r") as f:
+        with open(tmp_path / INVALID_STUBS_FILE, "r") as f:
             line = f.readline()
         assert not line == "PUBLIC_DVD_STPASA_CASESOLUTION_202102010000"
 
@@ -342,8 +342,7 @@ class TestForecastTypeDownloader:
         for query in (predisp_d_query, predisp_all_query):
             downloader = ForecastTypeDownloader.from_Query(query)
             downloader.download_csv()
-            downloader.convert_to_parquet()
         path = pathlib.Path(tmp_path)
         assert len(list(path.iterdir())) == 2
-        assert len(list(path.glob("*PRICE_D*.parquet"))) == 1
-        assert len(list(path.glob("*PRICE*.parquet"))) == 2
+        assert len(list(path.glob("*PRICE_D*.[Cc][Ss][Vv]"))) == 1
+        assert len(list(path.glob("*PRICE*.[Cc][Ss][Vv]"))) == 2
