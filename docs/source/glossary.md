@@ -8,6 +8,7 @@
    Forecasts with run times before or at this datetime are queried.
 
 `run time`
+`run_time`
    The time at which a forecast is *nominally* run.
 
 `forecasted_start`
@@ -15,6 +16,10 @@
 
 `forecasted_end`
    Forecasts pertaining to times before or at this datetime are retained.
+
+`forecasted time`
+`forecasted_time`
+   The time to which a forecast's outputs pertain.
 
 `forecast type`
 `forecast types`
