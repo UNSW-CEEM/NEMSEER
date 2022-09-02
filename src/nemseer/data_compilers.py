@@ -49,7 +49,10 @@ def _map_files_to_table(
     metadata_to_filename = generate_sqlloader_filenames(
         run_start, run_end, forecast_type, tables
     )
-    enumerated_tables = [pair[0] for pair in ENUMERATED_TABLES[forecast_type]]
+    if forecast_type in ENUMERATED_TABLES.keys():
+        enumerated_tables = [pair[0] for pair in ENUMERATED_TABLES[forecast_type]]
+    else:
+        enumerated_tables = []
     table_file_map: Dict[str, List[str]] = {}
     for table in tables:
         filenames_to_map = list()
