@@ -100,16 +100,20 @@ def clean_forecast_csv(filepath_or_buffer: Union[str, Path]) -> pd.DataFrame:
     Warning:
         Removes duplicate rows. Raises a warning when doing so.
     """
-    # skip AEMO metadata
     df = pd.read_csv(filepath_or_buffer, skiprows=1, low_memory=False)
     # remove end of report line
     df = df.iloc[0:-1, :]
+    # skip AEMO metadata
     drop_cols = df.columns.tolist()[0:4]
     df = df.drop(drop_cols, axis="columns")
     df = _parse_datetime_cols(df)
     df = _parse_id_cols(df)
     if "PREDISPATCHSEQNO" in df.columns:
         df = _parse_predispatch_seq_no(df)
+    for col in [col for col in df.columns if df.dtypes[col] == "float64"]:
+        df[col] = pd.to_numeric(df[col], downcast="integer")
+    for col in [col for col in df.columns if df.dtypes[col] == "float64"]:
+        df[col] = pd.to_numeric(df[col], downcast="float")
     if any(dup_df := df.duplicated()):
         dup_rows = dup_df.loc[dup_df is True]
         logging.warning(
