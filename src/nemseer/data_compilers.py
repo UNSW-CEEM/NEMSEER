@@ -1,4 +1,5 @@
 import logging
+import re
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Union
@@ -32,6 +33,10 @@ def _map_files_to_table(
     Translates output from `generate_sqlloader_filenames` to map filenames of interest
     to a queried table name.
 
+    Handles enumerated tables (e.g. `PREDISP_ALL_DATA`) by mapping enumerated filenames
+    to non-enumerated table type (which is used in the user query).
+    E.g. '...PREDISPATCHLOAD1' and '...PREDISPATCHLOAD2' mapped to 'LOAD'
+
     Args:
         forecast_start: Forecasts made at or after this datetime are queried.
         forecast_end: Forecasts made before or at this datetime are queried.
@@ -44,13 +49,23 @@ def _map_files_to_table(
     metadata_to_filename = generate_sqlloader_filenames(
         run_start, run_end, forecast_type, tables
     )
-    table_file_map = {}
+    enumerated_tables = [pair[0] for pair in ENUMERATED_TABLES[forecast_type]]
+    table_file_map: Dict[str, List[str]] = {}
     for table in tables:
         filenames_to_map = list()
         for metadata in metadata_to_filename.keys():
             if metadata[2] == table:
                 filenames_to_map.append(metadata_to_filename[metadata])
-        table_file_map[table] = filenames_to_map
+        if (enum_base := re.match(r"([A-Z]*)[0-9]", table)) and enum_base.group(
+            1
+        ) in enumerated_tables:
+            map_table_name = enum_base.group(1)
+            if map_table_name in table_file_map.keys():
+                table_file_map[map_table_name].extend(filenames_to_map)
+            else:
+                table_file_map[map_table_name] = filenames_to_map
+        else:
+            table_file_map[table] = filenames_to_map
     return table_file_map
 
 
