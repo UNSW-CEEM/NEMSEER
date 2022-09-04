@@ -3,7 +3,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Tuple, Union
 
+import numpy as np
 import pandas as pd
+import psutil
+import xarray as xr
 
 from .data import (
     DATETIME_COLS,
@@ -171,9 +174,38 @@ def apply_run_and_forecasted_time_filters(
 
 
 def to_xarray(df: pd.DataFrame, forecast_type: str):
+    """Converts a :class:`pandas.DataFrame` to a :class:`xarray.Dataset` using nemseer
+    definitions to determine Dataset dimensions.
+
+    The conversion is processed in chunks. If system memory usage exceeds 95%, the
+    conversion is terminated with a MemoryError. This is more informative than
+    the system killing the Python process.
+
+    Args:
+        df: pandas.DataFrame to be converted.
+        forecast_type: One of :data:`nemseer.forecast_types`.
+    Returns:
+        :class:<xarray.Dataset>.
+    Warning:
+        Raises a warning when attempting to convert high-dimensional data.
+    Raises:
+        MemoryError: If system memory utilisation exceeds 95%.
+    """
+
     def _determine_multiindex(
         df: pd.DataFrame, forecast_type: str
     ) -> Tuple[pd.MultiIndex, List[str]]:
+        """Ascertains which DataFrame columns are in nemseer's datetime, ID or
+        type column lists and then uses these columns to create a MultiIndex.
+
+        Args:
+            df: pandas DataFrame.
+            forecast_type: One of :data:`nemseer.forecast_types`.
+        Returns:
+            A MultiIndex that will be parsed as dimensions when converting to
+            :class:`xarray.Dataset`, and a list of the columns that the MultiIndex
+            incorporates.
+        """
         multiindex_cols = []
         names = []
         for name, col in zip(
@@ -190,8 +222,45 @@ def to_xarray(df: pd.DataFrame, forecast_type: str):
         multiindex = pd.MultiIndex.from_frame(df[multiindex_cols], names=names)
         return multiindex, multiindex_cols
 
-    multiindex, multiindex_cols = _determine_multiindex(df, forecast_type)
-    df = df.set_index(multiindex)
-    df = df.drop(multiindex_cols, axis=1)
-    ds = df.to_xarray()
+    def _chunk_to_xarray(chunk_df: pd.DataFrame) -> xr.Dataset:
+        """Reformats supplied DataFrame chunk to a MultiIndexed DataFrame and then
+        converts to :class:`xarray.Dataset`.
+
+        Args:
+            chunk_df: A chunk or complete pandas DataFrame.
+        Returns:
+            Chunk or complete DataFrame converted to xarray Dataset.
+        """
+        multiindex, multiindex_cols = _determine_multiindex(chunk_df, forecast_type)
+        chunk_df = chunk_df.set_index(multiindex)
+        chunk_df = chunk_df.drop(multiindex_cols, axis=1)
+        ds = chunk_df.to_xarray()
+        return ds  # type: ignore
+
+    dim_cols = [
+        col
+        for col in df.columns
+        if (
+            col in ID_COLS
+            or col in TYPE_COLS
+            or col in RUNTIME_COL[forecast_type]
+            or col in FORECASTED_COL[forecast_type]
+        )
+    ]
+    if len(dim_cols) >= 5:
+        logging.warning(
+            "High-dimensional data. Large datetime requests may be"
+            + " terminated in the event of insufficient memory."
+        )
+    ds_chunks: List[xr.Dataset] = []
+    for df_chunk in np.array_split(df, 10):
+        ds_chunk = _chunk_to_xarray(df_chunk)  # type: ignore
+        if psutil.virtual_memory().percent <= 95:
+            ds_chunks.append(ds_chunk)
+        else:
+            raise MemoryError(
+                "Conversion to xarray failed due to lack of memory. Shorten datetime "
+                + "range(s) or use dask."
+            )
+    ds = xr.merge(ds_chunks)
     return ds
