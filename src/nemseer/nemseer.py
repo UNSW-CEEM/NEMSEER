@@ -109,7 +109,6 @@ def compile_raw_data(
     )
     _initiate_downloads_from_query(query, keep_csv=False)
     compiler = DataCompiler.from_Query(query)
-    if data_format == "df":
-        compiler.compile_raw_data_to_dataframe()
+    compiler.compile_raw_data(data_format=data_format)
     data = compiler.compiled_data
     return data
