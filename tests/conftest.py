@@ -63,7 +63,7 @@ def _gen_datetime():
 
     From this gist: https://gist.github.com/rg3915/db907d7455a4949dbe69
     """
-    min_year = 2011
+    min_year = 2014
     max_year = 2021
     start = datetime(min_year, 1, 1, 00, 00, 00)
     years = max_year - min_year + 1
