@@ -14,6 +14,7 @@ from bs4 import BeautifulSoup
 from tqdm.auto import tqdm
 
 from .data import (
+    DEPRECATED_TABLES,
     ENUMERATED_TABLES,
     FORECAST_TYPES,
     INVALID_STUBS_FILE,
@@ -362,6 +363,14 @@ def _validate_tables_on_run_start(instance, attribute, value) -> None:
     requestable_tables = get_sqlloader_forecast_tables(
         start_dt.year, start_dt.month, instance.forecast_type, actual=False
     )
+    if instance.forecast_type in DEPRECATED_TABLES.keys() and any(
+        dep_tabs := [
+            table
+            for table in value
+            if table in DEPRECATED_TABLES[instance.forecast_type]
+        ]
+    ):
+        logging.warning(f"{instance.forecast_type} {dep_tabs} deprecated.")
     if not set(value).issubset(set(actual_tables)):
         raise ValueError(
             "Table(s) not available from MMS Historical Data SQL Loader"
