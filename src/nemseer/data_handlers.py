@@ -189,7 +189,9 @@ def to_xarray(df: pd.DataFrame, forecast_type: str):
     Warning:
         Raises a warning when attempting to convert high-dimensional data.
     Raises:
-        MemoryError: If system memory utilisation exceeds 95%.
+        MemoryError: If system memory utilisation exceeds 95% whilst converting
+            DataFrame chunks. Note that this error will not be raised if the memory
+            required to complete the Dataset merge exceeds available system memory.
     """
 
     def _determine_multiindex(
@@ -249,8 +251,8 @@ def to_xarray(df: pd.DataFrame, forecast_type: str):
     ]
     if len(dim_cols) >= 5:
         logging.warning(
-            "High-dimensional data. Large datetime requests may be"
-            + " terminated in the event of insufficient memory."
+            "High-dimensional data. Large datetime requests may result in nemseer "
+            + "terminating conversion or the Python process being killed by the system"
         )
     ds_chunks: List[xr.Dataset] = []
     for df_chunk in np.array_split(df, 10):
@@ -259,7 +261,7 @@ def to_xarray(df: pd.DataFrame, forecast_type: str):
             ds_chunks.append(ds_chunk)
         else:
             raise MemoryError(
-                "Conversion to xarray failed due to lack of memory. Shorten datetime "
+                "Conversion to xarray terminated due to low memory. Shorten datetime "
                 + "range(s) or use dask."
             )
     ds = xr.merge(ds_chunks)
