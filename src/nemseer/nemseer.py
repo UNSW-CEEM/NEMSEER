@@ -94,7 +94,7 @@ def compile_raw_data(
         data_format: Default is 'df', which returns :class:`pandas DataFrame`.
             Can also request 'xr', which returns :class:`xarray.Dataset`.
     Todo:
-        Implement xarray compiler
+        Generalise to compile_data that also lookups the processed cache
     """
     if data_format not in (fmts := ("df", "xr")):
         raise ValueError(f"Invalid data format. Formats include: {fmts}")
