@@ -21,6 +21,15 @@ ENUMERATED_TABLES = {
     "PREDISPATCH": [("CONSTRAINT", 2), ("LOAD", 2)],
 }
 
+DEPRECATED_TABLES = {
+    "MTPASA": [
+        "CASESOLUTION",
+    ],
+}
+"""
+Deprecated tables
+"""
+
 DATETIME_FORMAT = "%Y/%m/%d %H:%M"
 """
 `nemseer` date format
