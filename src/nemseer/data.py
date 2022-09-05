@@ -61,6 +61,7 @@ ID_COLS = {
     "LINKID",
     "USE_ITERATION_ID",
     "RESERVELIMITID",
+    "SCENARIO",
 }
 
 TYPE_COLS = {
