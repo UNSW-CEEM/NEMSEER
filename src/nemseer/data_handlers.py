@@ -3,9 +3,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Tuple, Union
 
-import numpy as np
 import pandas as pd
-import psutil
 import xarray as xr
 
 from .data import (
@@ -224,19 +222,19 @@ def to_xarray(df: pd.DataFrame, forecast_type: str):
         multiindex = pd.MultiIndex.from_frame(df[multiindex_cols], names=names)
         return multiindex, multiindex_cols
 
-    def _chunk_to_xarray(chunk_df: pd.DataFrame) -> xr.Dataset:
-        """Reformats supplied DataFrame chunk to a MultiIndexed DataFrame and then
+    def _df_to_xarray(df: pd.DataFrame) -> xr.Dataset:
+        """Reformats supplied DataFrame to a MultiIndexed DataFrame and then
         converts to :class:`xarray.Dataset`.
 
         Args:
-            chunk_df: A chunk or complete pandas DataFrame.
+            df: pandas DataFrame.
         Returns:
-            Chunk or complete DataFrame converted to xarray Dataset.
+            DataFrame converted to xarray Dataset.
         """
-        multiindex, multiindex_cols = _determine_multiindex(chunk_df, forecast_type)
-        chunk_df = chunk_df.set_index(multiindex)
-        chunk_df = chunk_df.drop(multiindex_cols, axis=1)
-        ds = chunk_df.to_xarray()
+        multiindex, multiindex_cols = _determine_multiindex(df, forecast_type)
+        df = df.set_index(multiindex)
+        df = df.drop(multiindex_cols, axis=1)
+        ds = df.to_xarray()
         return ds  # type: ignore
 
     dim_cols = [
@@ -249,20 +247,12 @@ def to_xarray(df: pd.DataFrame, forecast_type: str):
             or col in FORECASTED_COL[forecast_type]
         )
     ]
-    if len(dim_cols) >= 5:
+    if len(dim_cols) >= 5 or any(
+        [col for col in df.columns if len(df[col].unique()) > 300]
+    ):
         logging.warning(
-            "High-dimensional data. Large datetime requests may result in nemseer "
-            + "terminating conversion or the Python process being killed by the system"
+            "High-dimensional data. Large datetime requests may result the Python "
+            + "process being killed by the system"
         )
-    ds_chunks: List[xr.Dataset] = []
-    for df_chunk in np.array_split(df, 10):
-        ds_chunk = _chunk_to_xarray(df_chunk)  # type: ignore
-        if psutil.virtual_memory().percent <= 95:
-            ds_chunks.append(ds_chunk)
-        else:
-            raise MemoryError(
-                "Conversion to xarray terminated due to low memory. Shorten datetime "
-                + "range(s) or use dask."
-            )
-    ds = xr.merge(ds_chunks)
+    ds = _df_to_xarray(df)
     return ds
