@@ -251,7 +251,7 @@ def to_xarray(df: pd.DataFrame, forecast_type: str):
         [col for col in df.columns if len(df[col].unique()) > 300]
     ):
         logging.warning(
-            "High-dimensional data. Large datetime requests may result the Python "
+            "High-dimensional data. Large datetime requests may result in the Python "
             + "process being killed by the system"
         )
     ds = _df_to_xarray(df)
