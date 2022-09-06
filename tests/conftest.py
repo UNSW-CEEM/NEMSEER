@@ -39,13 +39,11 @@ def download_file_to_cache(tmp_path_factory, valid_download_datetimes):
     ) = valid_download_datetimes
     tmp_dir = tmp_path_factory.mktemp("raw_cache")
     download_raw_data(
-        run_start,
-        run_end,
-        forecasted_start,
-        forecasted_end,
         "MTPASA",
         "REGIONRESULT",
         tmp_dir,
+        run_start=run_start,
+        run_end=run_end,
     )
     return Query.initialise(
         run_start,

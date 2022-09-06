@@ -193,7 +193,7 @@ INFO: Converting REGIONSOLUTION data to xarray.
 >>> data.keys()
 dict_keys(['REGIONSOLUTION'])
 >>> type(data['REGIONSOLUTION'])
-<class `xarray.core.dataset.Dataset`>
+<class 'xarray.core.dataset.Dataset'>
 ```
 
 ### Validation and feedback
@@ -226,24 +226,37 @@ You can download data to a cache using {func}`download_raw_data() <nemseer.downl
 
 CSVs can be retained by specifying `keep_csv=True`.
 
-Like [compiling data](<quick_start:compiling data>), {term}`forecasted times` need to be provided. However, unlike data compilation, these times are not used and thus no forecast-specific validation is carried out.
+Unlike [compiling data](<quick_start:compiling data>), only one set of datetimes needs to be provided (though these datetimes are keyword arguments for this function):
 
-```{note}
-Further `nemseer` releases will streamline input provision for this function.
-```
+1. Provide `forecasted_start` and `forecasted_end` only. `nemseer` will determine the appropriate `run_start` and `run_end` for this forecasted range (via {func}`nemseer.generate_runtimes`) and download the corresponding raw data.
+2. Provide `run_start` and `run_end` only. Dummy forecasted times are used.
 
 ```{doctest}
 >>> import nemseer
 >>> nemseer.download_raw_data(
-... run_start="2020/01/01 00:00",
-... run_end="2020/01/01 00:00",
-... forecasted_start="2020/01/02 00:00",
-... forecasted_end="2020/01/02 00:00",
 ... forecast_type="P5MIN",
 ... tables="REGIONSOLUTION",
 ... raw_cache="./nemseer_cache/",
+... forecasted_start="2020/01/02 00:00",
+... forecasted_end="2020/01/02 00:30",
 ... keep_csv=False
 ... )
 INFO: Downloading and unzipping REGIONSOLUTION for 1/2020
 INFO: Converting PUBLIC_DVD_P5MIN_REGIONSOLUTION_202001010000.CSV to parquet
+```
+
+Alternatively, provide {term}`run times`:
+
+```{doctest}
+>>> import nemseer
+>>> nemseer.download_raw_data(
+... forecast_type="P5MIN",
+... tables="REGIONSOLUTION",
+... raw_cache="./nemseer_cache/",
+... run_start="2021/01/02 00:00",
+... run_end="2021/01/02 00:30",
+... keep_csv=False
+... )
+INFO: Downloading and unzipping REGIONSOLUTION for 1/2021
+INFO: Converting PUBLIC_DVD_P5MIN_REGIONSOLUTION_202101010000.CSV to parquet
 ```
