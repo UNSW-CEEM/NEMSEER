@@ -9,7 +9,7 @@ import xarray as xr
 from attrs import define, field
 
 from .data import ENUMERATED_TABLES, INVALID_STUBS_FILE
-from .data_handlers import apply_run_and_forecasted_time_filters
+from .data_handlers import apply_run_and_forecasted_time_filters, to_xarray
 from .forecast_type.validators import (
     validate_MTPASA_datetime_inputs,
     validate_P5MIN_datetime_inputs,
@@ -168,18 +168,22 @@ class DataCompiler:
         else:
             return []
 
-    def compile_raw_data_to_dataframe(self) -> None:
-        """Compiles data from :term:`raw_cache` to a :class:`pandas.DataFrame`
+    def compile_raw_data(self, data_format: str = "df") -> None:
+        """Compiles data from :term:`raw_cache` to a :class:`pandas.DataFrame` (default)
+        or to a :class:`xarray.Dataset`.
 
         This compiler will:
 
         - Skip invalid/corrupted files as recorded in `.invalid_aemo_files.txt`
         - Read :term:`raw_cache` parquet files and apply datetime filtering
+        - Convert :class:`DataFrame <pandas.DataFrame>` to :class:`xarray.Dataset`
 
+        Args:
+            data_format: Default "df" (:class:`pandas.DataFrame`). Other valid input is
+                "xr", which returns :class:`xarray.Dataset`s.
         Returns:
-            A single concatenated DataFrame if only one table type is requested.
-            Otherwise, returns a dictionary with concatenated DataFrames mapped to each
-            requested table type.
+            A dictionary with concatenated DataFrames/Datasets mapped to each requested
+            table type.
         Warning:
             Skips any files previously found to be invalid/corrupted and prints a
             warning
@@ -226,5 +230,10 @@ class DataCompiler:
                     + "Dropping these rows."
                 )
                 concat_df = concat_df.drop_duplicates()
-            table_to_df_map[table] = concat_df
+            if data_format == "xr":
+                logging.info(f"Converting {table} data to xarray.")
+                concat_data = to_xarray(concat_df, self.forecast_type)
+            else:
+                concat_data = concat_df
+            table_to_df_map[table] = concat_data
         self.compiled_data = table_to_df_map

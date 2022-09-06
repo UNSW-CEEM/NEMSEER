@@ -16,7 +16,7 @@ pip install nemseer
 
 ## Overview
 
-`nemseer` allows you to access historical AEMO [pre-dispatch](https://aemo.com.au/en/energy-systems/electricity/national-electricity-market-nem/data-nem/market-management-system-mms-data/pre-dispatch) and [Projected Assessment of System Adequacy (PASA)](https://wa.aemo.com.au/energy-systems/electricity/national-electricity-market-nem/nem-forecasting-and-planning/forecasting-and-reliability/projected-assessment-of-system-adequacy) forecast[^1] data available through the [MMSDM Historical Data SQLLoader](https://nemseer.readthedocs.io/en/latest/glossary.html#term-MMSDM-Historical-Data-SQLLOader).
+`nemseer` allows you to access historical AEMO [pre-dispatch](https://aemo.com.au/en/energy-systems/electricity/national-electricity-market-nem/data-nem/market-management-system-mms-data/pre-dispatch) and [Projected Assessment of System Adequacy (PASA)](https://wa.aemo.com.au/energy-systems/electricity/national-electricity-market-nem/nem-forecasting-and-planning/forecasting-and-reliability/projected-assessment-of-system-adequacy) forecast[^1] data available through the [MMSDM Historical Data SQLLoader](https://nemseer.readthedocs.io/en/latest/glossary.html#term-MMSDM-Historical-Data-SQLLOader). `nemseer` can then compile this data into [pandas DataFrames](https://pandas.pydata.org/pandas-docs/stable/user_guide/dsintro.html#dataframe) or [xarray Datasets](https://docs.xarray.dev/en/stable/user-guide/data-structures.html#dataset).
 
 ![forecast_overview](docs/source/_static/forecast_timeframes.png)
 
@@ -26,7 +26,7 @@ Whereas PASA processes are primarily used to assess resource adequacy based on t
 
 [^1]: We use the term *"forecast"* loosely, especially given that these *"forecasts"* change once participants update offer information (e.g. through rebidding) or submit revised resource availabilities and energy constraints. Both of these are intended outcomes of these *"ahead processes"*, which are run to provide system and market information to participants to inform their decision-making. However, to avoid confusion and to ensure consistency with the language used by AEMO, we use the terms *"forecast"* (or outputs) and *"forecast types"* (or ahead processes) in `nemseer`.
 
-`nemseer` enables you to download and work with data from the following forecast types (where available, AEMO process and table descriptions are linked):
+`nemseer` enables you to download and work with data for the following forecast types. Where available, AEMO process and table descriptions are linked:
 
 1. 5-minute pre-dispatch (`P5MIN`: [Table descriptions](https://nemweb.com.au/Reports/Current/MMSDataModelReport/Electricity/MMS%20Data%20Model%20Report_files/MMS_222.htm#1))
 2. [Pre-dispatch](https://www.aemo.com.au/-/media/files/electricity/nem/security_and_reliability/power_system_ops/procedures/so_op_3704-predispatch.pdf?la=en) (`PREDISPATCH`: [Table descriptions](https://nemweb.com.au/Reports/Current/MMSDataModelReport/Electricity/MMS%20Data%20Model%20Report_files/MMS_260.htm#1))
@@ -52,9 +52,7 @@ Check out the [Quick start](https://nemseer.readthedocs.io/en/latest/quick_start
 
 ## Development progress
 
-While this package is currently under development, `nemseer` can currently be used to download, cache and handle historical forecast data from AEMO. Future development will focus on implementing advanced features, such as casting compiled data to [xarray](https://docs.xarray.dev/en/stable/index.html) n-dimensional arrays and caching processed queries in a netCDF format.
-
-For a high-level overview of development, check out the [roadmap](./ROADMAP.md).
+While this package is currently under development, `nemseer` can currently be used to download, cache and handle historical forecast data from AEMO as [pandas DataFrames](https://pandas.pydata.org/pandas-docs/stable/user_guide/dsintro.html#dataframe) or [xarray Datasets](https://docs.xarray.dev/en/stable/user-guide/data-structures.html#dataset). Future development will focus on allowing the user to cache processed queries as parquet or netCDF files.
 
 ## Contributing
 

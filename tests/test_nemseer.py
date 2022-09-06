@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 
 import pandas as pd
 import pytest
+import xarray as xr
 
 from nemseer import compile_raw_data, download_raw_data
 from nemseer.data import (
@@ -11,6 +12,7 @@ from nemseer.data import (
     INVALID_STUBS_FILE,
     RUNTIME_COL,
 )
+from nemseer.data_handlers import to_xarray
 from nemseer.forecast_type.run_time_generators import generate_runtimes
 from nemseer.query import generate_sqlloader_filenames
 
@@ -164,6 +166,41 @@ class TestCompileRawData:
                 data_format="csv",
             )
 
+    def test_duplicated_rows_warning(
+        self, gen_datetime, fix_forecasted_dt, tmp_path, caplog
+    ):
+        (forecast_type, table) = ("MTPASA", "RESERVELIMIT")
+        time_delta = timedelta(days=1)
+        (
+            run_start,
+            run_end,
+            forecasted_start,
+            forecasted_end,
+        ) = self.setup_compilation_test(
+            gen_datetime, fix_forecasted_dt, forecast_type, time_delta
+        )
+        caplog.set_level(logging.WARNING)
+        compile_raw_data(
+            run_start,
+            run_end,
+            forecasted_start,
+            forecasted_end,
+            forecast_type,
+            table,
+            raw_cache=tmp_path,
+            data_format="df",
+        )
+        assert any(
+            [
+                (
+                    "Duplicate rows detected whilst concatenating data. "
+                    + "Dropping these rows."
+                )
+                in record.msg
+                for record in caplog.get_records("call")
+            ]
+        )
+
     def test_compile_two_datetime_cols(
         self,
         gen_datetime,
@@ -236,3 +273,68 @@ class TestCompileRawData:
         run_end = datetime.strptime(run_end, DATETIME_FORMAT)
         assert pd.Timestamp(df[runtime_col].unique()[0]) >= run_start
         assert pd.Timestamp(df[runtime_col].unique()[-1]) <= run_end
+
+
+class TestToXarray:
+    def test_two_datetime_cols_to_xarray(
+        self,
+        gen_datetime,
+        fix_forecasted_dt,
+        tmp_path,
+    ):
+        (forecast_type, table) = ("STPASA", "INTERCONNECTORSOLN")
+        time_delta = timedelta(hours=12, minutes=30)
+        (
+            run_start,
+            run_end,
+            forecasted_start,
+            forecasted_end,
+        ) = TestCompileRawData.setup_compilation_test(
+            TestCompileRawData(),
+            gen_datetime,
+            fix_forecasted_dt,
+            forecast_type,
+            time_delta,
+        )
+        data_map = compile_raw_data(
+            run_start,
+            run_end,
+            forecasted_start,
+            forecasted_end,
+            forecast_type,
+            table,
+            raw_cache=tmp_path,
+            data_format="xr",
+        )
+        assert data_map is not None
+        assert type(data_map[table]) is xr.Dataset
+        assert len(data_map[table].dims.keys()) > 1
+
+    def test_high_dimensionality_warning(self, caplog):
+        df1 = pd.DataFrame(
+            {"RUN_DATETIME": list(range(0, 400)), "b": list(range(0, 400))}
+        )
+        df2 = pd.DataFrame(
+            {
+                "RUN_DATETIME": list(range(0, 2)),
+                "RUN_TYPE": list(range(0, 2)),
+                "REGIONID": list(range(0, 2)),
+                "DUID": list(range(0, 2)),
+                "CONSTRAINTID": list(range(0, 2)),
+                "INTERVAL_DATETIME": list(range(0, 2)),
+            }
+        )
+        caplog.set_level(logging.WARNING)
+        for df in (df1, df2):
+            to_xarray(df, "STPASA")
+        assert len(caplog.get_records("call")) == 2
+        assert all(
+            [
+                (
+                    "High-dimensional data. Large datetime requests may result "
+                    + "in the Python process being killed by the system"
+                )
+                in record.msg
+                for record in caplog.get_records("call")
+            ]
+        )
