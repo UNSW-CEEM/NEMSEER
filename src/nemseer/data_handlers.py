@@ -183,7 +183,7 @@ def to_xarray(df: pd.DataFrame, forecast_type: str):
         df: pandas.DataFrame to be converted.
         forecast_type: One of :data:`nemseer.forecast_types`.
     Returns:
-        :class:<xarray.Dataset>.
+        :class:`xarray.Dataset`.
     Warning:
         Raises a warning when attempting to convert high-dimensional data.
     Raises:
