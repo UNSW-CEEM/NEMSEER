@@ -2,6 +2,24 @@
 
 <!--next-version-placeholder-->
 
+## v0.6.0 (06/09/2022)
+
+### Major features
+
+- Compile data to xarray Dataset
+- Smarter `download_raw_data` function
+
+### Minor additions
+
+- Additional downcasting in conversion to parquet to reduce memory/file size
+- Update glossary with PD/STPASA run types
+- Additional info in quick start
+
+### Fixes
+
+- Fix bug where data was mapped to enumerated table name
+- Remove duplicate rows when compiling
+
 ## v0.5.0 (01/09/2022)
 
 - Implement data compilation to pandas DataFrame
