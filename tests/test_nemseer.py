@@ -22,13 +22,11 @@ class TestDowloadRawData:
         query = download_file_to_cache
         caplog.set_level(logging.INFO)
         download_raw_data(
-            query.run_start.strftime(DATETIME_FORMAT),
-            query.run_end.strftime(DATETIME_FORMAT),
-            query.forecasted_start.strftime(DATETIME_FORMAT),
-            query.forecasted_end.strftime(DATETIME_FORMAT),
             query.forecast_type,
             query.tables,
             query.raw_cache,
+            run_start=query.run_start.strftime(DATETIME_FORMAT),
+            run_end=query.run_end.strftime(DATETIME_FORMAT),
         )
         assert any(
             [
@@ -36,6 +34,58 @@ class TestDowloadRawData:
                 for record in caplog.get_records("call")
                 if "Query raw data already downloaded to" in record.msg
             ]
+        )
+
+    def test_mixed_datetimes_fail(self, tmp_path):
+        run_start = "2020/01/01 00:00"
+        forecasted_end = "2020/01/01 00:00"
+        with pytest.raises(ValueError):
+            download_raw_data(
+                "STPASA",
+                "REGIONSOLUTION",
+                tmp_path,
+                run_start=run_start,
+                forecasted_end=forecasted_end,
+            )
+
+    def test_extra_datetime_fails(self, tmp_path):
+        run_start = "2020/01/01 00:00"
+        run_end = "2020/01/01 00:00"
+        forecasted_end = "2020/01/01 00:00"
+        with pytest.raises(ValueError):
+            download_raw_data(
+                "STPASA",
+                "REGIONSOLUTION",
+                tmp_path,
+                run_start=run_start,
+                run_end=run_end,
+                forecasted_end=forecasted_end,
+            )
+
+    def test_runtime_generation(self, tmp_path, gen_datetime, mocker):
+        def mock_download(query, keep_csv):
+            return None
+
+        forecasted_start = gen_datetime.replace(minute=30).strftime(DATETIME_FORMAT)
+        forecasted_end = forecasted_start
+        mocker.patch("nemseer.nemseer._initiate_downloads_from_query", mock_download)
+        download_raw_data(
+            "STPASA",
+            "REGIONSOLUTION",
+            tmp_path,
+            forecasted_start=forecasted_start,
+            forecasted_end=forecasted_end,
+        )
+
+    def test_forecasted_generation(self, tmp_path, gen_datetime, mocker):
+        def mock_download(query, keep_csv):
+            return None
+
+        run_start = gen_datetime.replace(minute=30).strftime(DATETIME_FORMAT)
+        run_end = run_start
+        mocker.patch("nemseer.nemseer._initiate_downloads_from_query", mock_download)
+        download_raw_data(
+            "STPASA", "REGIONSOLUTION", tmp_path, run_start=run_start, run_end=run_end
         )
 
 
