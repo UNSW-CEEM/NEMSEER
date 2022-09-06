@@ -30,6 +30,8 @@ optional = true
 Sphinx = "^5.0.2"
 furo = "^2022.6.21"
 myst-parser = "^0.18.0"
+jupyter = "^1.0.0"
+notebook = "^6.4.12"
 
 # Packages for developers for debugging
 [tool.poetry.group.debug]
@@ -38,8 +40,6 @@ optional = true
 [tool.poetry.group.debug.dependencies]
 ipdb = "*"
 ipython = "*"
-jupyter = "^1.0.0"
-notebook = "^6.4.12"
 
 # Packages for developers for linting/autoformatting
 [tool.poetry.group.style]
@@ -93,5 +93,5 @@ warn_return_any = true
 warn_unused_configs = true
 
 [build-system]
-requires = ["poetry-core>=1.1.0b2"]
+requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
