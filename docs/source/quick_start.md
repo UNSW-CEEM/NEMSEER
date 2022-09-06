@@ -130,7 +130,7 @@ This function:
 1. Downloads the relevant raw data and converts it into [parquet](quick_start:parquet) in the {term}`raw_cache`
 2. Returns a dictionary consisting of compiled {class}`pandas.DataFrame`s or {class}`xarray.Dataset`s (i.e. assembled and filtered based on the supplied {term}`run times` and {term}`forecasted times`) mapped to their corresponding table name.
 
-For example, we can compile {term}`STPASA` forecast data contained in the `CASESOLUTION` and `CONSTRAINTSOLUTION` tables. The query below will filter {term}`run times` between "2021/02/01 00:00" and "2021/02/28 00:00" and {term}`forecasted times` between 09:00 on March 1 and 12:00 on March 3. The returned {class}`dict` maps each of the requested tables to their corresponding assembled and filtered datasets.
+For example, we can compile {term}`STPASA` forecast data contained in the `CASESOLUTION` and `CONSTRAINTSOLUTION` tables. The query below will filter {term}`run times` between "2021/02/01 00:00" and "2021/02/28 00:00" and {term}`forecasted times` between 09:00 on March 1 and 12:00 on March 3. The returned {class}`dict` maps each of the requested tables to their corresponding assembled and filtered datasets. These datasets are {class}`pandas.DataFrame` as `data_format="df"` (this is the default for this argument).
 
 ```{doctest}
 >>> import nemseer
@@ -180,8 +180,8 @@ We can also compile data to an {class}`xarray.Dataset`. To do this, we need to s
 >>> data = nemseer.compile_raw_data(
 ... "2021/02/01 00:00",
 ... "2021/02/28 00:00",
-... "2021/03/01 09:00",
-... "2021/03/01 12:00",
+... "2021/02/28 00:30",
+... "2021/02/28 00:55",
 ... "P5MIN",
 ... "REGIONSOLUTION",
 ... "./nemseer_cache/",
@@ -189,8 +189,11 @@ We can also compile data to an {class}`xarray.Dataset`. To do this, we need to s
 ... )
 INFO: Downloading and unzipping REGIONSOLUTION for 2/2021
 INFO: Converting PUBLIC_DVD_P5MIN_REGIONSOLUTION_202102010000.CSV to parquet
+INFO: Converting REGIONSOLUTION data to xarray.
 >>> data.keys()
 dict_keys(['REGIONSOLUTION'])
+>>> type(data['REGIONSOLUTION'])
+<class `xarray.core.dataset.Dataset`>
 ```
 
 ### Validation and feedback
