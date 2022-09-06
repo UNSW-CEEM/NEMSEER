@@ -162,4 +162,3 @@ USER_AGENTS = [
         + "Raspbian Chromium/74.0.3729.157 Chrome/74.0.3729.157 Safari/537.36"
     ),
 ]
-"""List of user-agents"""
