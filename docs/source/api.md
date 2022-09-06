@@ -89,3 +89,10 @@ Run time generators produce the widest valid {term}`run time` range for a partic
 .. automodule:: nemseer.forecast_type.run_time_generators
    :private-members: _generate_P5MIN_runtimes, _generate_PREDISPATCH_runtimes, _generate_PDPASA_runtimes, _generate_STPASA_runtimes, _generate_MTPASA_runtimes
 ```
+
+## Data
+
+```{eval-rst}
+.. automodule:: nemseer.data
+   :members:
+```
