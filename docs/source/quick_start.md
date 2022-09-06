@@ -11,20 +11,19 @@ for file in Path("./nemseer_cache/").iterdir():
 Path("./nemseer_cache/").rmdir()
 ```
 
-As of v0.5.0, you can download raw historical forecast data from the {term}`MMSDM Historical Data SQLLoader` via `nemseer`, cache it in the [parquet](quick_start:parquet) format and use `nemseer` to assemble and filter forecast data into {class}`pandas.DataFrame`s for further analysis.
+As of v0.6.0, you can download raw historical forecast data from the {term}`MMSDM Historical Data SQLLoader` via `nemseer`, cache it in the [parquet](quick_start:parquet) format and use `nemseer` to assemble and filter forecast data into a {class}`pandas.DataFrame` or {class}`xarray.Dataset` for further analysis.
 
 ## Future functionality
 
 Future `nemseer` functionality will include:
 
-- An option to assemble data into multi-dimensional [xarray](https://docs.xarray.dev/en/stable/getting-started-guide/quick-overview.html) {class}`Datasets <xarray.Dataset>`, which make querying across multiple dimensions (e.g. a range of {term}`run times` for a particular set of {term}`forecasted times`).
 - An optional {term}`processed_cache`. If provided by the user, [netCDF](https://www.unidata.ucar.edu/software/netcdf/) files with query data will be saved in this cache.
 
-## Brief intro to concepts
+## Core concepts and information for users
 
 ### Glossary
 
-Refer to the [glossary](glossary.md) for an overview of key terminology. This includes descriptions of datetimes accepted as inputs in `nemseer`:
+Refer to the [glossary](glossary.md) for an overview of key terminology used in `nemseer`. This includes descriptions of datetimes accepted as inputs in `nemseer`:
 
 - {term}`run_start`
 - {term}`run_end`
@@ -42,9 +41,37 @@ AEMO ahead process tables with forecasted results typically have *three* datetim
      - The 18:30 `PREDISPATCH` run (`PREDISPATCHSEQNO`, which is parsed into `PREDISPATCH_RUN_DATETIME` by `nemseer`) may actually be run/published at 18:02 (`LASTCHANGED`)
 ```
 
+The glossary also provides an overview of the various ahead processes run by AEMO, including:
+
+- {term}`P5MIN`
+- {term}`PREDISPATCH`
+- {term}`PDPASA`
+- {term}`STPASA`
+- {term}`MTPASA`
+
 ### Parquet
 
-[Parquet](https://www.databricks.com/glossary/what-is-parquet) files can be loaded using data analysis packages such as [pandas](https://pandas.pydata.org/docs/reference/api/pandas.read_parquet.html), and work well with packages for handling large on-memory/cluster datasets (e.g. [dask](https://docs.dask.org/en/stable/generated/dask.dataframe.read_parquet.html)). Parquet offers efficient data compression and columnar data storage, which can mean faster queries from file.
+[Parquet](https://www.databricks.com/glossary/what-is-parquet) files can be loaded using data analysis packages such as [pandas](https://pandas.pydata.org/docs/reference/api/pandas.read_parquet.html), and work well with packages for handling large on-memory/cluster datasets (e.g. [dask](https://docs.dask.org/en/stable/generated/dask.dataframe.read_parquet.html)). Parquet offers efficient data compression and columnar data storage, which can mean faster queries from file. Parquet files also store file metadata (which can include table schema).
+
+### Types of compiled data
+
+`nemseer` has functionality that allows a user to compile data into two types of in-memory data structures:
+
+- [pandas DataFrames](https://pandas.pydata.org/pandas-docs/stable/user_guide/dsintro.html#dataframe). Pandas is a widely-used Python package for manipulating data.
+- Multi-dimensional [xarray Datasets](https://docs.xarray.dev/en/stable/user-guide/data-structures.html#dataset). xarray is intended for handling and querying data across multiple dimensions (e.g. the regional price forecast for a particular {term}`forecasted time` from a range of {term}`run times`). For more information, refer to the [*Getting started*](https://docs.xarray.dev/en/stable/getting-started-guide/index.html) section of the xarray documentation. Converting to xarray can be [memory-intensive](<quick_start:managing memory>).
+
+### Managing memory
+
+Some queries via `nemseer` may require a large amount of memory to complete. While memory use is query-specific, we suggest that `nemseer` be used on a system with at least 8GB of RAM. 16GB+ is preferable.
+
+However, there are some things you can try if you do run into issues with memory. The suggestions below also apply to large queries on powerful computers:
+
+1. You can use `nemseer` to simply download raw data as CSVs or to then cache data in the parquet format. Once you have a cache, you can use tools like [dask](https://docs.dask.org/en/stable/index.html) to process chunks of data in parallel. You may be able to reduce peak memory usage this way. [Dask works best with data formats such as parquet](https://docs.dask.org/en/stable/best-practices.html#store-data-efficiently). It should be noted that `nemseer` converts a single AEMO CSV into a single parquet file. That is, it does not partition the parquet store.
+2. Conversion to {class}`xarray.Dataset` can be memory intensive. As this usually occurs when the data to be converted has a high number of dimensions (as determined by `nemseer`), `nemseer` will print a warning prior to attempting to convert any such data. While [xarray integrates with dask](https://docs.xarray.dev/en/stable/user-guide/dask.html), this functionality is contingent on loading data from a netCDF file.
+
+### Deprecated tables
+
+If tables have been deprecated, `nemseer` will print a warning when the table is being downloaded. Deprecated tables are documented {data}`here <nemseer.data.DEPRECATED_TABLES>`.
 
 ## What can I query?
 
@@ -103,11 +130,6 @@ This function:
 1. Downloads the relevant raw data and converts it into [parquet](quick_start:parquet) in the {term}`raw_cache`
 2. Returns a dictionary consisting of compiled {class}`pandas.DataFrame`s or {class}`xarray.Dataset`s (i.e. assembled and filtered based on the supplied {term}`run times` and {term}`forecasted times`) mapped to their corresponding table name.
 
-```{attention}
-
-Data compilation to {class}`xarray.Dataset` will be implemented in future releases.
-```
-
 For example, we can compile {term}`STPASA` forecast data contained in the `CASESOLUTION` and `CONSTRAINTSOLUTION` tables. The query below will filter {term}`run times` between "2021/02/01 00:00" and "2021/02/28 00:00" and {term}`forecasted times` between 09:00 on March 1 and 12:00 on March 3. The returned {class}`dict` maps each of the requested tables to their corresponding assembled and filtered datasets.
 
 ```{doctest}
@@ -120,6 +142,7 @@ For example, we can compile {term}`STPASA` forecast data contained in the `CASES
 ... forecast_type="STPASA",
 ... tables=["CASESOLUTION", "CONSTRAINTSOLUTION"],
 ... raw_cache="./nemseer_cache/",
+... data_format="df",
 ... )
 INFO: Downloading and unzipping CASESOLUTION for 2/2021
 INFO: Downloading and unzipping CONSTRAINTSOLUTION for 2/2021
@@ -146,6 +169,26 @@ You can also just query a single table, such as the query below:
 ... )
 INFO: Downloading and unzipping REGIONSOLUTION for 2/2021
 INFO: Converting PUBLIC_DVD_STPASA_REGIONSOLUTION_202102010000.CSV to parquet
+>>> data.keys()
+dict_keys(['REGIONSOLUTION'])
+```
+
+We can also compile data to an {class}`xarray.Dataset`. To do this, we need to set `data_format="xr"`:
+
+```{doctest}
+>>> import nemseer
+>>> data = nemseer.compile_raw_data(
+... "2021/02/01 00:00",
+... "2021/02/28 00:00",
+... "2021/03/01 09:00",
+... "2021/03/01 12:00",
+... "P5MIN",
+... "REGIONSOLUTION",
+... "./nemseer_cache/",
+... data_format="xr",
+... )
+INFO: Downloading and unzipping REGIONSOLUTION for 2/2021
+INFO: Converting PUBLIC_DVD_P5MIN_REGIONSOLUTION_202102010000.CSV to parquet
 >>> data.keys()
 dict_keys(['REGIONSOLUTION'])
 ```
