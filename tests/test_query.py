@@ -199,4 +199,4 @@ class TestQuery:
         assert set(fnames) == set(test_fnames)
 
     def test_check_raw_cache(self, download_file_to_cache):
-        assert download_file_to_cache.check_data_in_cache()
+        assert download_file_to_cache.check_all_raw_data_in_cache()
