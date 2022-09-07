@@ -267,6 +267,7 @@ class DataCompiler:
         else:
             for table in self.processed_queries:
                 file = self.processed_queries[table]
+                logging.info(f"Compiling {table} data from the processed cache")
                 data = read_fn[data_format](file)
                 processed_data[table] = data
             if not self.compiled_data:
