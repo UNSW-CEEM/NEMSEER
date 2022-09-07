@@ -124,7 +124,7 @@ class DataCompiler:
     forecasted_end: datetime
     forecast_type: str
     raw_tables: List[str]
-    metadata: Dict
+    metadata: Dict[str, str]
     raw_cache: Path
     processed_cache: Union[None, Path]
     processed_queries: Union[Dict[str, Path], Dict]
@@ -279,7 +279,9 @@ class DataCompiler:
     def write_to_processed_cache(self) -> None:
         """Writes netCDF4 for :class:`xarray.Dataset` and parquet
         for :class:`pandas.DataFrame` to the :attr:`processed_cache` with associated
-        query metadata
+        query metadata.
+
+        Note that parquet metadata needs to be UTF-8 encoded.
 
         Raises:
             ValueError: If :attr:`processed_cache` is :class:`None`, or if
@@ -341,29 +343,31 @@ class DataCompiler:
         elif all([type(data) is xr.Dataset for data in self.compiled_data.values()]):
             data = self.compiled_data
             for table in data.keys():
-                dataset = data[table]
-                dataset.attrs = {
-                    "nemseer": self.metadata.update({"table": table})  # type: ignore
-                }
                 fn = _build_query_filename(self, table)
                 fn_path = self.processed_cache / Path(fn + ".nc")
                 if fn_path.exists():
                     continue
                 else:
+                    dataset = data[table]
+                    dataset.attrs = {
+                        "nemseer": self.metadata.update(
+                            {"table": table}
+                        )  # type: ignore
+                    }
                     logging.info(f"Writing {table} to the processed cache as netCDF")
                     dataset.to_netcdf(fn_path)
         elif all([type(data) is pd.DataFrame for data in self.compiled_data.values()]):
             data = self.compiled_data
             for table in data.keys():
-                dataset = data[table]
-                table = _df_to_pyarrow_with_metadata(
-                    dataset, self.metadata.update({"table": table})  # type: ignore
-                )
                 fn = _build_query_filename(self, table)
                 fn_path = self.processed_cache / Path(fn + ".parquet")
                 if fn_path.exists():
                     continue
                 else:
+                    dataset = data[table]
+                    table = _df_to_pyarrow_with_metadata(
+                        dataset, self.metadata.update({"table": table})  # type: ignore
+                    )
                     logging.info(f"Writing {table} to the processed cache as parquet")
                     pq.write_table(table, fn_path)
         else:
