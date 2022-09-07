@@ -308,7 +308,7 @@ class DataCompiler:
                 data = self.compiled_data
                 for table in data.keys():
                     dataset = data[table]
-                    dataset.attrs = {"nemseer": self.metadata}
+                    dataset.attrs = {"nemseer": self.metadata.update({"table": table})}
                     fn = _build_query_filename(self, table)
                     fn_path = self.processed_cache / Path(fn + ".nc")
                     if fn_path.exists():
@@ -324,7 +324,9 @@ class DataCompiler:
                 data = self.compiled_data
                 for table in data.keys():
                     dataset = data[table]
-                    table = _df_to_pyarrow_with_metadata(dataset, self.metadata)
+                    table = _df_to_pyarrow_with_metadata(
+                        dataset, self.metadata.update({"table": table})
+                    )
                     fn = _build_query_filename(self, table)
                     fn_path = self.processed_cache / Path(fn + ".parquet")
                     if fn_path.exists():

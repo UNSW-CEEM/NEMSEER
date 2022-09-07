@@ -243,7 +243,6 @@ class Query:
             "forecasted_start": forecasted_start,
             "forecasted_end": forecasted_end,
             "forecast_type": forecast_type,
-            "tables": tables,
         }
         return cls(
             run_start=run_start,  # type: ignore
