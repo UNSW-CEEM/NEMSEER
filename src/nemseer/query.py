@@ -214,7 +214,7 @@ class Query:
     forecasted_end: datetime = field(converter=_dt_converter)
     forecast_type: str = field(validator=validators.in_(FORECAST_TYPES))
     tables: List[str] = field(converter=_tablestr_converter)
-    metadata: Dict
+    metadata: Dict[str, str]
     raw_cache: Path = field(
         converter=Path,
         validator=[
