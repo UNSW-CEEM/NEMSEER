@@ -174,8 +174,7 @@ def compile_data(
     if compiler.raw_tables:
         _initiate_downloads_from_query(query, keep_csv=False)
         compiler.compile_raw_data(data_format=data_format)
-    if compiler.processed_queries:
-        compiler.compile_processed_data(data_format=data_format)
+    compiler.compile_processed_data(data_format=data_format)
     if compiler.processed_cache:
         compiler.write_to_processed_cache()
     data = compiler.compiled_data
