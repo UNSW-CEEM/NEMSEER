@@ -5,7 +5,7 @@ import pandas as pd
 import pytest
 import xarray as xr
 
-from nemseer import compile_raw_data, download_raw_data
+from nemseer import compile_data, download_raw_data
 from nemseer.data import (
     DATETIME_FORMAT,
     FORECASTED_COL,
@@ -130,7 +130,7 @@ class TestCompileRawData:
             for fn in fnames:
                 f.write(f"{fn}\n")
         with pytest.raises(ValueError):
-            compile_raw_data(
+            compile_data(
                 run_start,
                 run_end,
                 forecasted_start,
@@ -175,7 +175,7 @@ class TestCompileRawData:
                 f.write(f"{fn}\n")
         caplog.set_level(logging.WARNING)
         mocker.patch("nemseer.data_compilers.pd.concat", mock_pd_concat)
-        compile_raw_data(
+        compile_data(
             run_start,
             run_end,
             forecasted_start,
@@ -205,7 +205,7 @@ class TestCompileRawData:
             gen_datetime, fix_forecasted_dt, forecast_type, time_delta
         )
         with pytest.raises(ValueError):
-            compile_raw_data(
+            compile_data(
                 run_start,
                 run_end,
                 forecasted_start,
@@ -230,7 +230,7 @@ class TestCompileRawData:
             gen_datetime, fix_forecasted_dt, forecast_type, time_delta
         )
         caplog.set_level(logging.WARNING)
-        compile_raw_data(
+        compile_data(
             run_start,
             run_end,
             forecasted_start,
@@ -267,7 +267,7 @@ class TestCompileRawData:
         ) = self.setup_compilation_test(
             gen_datetime, fix_forecasted_dt, forecast_type, time_delta
         )
-        data_map = compile_raw_data(
+        data_map = compile_data(
             run_start,
             run_end,
             forecasted_start,
@@ -306,7 +306,7 @@ class TestCompileRawData:
         ) = self.setup_compilation_test(
             gen_datetime, fix_forecasted_dt, forecast_type, time_delta
         )
-        data_map = compile_raw_data(
+        data_map = compile_data(
             run_start,
             run_end,
             forecasted_start,
@@ -346,7 +346,7 @@ class TestToXarray:
             forecast_type,
             time_delta,
         )
-        data_map = compile_raw_data(
+        data_map = compile_data(
             run_start,
             run_end,
             forecasted_start,

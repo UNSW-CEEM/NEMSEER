@@ -8,7 +8,7 @@ from .data import FORECAST_TYPES as forecast_types
 from .downloader import get_sqlloader_forecast_tables as get_tables
 from .downloader import get_sqlloader_years_and_months as get_data_daterange
 from .forecast_type.run_time_generators import generate_runtimes
-from .nemseer import compile_raw_data, download_raw_data
+from .nemseer import compile_data, download_raw_data
 
 __version__ = version("nemseer")
 
@@ -18,7 +18,7 @@ logging.basicConfig(
 )
 
 __all__ = [
-    "compile_raw_data",
+    "compile_data",
     "download_raw_data",
     "get_tables",
     "get_data_daterange",

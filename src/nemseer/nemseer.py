@@ -167,6 +167,7 @@ def compile_data(
         forecast_type=forecast_type,
         tables=tables,
         raw_cache=raw_cache,
+        processed_cache=processed_cache,
     )
     query.find_tables_queries_in_processed_cache(data_format=data_format)
     compiler = DataCompiler.from_Query(query)

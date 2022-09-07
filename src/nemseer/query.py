@@ -299,7 +299,7 @@ class Query:
         the saved query's table name to the saved query's filename.
 
         Args:
-            data_format: As per :func:`nemseer.compile_raw_data`
+            data_format: As per :func:`nemseer.compile_data`
         """
         tables_in_pcache: Union[Dict[str, Path], Dict] = {}
         if not self.processed_cache:
