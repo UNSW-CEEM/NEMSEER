@@ -2,7 +2,7 @@ import logging
 import re
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Callable, Dict, List, Union
 
 import pandas as pd
 import pyarrow as pa  # type: ignore
@@ -113,7 +113,8 @@ class DataCompiler:
         raw_cache (optional): Path to build or reuse :term:`raw_cache`.
         processed_cache (optional): Path to build or reuse :term`processed cache`.
             Should be distinct from :attr:`raw_cache`
-        compiled_data: Defaults to `None` on initialisation. Populated once data
+        processed_queries: Defaults to :class:`None` on initialisation.
+        compiled_data: Defaults to :class:`None` on initialisation. Populated once data
             is compiled by methods.
     """
 
@@ -122,10 +123,11 @@ class DataCompiler:
     forecasted_start: datetime
     forecasted_end: datetime
     forecast_type: str
-    tables: List[str]
+    raw_tables: List[str]
     metadata: Dict
     raw_cache: Path
     processed_cache: Union[None, Path]
+    processed_queries: Union[Dict[str, Path], Dict]
     compiled_data: Union[None, Dict[str, pd.DataFrame], Dict[str, xr.Dataset]] = field(
         default=None
     )
@@ -135,10 +137,12 @@ class DataCompiler:
         """Constructor method for :class:`DataCompiler` from
         :class:`Query <nemseer.query.Query>`."""
         tables = query.tables
+        processed_queries = query.processed_queries
+        raw_tables = list(set(tables) - set(processed_queries.keys()))
         for ftype in ENUMERATED_TABLES:
             if query.forecast_type == ftype:
                 for table, enumerate_to in ENUMERATED_TABLES[ftype]:
-                    if table in tables:
+                    if table in raw_tables:
                         tables = _enumerate_tables(tables, table, enumerate_to)
         if hasattr(query, "processed_cache"):
             processed_cache = query.processed_cache
@@ -150,10 +154,11 @@ class DataCompiler:
             forecasted_start=query.forecasted_start,
             forecasted_end=query.forecasted_end,
             forecast_type=query.forecast_type,
-            tables=tables,
+            raw_tables=raw_tables,
             metadata=query.metadata,
             raw_cache=query.raw_cache,
             processed_cache=processed_cache,
+            processed_queries=processed_queries,
             compiled_data=None,
         )
 
@@ -171,7 +176,7 @@ class DataCompiler:
             return []
 
     def compile_raw_data(self, data_format: str = "df") -> None:
-        """Compiles data from :term:`raw_cache` to a :class:`pandas.DataFrame` (default)
+        """Compiles data from :attr:`raw_cache` to a :class:`pandas.DataFrame` (default)
         or to a :class:`xarray.Dataset`.
 
         This compiler will:
@@ -179,21 +184,19 @@ class DataCompiler:
         - Skip invalid/corrupted files as recorded in `.invalid_aemo_files.txt`
         - Read :term:`raw_cache` parquet files and apply datetime filtering
         - Convert :class:`DataFrame <pandas.DataFrame>` to :class:`xarray.Dataset`
+        - Update :attr:`compiled_data`
 
         Args:
             data_format: Default "df" (:class:`pandas.DataFrame`). Other valid input is
                 "xr", which returns :class:`xarray.Dataset`s.
-        Returns:
-            A dictionary with concatenated DataFrames/Datasets mapped to each requested
-            table type.
         Warning:
             Skips any files previously found to be invalid/corrupted and prints a
             warning
         """
         file_to_table_map = _map_files_to_table(
-            self.run_start, self.run_end, self.forecast_type, self.tables
+            self.run_start, self.run_end, self.forecast_type, self.raw_tables
         )
-        table_to_df_map = {}
+        table_to_data_map = {}
         invalid_files = self.invalid_or_corrupted_files()
         for table in file_to_table_map.keys():
             files = file_to_table_map[table]
@@ -237,107 +240,132 @@ class DataCompiler:
                 concat_data = to_xarray(concat_df, self.forecast_type)
             else:
                 concat_data = concat_df
-            table_to_df_map[table] = concat_data
-        self.compiled_data = table_to_df_map
+            table_to_data_map[table] = concat_data
 
-        def write_to_processed_cache(self) -> None:
-            """Writes netCDF4 for :class:`xarray.Dataset` and parquet
-            for :class:`pandas.DataFrame` to the :attr:`processed_cache` with associated
-            query metadata
+        if not self.compiled_data:
+            self.compiled_data = table_to_data_map
+        else:
+            self.compiled_data.update(table_to_data_map)
 
-            Raises:
-                ValueError: If :attr:`processed_cache` is :class:`None`, or if
-                    :attr:`compiled_data` contains data that is neither all
-                    :class:`pandas.DataFrame` or all :class:`xarray.Dataset`
-                IOError: If :attr:`compiled_data` is :class:`None`
-            """
+    def compile_processed_data(self, data_format: str = "df") -> None:
+        """Compiles data from the :attr:`processed_cache`, as per entries in
+        :attr:`processed_queries`.
 
-            def _df_to_pyarrow_with_metadata(
-                df: pd.DataFrame, metadata: Dict[str, str]
-            ) -> pa.Table:
-                """Converts DataFrame to pyarrow Table so that metadata can be added.
+        This method will update :attr:`compiled_data`.
 
-                Args:
-                    df: pandas DataFrame
-                    metadata: :class:`dict` built by
-                        :classmethod:`nemseer.query.Query.initialise()`
-                Returns:
-                    pyarrow Table with schema and nemseer metadata encoded as a b-string
-                """
-                table = pa.Table.from_pandas(df)
-                pandas_metadata = table.schema.metadata
-                nemseer_metadata = {b"nemseer": str(metadata).encode()}
-                merged_metadata = {**pandas_metadata, **nemseer_metadata}
-                table = table.replace_schema_metadata(merged_metadata)
-                return table
-
-            def _build_query_filename(compiler: DataCompiler, table: str) -> str:
-                """Builds a filename based on a table name and query details.
-
-                Args:
-                    compiler: DataCompiler instance with populated query info
-                    table: Specific table to build a filename for
-                Returns
-                    A filename constructed based on query details.
-                """
-                (fs, fe) = (compiler.forecasted_start, compiler.forecasted_end)
-                (rs, re) = (compiler.run_start, compiler.run_end)
-                rs_re = (
-                    f"{rs.year}{rs.month}{rs.day}{rs.hour}{rs.minute}"
-                    + "_"
-                    + f"{re.year}{re.month}{re.day}{re.hour}{re.minute}"
-                )
-                fs_fe = (
-                    f"{fs.year}{fs.month}{fs.day}{fs.hour}{fs.minute}"
-                    + "_"
-                    + f"{fe.year}{fe.month}{fe.day}{fe.hour}{fe.minute}"
-                )
-                fn = f"{compiler.forecast_type}_{table}_{rs_re}_{fs_fe}"
-                return fn
-
-            if self.processed_cache is None:
-                raise ValueError(
-                    "Writing to processed cache requires that the processed cache "
-                    + "be specified"
-                )
-            if self.compiled_data is None:
-                raise IOError("No compiled data to write to processed cache")
-            elif all(
-                [type(data) is xr.Dataset for data in self.compiled_data.values()]
-            ):
-                data = self.compiled_data
-                for table in data.keys():
-                    dataset = data[table]
-                    dataset.attrs = {"nemseer": self.metadata.update({"table": table})}
-                    fn = _build_query_filename(self, table)
-                    fn_path = self.processed_cache / Path(fn + ".nc")
-                    if fn_path.exists():
-                        continue
-                    else:
-                        logging.info(
-                            f"Writing {table} to the processed cache as netCDF"
-                        )
-                        dataset.to_netcdf(fn_path)
-            elif all(
-                [type(data) is pd.DataFrame for data in self.compiled_data.values()]
-            ):
-                data = self.compiled_data
-                for table in data.keys():
-                    dataset = data[table]
-                    table = _df_to_pyarrow_with_metadata(
-                        dataset, self.metadata.update({"table": table})
-                    )
-                    fn = _build_query_filename(self, table)
-                    fn_path = self.processed_cache / Path(fn + ".parquet")
-                    if fn_path.exists():
-                        continue
-                    else:
-                        logging.info(
-                            f"Writing {table} to the processed cache as parquet"
-                        )
-                        pq.write_table(table, fn_path)
+        Args:
+            data_format: Default "df" (:class:`pandas.DataFrame`). Other valid input
+                is "xr", which compiles :class:`xarray.Dataset`s.
+        """
+        read_fn: Dict[str, Callable] = {
+            "df": pd.read_parquet,
+            "xr": xr.open_dataset,
+        }
+        processed_data = {}
+        if not self.processed_queries:
+            pass
+        else:
+            for table in self.processed_queries:
+                file = self.processed_queries[table]
+                data = read_fn[data_format](file)
+                processed_data[table] = data
+            if not self.compiled_data:
+                self.compiled_data = processed_data
             else:
-                raise ValueError(
-                    "Compiled data is not in a valid data structure. "
-                    + "Compiled data should be in a pandas DataFrame or xarray Dataset"
+                self.compiled_data.update(processed_data)
+
+    def write_to_processed_cache(self) -> None:
+        """Writes netCDF4 for :class:`xarray.Dataset` and parquet
+        for :class:`pandas.DataFrame` to the :attr:`processed_cache` with associated
+        query metadata
+
+        Raises:
+            ValueError: If :attr:`processed_cache` is :class:`None`, or if
+                :attr:`compiled_data` contains data that is neither all
+                :class:`pandas.DataFrame` or all :class:`xarray.Dataset`
+            IOError: If :attr:`compiled_data` is :class:`None`
+        """
+
+        def _df_to_pyarrow_with_metadata(
+            df: pd.DataFrame, metadata: Dict[str, str]
+        ) -> pa.Table:
+            """Converts DataFrame to pyarrow Table so that metadata can be added.
+
+            Args:
+                df: pandas DataFrame
+                metadata: :class:`dict` built by
+                    :classmethod:`nemseer.query.Query.initialise()`
+            Returns:
+                pyarrow Table with schema and nemseer metadata encoded as a b-string
+            """
+            table = pa.Table.from_pandas(df)
+            pandas_metadata = table.schema.metadata
+            nemseer_metadata = {b"nemseer": str(metadata).encode()}
+            merged_metadata = {**pandas_metadata, **nemseer_metadata}
+            table = table.replace_schema_metadata(merged_metadata)
+            return table
+
+        def _build_query_filename(compiler: DataCompiler, table: str) -> str:
+            """Builds a filename based on a table name and query details.
+
+            Args:
+                compiler: DataCompiler instance with populated query info
+                table: Specific table to build a filename for
+            Returns
+                A filename constructed based on query details.
+            """
+            (fs, fe) = (compiler.forecasted_start, compiler.forecasted_end)
+            (rs, re) = (compiler.run_start, compiler.run_end)
+            rs_re = (
+                f"{rs.year}{rs.month}{rs.day}{rs.hour}{rs.minute}"
+                + "_"
+                + f"{re.year}{re.month}{re.day}{re.hour}{re.minute}"
+            )
+            fs_fe = (
+                f"{fs.year}{fs.month}{fs.day}{fs.hour}{fs.minute}"
+                + "_"
+                + f"{fe.year}{fe.month}{fe.day}{fe.hour}{fe.minute}"
+            )
+            fn = f"{compiler.forecast_type}_{table}_{rs_re}_{fs_fe}"
+            return fn
+
+        if self.processed_cache is None:
+            raise ValueError(
+                "Writing to processed cache requires that the processed cache "
+                + "be specified"
+            )
+        if self.compiled_data is None:
+            raise IOError("No compiled data to write to processed cache")
+        elif all([type(data) is xr.Dataset for data in self.compiled_data.values()]):
+            data = self.compiled_data
+            for table in data.keys():
+                dataset = data[table]
+                dataset.attrs = {
+                    "nemseer": self.metadata.update({"table": table})  # type: ignore
+                }
+                fn = _build_query_filename(self, table)
+                fn_path = self.processed_cache / Path(fn + ".nc")
+                if fn_path.exists():
+                    continue
+                else:
+                    logging.info(f"Writing {table} to the processed cache as netCDF")
+                    dataset.to_netcdf(fn_path)
+        elif all([type(data) is pd.DataFrame for data in self.compiled_data.values()]):
+            data = self.compiled_data
+            for table in data.keys():
+                dataset = data[table]
+                table = _df_to_pyarrow_with_metadata(
+                    dataset, self.metadata.update({"table": table})  # type: ignore
                 )
+                fn = _build_query_filename(self, table)
+                fn_path = self.processed_cache / Path(fn + ".parquet")
+                if fn_path.exists():
+                    continue
+                else:
+                    logging.info(f"Writing {table} to the processed cache as parquet")
+                    pq.write_table(table, fn_path)
+        else:
+            raise ValueError(
+                "Compiled data is not in a valid data structure. "
+                + "Compiled data should be in a pandas DataFrame or xarray Dataset"
+            )
