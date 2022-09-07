@@ -16,7 +16,7 @@ def _initiate_downloads_from_query(query: Query, keep_csv: bool = False) -> None
     Returns:
         None
     """
-    if query.check_data_in_cache():
+    if query.check_all_raw_data_in_cache():
         pass
     else:
         downloader = ForecastTypeDownloader.from_Query(query)
