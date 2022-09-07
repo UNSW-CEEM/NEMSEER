@@ -119,7 +119,7 @@ def download_raw_data(
     _initiate_downloads_from_query(query, keep_csv=keep_csv)
 
 
-def compile_raw_data(
+def compile_data(
     run_start: str,
     run_end: str,
     forecasted_start: str,
@@ -127,11 +127,16 @@ def compile_raw_data(
     forecast_type: str,
     tables: Union[str, List[str]],
     raw_cache: str,
+    processed_cache: Union[None, str] = None,
     data_format: str = "df",
 ) -> Union[Dict[str, pd.DataFrame], Dict[str, xr.Dataset], None]:
-    """Downloads raw forecast data from NEMWeb MMSDM Historical Data SQLLoader
+    """Compiles queried data from :attr:`raw_cache` and/or :attr:`processed_cache`.
 
-    Downloads raw forecast data and converts to parquet.
+    For each queried table, this function:
+
+    1. If required, downloads raw forecast data for the table and converts to the
+        requested data structure.
+    2. Otherwise, compiles table data from either cache.
 
     Arguments:
         run_start: Forecast runs at or after this datetime are queried.
@@ -145,6 +150,8 @@ def compile_raw_data(
             a string. Multiple tables can be supplied as a list of strings.
         raw_cache: Path to create or reuse as :term:`raw_cache`. Files are downloaded
             to this directory and cached data is maintained in the parquet format.
+        processed_cache (optional): Path to build or reuse :term:`processed_cache`.
+            Should be distinct from :attr:`raw_cache`
         data_format: Default is 'df', which returns :class:`pandas DataFrame`.
             Can also request 'xr', which returns :class:`xarray.Dataset`.
     Todo:
@@ -161,8 +168,14 @@ def compile_raw_data(
         tables=tables,
         raw_cache=raw_cache,
     )
-    _initiate_downloads_from_query(query, keep_csv=False)
+    query.find_tables_queries_in_processed_cache(data_format=data_format)
     compiler = DataCompiler.from_Query(query)
-    compiler.compile_raw_data(data_format=data_format)
+    if compiler.raw_tables:
+        _initiate_downloads_from_query(query, keep_csv=False)
+        compiler.compile_raw_data(data_format=data_format)
+    if compiler.processed_queries:
+        compiler.compile_processed_data(data_format=data_format)
+    if compiler.processed_cache:
+        compiler.write_to_processed_cache()
     data = compiler.compiled_data
     return data
