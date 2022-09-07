@@ -195,9 +195,11 @@ class Query:
         tables: Table or tables required. A single table can be supplied as
             a string. Multiple tables can be supplied as a list of strings.
         metadata: Metadata dictionary. Constructed by :meth:`Query.initialise()`.
-        raw_cache (optional): Path to build or reuse :term:`raw_cache`.
+        raw_cache: Path to build or reuse :term:`raw_cache`.
         processed_cache (optional): Path to build or reuse :term:`processed_cache`.
             Should be distinct from :attr:`raw_cache`
+        processed_queries: Defaults to `None` on initialisation. Populated once
+            :meth:`Query.find_table_queries_in_processed_cache` is called.
 
     """
 
@@ -225,6 +227,7 @@ class Query:
         converter=converters.optional(Path),
         validator=validators.optional(_validate_path),
     )
+    processed_queries: Union[Dict[str, Path], Dict] = field(default=None)
 
     @classmethod
     def initialise(
@@ -280,26 +283,27 @@ class Query:
         else:
             return False
 
-    def find_tables_queries_in_processed_cache(
-        self, data_format: str
-    ) -> Union[Dict[str, Path], Dict]:
+    def find_tables_queries_in_processed_cache(self, data_format: str) -> None:
         """Determines which tables already have queries saved in the
         :attr:`processed_cache`.
 
-        The returned :class:`dict` is empty if:
+        Modifies :attr:`Query.processed_queries` from :class:`None` to a :class:`dict`.
+
+        The :class:`dict` is empty if:
 
         1. :attr:`processed_cache` is :class:`None`
         2. No portion of the query has been saved in the :attr:`processed_cache`
 
+        If a portion of the queries are saved in the :attr:`processed_cache`, then
+        :attr:`Query.processed_queries` will be equal to a :class:`dict` that maps
+        the saved query's table name to the saved query's filename.
+
         Args:
             data_format: As per :func:`nemseer.compile_raw_data`
-        Returns:
-            A dict of table names mapped to file names. Tables with query data saved
-            in the :term:`processed_cache` are mapped to their corresponding file.
         """
         tables_in_pcache: Union[Dict[str, Path], Dict] = {}
         if not self.processed_cache:
-            return tables_in_pcache
+            pass
         else:
             if data_format == "df":
                 for file in self.raw_cache.glob("*.parquet"):
@@ -322,4 +326,4 @@ class Query:
                         tables_in_pcache[metadata_table] = file
                     else:
                         continue
-            return tables_in_pcache
+            self.processed_queries = tables_in_pcache
