@@ -287,6 +287,10 @@ class Query:
         """Determines which tables already have queries saved in the
         :attr:`processed_cache`.
 
+        If data_format=df, this function will sieve through the metadata of all parquet
+        files in the :attr:`processed_cache`. Note that parquet metadata is UTF-8
+        encoded. Similarly, data_format=xr will check the metadata of all netCDF files.
+
         Modifies :attr:`Query.processed_queries` from :class:`None` to a :class:`dict`.
 
         The :class:`dict` is empty if:
