@@ -137,17 +137,18 @@ class DataCompiler:
         """Constructor method for :class:`DataCompiler` from
         :class:`Query <nemseer.query.Query>`."""
         tables = query.tables
-        processed_queries = query.processed_queries
-        raw_tables = list(set(tables) - set(processed_queries.keys()))
+        if query.processed_cache:
+            if query.processed_queries:
+                raw_tables = list(set(tables) - set(query.processed_queries.keys()))
+            else:
+                raw_tables = tables
+        else:
+            raw_tables = tables
         for ftype in ENUMERATED_TABLES:
             if query.forecast_type == ftype:
                 for table, enumerate_to in ENUMERATED_TABLES[ftype]:
                     if table in raw_tables:
                         tables = _enumerate_tables(tables, table, enumerate_to)
-        if hasattr(query, "processed_cache"):
-            processed_cache = query.processed_cache
-        else:
-            processed_cache = None
         return cls(
             run_start=query.run_start,
             run_end=query.run_end,
@@ -157,8 +158,8 @@ class DataCompiler:
             raw_tables=raw_tables,
             metadata=query.metadata,
             raw_cache=query.raw_cache,
-            processed_cache=processed_cache,
-            processed_queries=processed_queries,
+            processed_cache=query.processed_cache,
+            processed_queries=query.processed_queries,
             compiled_data=None,
         )
 
