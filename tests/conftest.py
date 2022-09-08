@@ -5,7 +5,8 @@ import grequests  # type: ignore
 import pytest
 
 from nemseer.downloader import get_sqlloader_years_and_months
-from nemseer.nemseer import download_raw_data
+from nemseer.forecast_type.run_time_generators import generate_runtimes
+from nemseer.nemseer import compile_data, download_raw_data
 from nemseer.query import Query
 
 assert grequests
@@ -20,7 +21,7 @@ def get_test_year_and_month():
     return (test_year, test_month)
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def valid_download_datetimes():
     run_start = "2021/02/01 00:00"
     run_end = "2021/02/05 00:00"
@@ -29,7 +30,7 @@ def valid_download_datetimes():
     return run_start, run_end, forecasted_start, forecasted_end
 
 
-@pytest.fixture(scope="module")
+@pytest.fixture(scope="session")
 def download_file_to_cache(tmp_path_factory, valid_download_datetimes):
     (
         run_start,
@@ -54,6 +55,40 @@ def download_file_to_cache(tmp_path_factory, valid_download_datetimes):
         "REGIONRESULT",
         tmp_dir,
     )
+
+
+@pytest.fixture(scope="session")
+def compile_data_to_processed_cache(tmp_path_factory):
+    queries = {"STPASA": "INTERCONNECTORSOLN", "PREDISPATCH": "REGIONSUM_D"}
+    forecasted_start = "2022/03/15 12:00"
+    forecasted_end = "2022/03/16 12:00"
+    processed_cache = tmp_path_factory.mktemp("processed_cache")
+    for forecast_type, table in queries.items():
+        run_start, run_end = generate_runtimes(
+            forecasted_start, forecasted_end, forecast_type
+        )
+        compile_data(
+            run_start,
+            run_end,
+            forecasted_start,
+            forecasted_end,
+            forecast_type,
+            table,
+            raw_cache="raw_cache",
+            processed_cache=processed_cache,
+            data_format="df",
+        )
+        compile_data(
+            run_start,
+            run_end,
+            forecasted_start,
+            forecasted_end,
+            forecast_type,
+            table,
+            raw_cache="raw_cache",
+            processed_cache=processed_cache,
+            data_format="xr",
+        )
 
 
 def _gen_datetime():
