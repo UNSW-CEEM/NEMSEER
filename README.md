@@ -50,10 +50,6 @@ The [glossary](https://nemseer.readthedocs.io/en/latest/glossary.html) contains 
 
 Check out the [Quick start](https://nemseer.readthedocs.io/en/latest/quick_start.html) for examples of how you can use `nemseer`.
 
-## Development progress
-
-While this package is currently under development, `nemseer` can currently be used to download, cache and handle historical forecast data from AEMO as [pandas DataFrames](https://pandas.pydata.org/pandas-docs/stable/user_guide/dsintro.html#dataframe) or [xarray Datasets](https://docs.xarray.dev/en/stable/user-guide/data-structures.html#dataset). Future development will focus on allowing the user to cache processed queries as parquet or netCDF files.
-
 ## Contributing
 
 Interested in contributing? Check out the [contributing guidelines](./CONTRIBUTING.md), which also includes steps to install `nemseer` for development.
