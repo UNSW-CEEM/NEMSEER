@@ -23,6 +23,20 @@ def test_map_files_to_table():
     }
 
 
+def test_map_enumerated_files_to_table():
+    run_start, run_end = generate_runtimes(
+        "2020/02/01 00:00", "2020/02/02 00:00", "PREDISPATCH"
+    )
+    run_start = datetime.strptime(run_start, DATETIME_FORMAT)
+    run_end = datetime.strptime(run_end, DATETIME_FORMAT)
+    assert _map_files_to_table(run_start, run_end, "PREDISPATCH", ["LOAD"]) == {
+        "LOAD": [
+            "PUBLIC_DVD_PREDISPATCHLOAD1_202001010000",
+            "PUBLIC_DVD_PREDISPATCHLOAD2_202001010000",
+        ],
+    }
+
+
 def create_test_tables():
     p5min_tabs = get_tables(2020, 1, "P5MIN")
     pd_tabs = get_tables(2020, 1, "PREDISPATCH")
