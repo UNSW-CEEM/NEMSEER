@@ -310,22 +310,22 @@ class Query:
             pass
         else:
             if data_format == "df":
-                for file in self.raw_cache.glob("*.parquet"):
-                    byte_metadata = pq.read_metadata(file)
+                for file in self.processed_cache.glob("*.parquet"):
+                    byte_metadata = pq.read_metadata(file).metadata
                     metadata = ast.literal_eval(
                         (byte_metadata["nemseer".encode()]).decode()
                     )
                     if (
-                        metadata_table := metadata.pop_item("table")
+                        metadata_table := metadata.pop("table")
                     ) in self.tables and metadata == self.metadata:
                         tables_in_pcache[metadata_table] = file
                     else:
                         continue
             elif data_format == "xr":
-                for file in self.raw_cache.glob("*.nc"):
-                    metadata = xr.open_dataset(file).attrs["nemseer"]
+                for file in self.processed_cache.glob("*.nc"):
+                    metadata = xr.open_dataset(file).attrs
                     if (
-                        metadata_table := metadata.pop_item("table")
+                        metadata_table := metadata.pop("table")
                     ) in self.tables and metadata == self.metadata:
                         tables_in_pcache[metadata_table] = file
                     else:
