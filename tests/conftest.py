@@ -59,14 +59,29 @@ def download_file_to_cache(tmp_path_factory, valid_download_datetimes):
 
 @pytest.fixture(scope="session")
 def compile_data_to_processed_cache(tmp_path_factory):
-    queries = {"STPASA": "INTERCONNECTORSOLN", "PREDISPATCH": "REGIONSUM_D"}
-    forecasted_start = "2022/03/15 12:00"
-    forecasted_end = "2022/03/16 12:00"
+    queries = {
+        "STPASA": "INTERCONNECTORSOLN",
+        "PREDISPATCH": "REGIONSUM_D",
+        "MTPASA": "CASERESULT",
+    }
+    forecasted_start = "2022/03/15 00:00"
+    forecasted_end = "2022/03/17 00:00"
     processed_cache = tmp_path_factory.mktemp("processed_cache")
+    query_metadata = {}
     for forecast_type, table in queries.items():
         run_start, run_end = generate_runtimes(
             forecasted_start, forecasted_end, forecast_type
         )
+        query_metadata[forecast_type] = {
+            "run_start": run_start,
+            "run_end": run_end,
+            "forecasted_start": forecasted_start,
+            "forecasted_end": forecasted_end,
+            "forecast_type": forecast_type,
+            "tables": table,
+            "raw_cache": "raw_cache",
+            "processed_cache": processed_cache,
+        }
         compile_data(
             run_start,
             run_end,
@@ -89,6 +104,7 @@ def compile_data_to_processed_cache(tmp_path_factory):
             processed_cache=processed_cache,
             data_format="xr",
         )
+    return query_metadata
 
 
 def _gen_datetime():
