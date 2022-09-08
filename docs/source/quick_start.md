@@ -135,7 +135,7 @@ For some pre-dispatch table (`CONSTRAINT`, `LOAD`, `PRICE`, `INTERCONNECTORRES` 
 
 ## Compiling data
 
-The main use case of `nemseer` is to download raw data (if it is not available) and then compile it into a data format for further analysis/processing. To do this, `nemseer` has {func}`compile_data <nemseer.compile_data>`.
+The main use case of `nemseer` is to download raw data (if it is not available in the {term}`raw_cache`) and then compile it into a data format for further analysis/processing. To do this, `nemseer` has {func}`compile_data <nemseer.compile_data>`.
 
 This function:
 
