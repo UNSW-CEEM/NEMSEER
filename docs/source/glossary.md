@@ -78,11 +78,14 @@
      - As the data in the complete `P5MIN` directory appears to be the same as that in `DATA`, `nemseer` does not use this directory.
 
 `raw_cache`
-   Directory to which `nemseer` downloads processed raw data. Processing by `nemseer` includes:
+   Directory to which `nemseer` downloads cleaned raw data. Cleaning by `nemseer` includes:
    - Removing file metadata from the start and end of the file
    - Parsing datetimes, including parsing `PREDISPATCHSEQNO` (in :term:`PREDISPATCH` tables) into a new datetime column
    - Caching raw data in a [parquet](https://www.databricks.com/glossary/what-is-parquet) format, which enables column-based queries and uses less disk space than CSV
    An invalid/corrupted files list (`.invalid_aemo_files.txt`) is also maintained in this directory if an invalid/corrupted zip is queried via `nemseer`. This prevents `nemseer` from downloading/compiling invalid/corrupted data from AEMO's database.
+
+`processed_cache`
+   Directory to which `nemseer` queries can be saved to (if provided to the relevant functions). The data for each table in a query (which is described by a set of {term}`run times` and {term}`forecasted times`) is either saved to a [parquet](https://www.databricks.com/glossary/what-is-parquet) file if the user specifies they want pandas DataFrame structures, or a [netCDF](https://www.unidata.ucar.edu/software/netcdf/) file if the user specifies they want xarray Dataset structures. Each of these files is also saved with query metadata, which `nemseer` will check during subsequent queries. If the query metadata of any files in the processed cache corresponds to that of the current query, data will be loaded from that file in the processed cache. Note that as the metadata is saved *within* the file, files in the processed cache can be renamed without affecting this functionality (so long as file extensions are preserved).
 ```
 
 [^1]: Australian Energy Market Commission. Updating Short Term PASA, Rule determination. Technical report, May 2022.
