@@ -185,11 +185,12 @@ class DataCompiler:
         - Skip invalid/corrupted files as recorded in `.invalid_aemo_files.txt`
         - Read :term:`raw_cache` parquet files and apply datetime filtering
         - Convert :class:`DataFrame <pandas.DataFrame>` to :class:`xarray.Dataset`
+          (if :attr:`data_format` = "xr")
         - Update :attr:`compiled_data`
 
         Args:
             data_format: Default "df" (:class:`pandas.DataFrame`). Other valid input is
-                "xr", which returns :class:`xarray.Dataset`s.
+                "xr", which returns :class:`xarray.Dataset`.
         Warning:
             Skips any files previously found to be invalid/corrupted and prints a
             warning
@@ -250,13 +251,14 @@ class DataCompiler:
 
     def compile_processed_data(self, data_format: str = "df") -> None:
         """Compiles data from the :attr:`processed_cache`, as per entries in
-        :attr:`processed_queries`.
+        :attr:`processed_queries`, to a :class:`pandas.DataFrame` (default) or to a
+        :class:`xarray.Dataset`.
 
         This method will update :attr:`compiled_data`.
 
         Args:
             data_format: Default "df" (:class:`pandas.DataFrame`). Other valid input
-                is "xr", which compiles :class:`xarray.Dataset`s.
+                is "xr", which compiles :class:`xarray.Dataset`.
         """
         read_fn: Dict[str, Callable] = {
             "df": pd.read_parquet,
