@@ -11,13 +11,7 @@ for file in Path("./nemseer_cache/").iterdir():
 Path("./nemseer_cache/").rmdir()
 ```
 
-As of v0.6.0, you can download raw historical forecast data from the {term}`MMSDM Historical Data SQLLoader` via `nemseer`, cache it in the [parquet](quick_start:parquet) format and use `nemseer` to assemble and filter forecast data into a {class}`pandas.DataFrame` or {class}`xarray.Dataset` for further analysis.
-
-## Future functionality
-
-Future `nemseer` functionality will include:
-
-- An optional {term}`processed_cache`. If provided by the user, [netCDF](https://www.unidata.ucar.edu/software/netcdf/) files with query data will be saved in this cache.
+`nemseer` lets you download raw historical forecast data from the {term}`MMSDM Historical Data SQLLoader` via `nemseer`, cache it in the [parquet](quick_start:parquet) format and use `nemseer` to assemble and filter forecast data into a {class}`pandas.DataFrame` or {class}`xarray.Dataset` for further analysis. Assembled queries can optionally be saved to a [processed cache](<quick_start:processed cache>).
 
 ## Core concepts and information for users
 
@@ -68,6 +62,18 @@ However, there are some things you can try if you do run into issues with memory
 
 1. You can use `nemseer` to simply download raw data as CSVs or to then cache data in the parquet format. Once you have a cache, you can use tools like [dask](https://docs.dask.org/en/stable/index.html) to process chunks of data in parallel. You may be able to reduce peak memory usage this way. [Dask works best with data formats such as parquet](https://docs.dask.org/en/stable/best-practices.html#store-data-efficiently). It should be noted that `nemseer` converts a single AEMO CSV into a single parquet file. That is, it does not partition the parquet store.
 2. Conversion to {class}`xarray.Dataset` can be memory intensive. As this usually occurs when the data to be converted has a high number of dimensions (as determined by `nemseer`), `nemseer` will print a warning prior to attempting to convert any such data. While [xarray integrates with dask](https://docs.xarray.dev/en/stable/user-guide/dask.html), this functionality is contingent on loading data from a netCDF file.
+
+### Processed cache
+
+The {term}`processed_cache` is optional, but may be useful for some users. Specifying a path for this argument will lead to `nemseer` saving queries (i.e. requested data filtered based on user-supplied {term}`run times` and {term}`forecasted times`) as [parquet](quick_start:parquet) (if the {class}`pandas.DataFrame` data structure is specified) or [netCDF](https://www.unidata.ucar.edu/software/netcdf/) (if the {class}`xarray.Dataset` data structure is specified). If subsequent `nemseer` queries include this {term}`processed_cache`, `nemseer` will check the file metadata to see if a particular table query has already been saved. If it has, `nemseer` will compile data from the {term}`processed_cache`.
+
+```{note}
+Because `nemseer` looks at metadata stored *in* each file, it does not care about the file name as long as file extensions are preserved (i.e. `*.parquet`, `*.nc`). As such, files in the {term}`processed_cache` can be renamed from defaults.
+```
+
+```{warning}
+Saving to netCDF will let you load xarray objects into memory. However, datasets will often take up large amounts of space when saved as netCDF.
+```
 
 ### Deprecated tables
 
