@@ -114,6 +114,7 @@ class DataCompiler:
         processed_cache (optional): Path to build or reuse :term`processed cache`.
             Should be distinct from :attr:`raw_cache`
         processed_queries: Defaults to :class:`None` on initialisation.
+        raw_table: Populated via :meth:`DataCompiler.from_Query`
         compiled_data: Defaults to :class:`None` on initialisation. Populated once data
             is compiled by methods.
     """
@@ -123,11 +124,11 @@ class DataCompiler:
     forecasted_start: datetime
     forecasted_end: datetime
     forecast_type: str
-    raw_tables: List[str]
     metadata: Dict[str, str]
     raw_cache: Path
     processed_cache: Union[None, Path]
     processed_queries: Union[Dict[str, Path], Dict]
+    raw_tables: List[str]
     compiled_data: Union[None, Dict[str, pd.DataFrame], Dict[str, xr.Dataset]] = field(
         default=None
     )
@@ -155,11 +156,11 @@ class DataCompiler:
             forecasted_start=query.forecasted_start,
             forecasted_end=query.forecasted_end,
             forecast_type=query.forecast_type,
-            raw_tables=raw_tables,
             metadata=query.metadata,
             raw_cache=query.raw_cache,
             processed_cache=query.processed_cache,
             processed_queries=query.processed_queries,
+            raw_tables=raw_tables,
             compiled_data=None,
         )
 
