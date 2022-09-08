@@ -283,7 +283,7 @@ class Query:
         else:
             return False
 
-    def find_tables_queries_in_processed_cache(self, data_format: str) -> None:
+    def find_table_queries_in_processed_cache(self, data_format: str) -> None:
         """Determines which tables already have queries saved in the
         :attr:`processed_cache`.
 
