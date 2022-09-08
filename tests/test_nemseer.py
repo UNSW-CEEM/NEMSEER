@@ -89,7 +89,7 @@ class TestDowloadRawData:
         )
 
 
-class TestCompileRawData:
+class TestCompileData:
     def setup_compilation_test(
         self, gen_datetime, fix_forecasted_dt, forecast_type, time_delta
     ):
@@ -253,20 +253,19 @@ class TestCompileRawData:
 
     def test_compile_two_datetime_cols(
         self,
-        gen_datetime,
-        fix_forecasted_dt,
-        tmp_path,
+        compile_data_to_processed_cache,
     ):
-        (forecast_type, table) = ("STPASA", "INTERCONNECTORSOLN")
-        time_delta = timedelta(hours=12, minutes=30)
-        (
-            run_start,
-            run_end,
-            forecasted_start,
-            forecasted_end,
-        ) = self.setup_compilation_test(
-            gen_datetime, fix_forecasted_dt, forecast_type, time_delta
+        query_metadata = compile_data_to_processed_cache["STPASA"]
+        (run_start, run_end) = (query_metadata["run_start"], query_metadata["run_end"])
+        (forecasted_start, forecasted_end) = (
+            query_metadata["forecasted_start"],
+            query_metadata["forecasted_end"],
         )
+        (forecast_type, table) = (
+            query_metadata["forecast_type"],
+            query_metadata["tables"],
+        )
+        raw_cache = query_metadata["raw_cache"]
         data_map = compile_data(
             run_start,
             run_end,
@@ -274,7 +273,7 @@ class TestCompileRawData:
             forecasted_end,
             forecast_type,
             table,
-            raw_cache=tmp_path,
+            raw_cache=raw_cache,
             data_format="df",
         )
         runtime_col = RUNTIME_COL[forecast_type]
@@ -290,30 +289,13 @@ class TestCompileRawData:
         assert pd.Timestamp(df[forecasted_col].unique()[0]) >= forecasted_start
         assert pd.Timestamp(df[forecasted_col].unique()[-1]) <= forecasted_end
 
-    def test_compile_one_datetime_col(
-        self,
-        gen_datetime,
-        fix_forecasted_dt,
-        tmp_path,
-    ):
-        (forecast_type, table) = ("PREDISPATCH", "CASESOLUTION")
-        time_delta = timedelta(hours=2, minutes=30)
-        (
-            run_start,
-            run_end,
-            forecasted_start,
-            forecasted_end,
-        ) = self.setup_compilation_test(
-            gen_datetime, fix_forecasted_dt, forecast_type, time_delta
-        )
+    def test_compile_one_datetime_col(self, compile_data_to_processed_cache):
+        forecast_type = "MTPASA"
+        query_metadata = compile_data_to_processed_cache[forecast_type]
+        (run_start, run_end) = (query_metadata["run_start"], query_metadata["run_end"])
+        table = query_metadata["tables"]
         data_map = compile_data(
-            run_start,
-            run_end,
-            forecasted_start,
-            forecasted_end,
-            forecast_type,
-            table,
-            raw_cache=tmp_path,
+            **query_metadata,
             data_format="df",
         )
         runtime_col = RUNTIME_COL[forecast_type]
@@ -339,8 +321,8 @@ class TestToXarray:
             run_end,
             forecasted_start,
             forecasted_end,
-        ) = TestCompileRawData.setup_compilation_test(
-            TestCompileRawData(),
+        ) = TestCompileData.setup_compilation_test(
+            TestCompileData(),
             gen_datetime,
             fix_forecasted_dt,
             forecast_type,
