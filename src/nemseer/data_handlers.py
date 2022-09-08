@@ -186,10 +186,6 @@ def to_xarray(df: pd.DataFrame, forecast_type: str):
         :class:`xarray.Dataset`.
     Warning:
         Raises a warning when attempting to convert high-dimensional data.
-    Raises:
-        MemoryError: If system memory utilisation exceeds 95% whilst converting
-            DataFrame chunks. Note that this error will not be raised if the memory
-            required to complete the Dataset merge exceeds available system memory.
     """
 
     def _determine_multiindex(
