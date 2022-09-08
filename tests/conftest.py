@@ -62,10 +62,11 @@ def compile_data_to_processed_cache(tmp_path_factory):
     queries = {
         "STPASA": "INTERCONNECTORSOLN",
         "PREDISPATCH": "REGIONSUM_D",
-        "MTPASA": "CASERESULT",
+        "P5MIN": "CASESOLUTION",
     }
     forecasted_start = "2022/03/15 00:00"
     forecasted_end = "2022/03/17 00:00"
+    raw_cache = tmp_path_factory.mktemp("raw_cache")
     processed_cache = tmp_path_factory.mktemp("processed_cache")
     query_metadata = {}
     for forecast_type, table in queries.items():
@@ -79,7 +80,7 @@ def compile_data_to_processed_cache(tmp_path_factory):
             "forecasted_end": forecasted_end,
             "forecast_type": forecast_type,
             "tables": table,
-            "raw_cache": "raw_cache",
+            "raw_cache": raw_cache,
             "processed_cache": processed_cache,
         }
         compile_data(
@@ -89,7 +90,7 @@ def compile_data_to_processed_cache(tmp_path_factory):
             forecasted_end,
             forecast_type,
             table,
-            raw_cache="raw_cache",
+            raw_cache=raw_cache,
             processed_cache=processed_cache,
             data_format="df",
         )
@@ -100,7 +101,7 @@ def compile_data_to_processed_cache(tmp_path_factory):
             forecasted_end,
             forecast_type,
             table,
-            raw_cache="raw_cache",
+            raw_cache=raw_cache,
             processed_cache=processed_cache,
             data_format="xr",
         )
