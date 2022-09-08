@@ -339,36 +339,33 @@ class DataCompiler:
             )
         if self.compiled_data is None:
             raise IOError("No compiled data to write to processed cache")
-        elif all([type(data) is xr.Dataset for data in self.compiled_data.values()]):
-            data = self.compiled_data
-            for table in data.keys():
+        data = self.compiled_data
+        xrbool = all([type(data) is xr.Dataset for data in self.compiled_data.values()])
+        dfbool = all(
+            [type(data) is pd.DataFrame for data in self.compiled_data.values()]
+        )
+        for table in data.keys():
+            if self.processed_queries and table in self.processed_queries.keys():
+                continue
+            else:
                 fn = _build_query_filename(self, table)
-                fn_path = self.processed_cache / Path(fn + ".nc")
-                if fn_path.exists():
-                    continue
-                else:
-                    dataset = data[table]
-                    self.metadata.update({"table": table})
+                self.metadata.update({"table": table})
+                dataset = data[table]
+                if xrbool:
+                    fn_path = self.processed_cache / Path(fn + ".nc")
                     dataset.attrs = self.metadata  # type: ignore
                     logging.info(f"Writing {table} to the processed cache as netCDF")
                     dataset.to_netcdf(fn_path)
-        elif all([type(data) is pd.DataFrame for data in self.compiled_data.values()]):
-            data = self.compiled_data
-            for table in data.keys():
-                fn = _build_query_filename(self, table)
-                fn_path = self.processed_cache / Path(fn + ".parquet")
-                if fn_path.exists():
-                    continue
-                else:
-                    self.metadata.update({"table": table})
-                    dataset = data[table]
+                elif dfbool:
+                    fn_path = self.processed_cache / Path(fn + ".parquet")
                     pyarrow_table = _df_to_pyarrow_with_metadata(
                         dataset, self.metadata  # type: ignore
                     )
                     logging.info(f"Writing {table} to the processed cache as parquet")
                     pq.write_table(pyarrow_table, fn_path)
-        else:
-            raise ValueError(
-                "Compiled data is not in a valid data structure. "
-                + "Compiled data should be in a pandas DataFrame or xarray Dataset"
-            )
+                else:
+                    raise ValueError(
+                        "Compiled data is not in a valid data structure. "
+                        + "Compiled data should be in a pandas DataFrame or "
+                        + "xarray Dataset"
+                    )
