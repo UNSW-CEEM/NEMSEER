@@ -169,7 +169,7 @@ def compile_data(
         raw_cache=raw_cache,
         processed_cache=processed_cache,
     )
-    query.find_tables_queries_in_processed_cache(data_format=data_format)
+    query.find_table_queries_in_processed_cache(data_format=data_format)
     compiler = DataCompiler.from_Query(query)
     if compiler.raw_tables:
         _initiate_downloads_from_query(query, keep_csv=False)
