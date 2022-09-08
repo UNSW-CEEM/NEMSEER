@@ -294,7 +294,6 @@ class DataCompiler:
             df: pd.DataFrame, metadata: Dict[str, str]
         ) -> pa.Table:
             """Converts DataFrame to pyarrow Table so that metadata can be added.
-
             Args:
                 df: pandas DataFrame
                 metadata: :class:`dict` built by
@@ -349,11 +348,8 @@ class DataCompiler:
                     continue
                 else:
                     dataset = data[table]
-                    dataset.attrs = {
-                        "nemseer": self.metadata.update(
-                            {"table": table}
-                        )  # type: ignore
-                    }
+                    self.metadata.update({"table": table})
+                    dataset.attrs = self.metadata  # type: ignore
                     logging.info(f"Writing {table} to the processed cache as netCDF")
                     dataset.to_netcdf(fn_path)
         elif all([type(data) is pd.DataFrame for data in self.compiled_data.values()]):
@@ -364,12 +360,13 @@ class DataCompiler:
                 if fn_path.exists():
                     continue
                 else:
+                    self.metadata.update({"table": table})
                     dataset = data[table]
-                    table = _df_to_pyarrow_with_metadata(
-                        dataset, self.metadata.update({"table": table})  # type: ignore
+                    pyarrow_table = _df_to_pyarrow_with_metadata(
+                        dataset, self.metadata  # type: ignore
                     )
                     logging.info(f"Writing {table} to the processed cache as parquet")
-                    pq.write_table(table, fn_path)
+                    pq.write_table(pyarrow_table, fn_path)
         else:
             raise ValueError(
                 "Compiled data is not in a valid data structure. "
