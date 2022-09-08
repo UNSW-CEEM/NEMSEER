@@ -1,5 +1,6 @@
 import logging
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import pandas as pd
 import pytest
@@ -251,7 +252,9 @@ class TestCompileData:
             ]
         )
 
-    def test_write_to_processed_cache(self, compile_data_to_processed_cache):
+    def test_download_and_write_to_processed_cache(
+        self, compile_data_to_processed_cache
+    ):
         query_metadata = compile_data_to_processed_cache
         for forecast_type in query_metadata:
             processed_cache = query_metadata[forecast_type]["processed_cache"]
@@ -269,9 +272,8 @@ class TestCompileData:
                 == 1
             )
 
-    def test_compile_two_datetime_cols(
-        self,
-        compile_data_to_processed_cache,
+    def test_compile_two_datetime_cols_from_raw_cache(
+        self, compile_data_to_processed_cache, caplog
     ):
         query_metadata = compile_data_to_processed_cache["STPASA"]
         (run_start, run_end) = (query_metadata["run_start"], query_metadata["run_end"])
@@ -284,6 +286,7 @@ class TestCompileData:
             query_metadata["tables"],
         )
         raw_cache = query_metadata["raw_cache"]
+        caplog.set_level(logging.INFO)
         data_map = compile_data(
             run_start,
             run_end,
@@ -306,12 +309,88 @@ class TestCompileData:
         assert pd.Timestamp(df[runtime_col].unique()[-1]) <= run_end
         assert pd.Timestamp(df[forecasted_col].unique()[0]) >= forecasted_start
         assert pd.Timestamp(df[forecasted_col].unique()[-1]) <= forecasted_end
+        assert any(
+            [
+                record.msg
+                for record in caplog.get_records("call")
+                if "Query raw data already downloaded to" in record.msg
+            ]
+        )
 
-    def test_compile_one_datetime_col(self, compile_data_to_processed_cache):
+    def test_compile_two_datetime_cols_from_processed_cache(
+        self, compile_data_to_processed_cache, caplog
+    ):
+        query_metadata = compile_data_to_processed_cache["STPASA"]
+        caplog.set_level(logging.INFO)
+        compile_data(
+            **query_metadata,
+            data_format="df",
+        )
+        table = query_metadata["tables"]
+        assert any(
+            [
+                record.msg
+                for record in caplog.get_records("call")
+                if f"Compiling {table} data from the processed cache" in record.msg
+            ]
+        )
+
+    def test_compile_xr_from_processed_cache(
+        self, compile_data_to_processed_cache, caplog
+    ):
+        query_metadata = compile_data_to_processed_cache["STPASA"]
+        caplog.set_level(logging.INFO)
+        compile_data(
+            **query_metadata,
+            data_format="xr",
+        )
+        table = query_metadata["tables"]
+        assert any(
+            [
+                record.msg
+                for record in caplog.get_records("call")
+                if f"Compiling {table} data from the processed cache" in record.msg
+            ]
+        )
+
+    def test_download_and_compile_from_processed_cache(
+        self, compile_data_to_processed_cache, caplog
+    ):
+        query_metadata = compile_data_to_processed_cache["STPASA"]
+        table = query_metadata.pop("tables")
+        tables = [table, "CASESOLUTION"]
+        caplog.set_level(logging.INFO)
+        compile_data(
+            **query_metadata,
+            tables=tables,
+            data_format="df",
+        )
+        query_metadata["tables"] = table
+        assert any(
+            [
+                record.msg
+                for record in caplog.get_records("call")
+                if f"Compiling {table} data from the processed cache" in record.msg
+            ]
+        )
+        assert any(
+            [
+                record.msg
+                for record in caplog.get_records("call")
+                if "Downloading and unzipping CASESOLUTION" in record.msg
+            ]
+        )
+
+    def test_compile_one_datetime_col_from_processed_cache(
+        self,
+        compile_data_to_processed_cache,
+        caplog,
+    ):
         forecast_type = "P5MIN"
         query_metadata = compile_data_to_processed_cache[forecast_type]
         (run_start, run_end) = (query_metadata["run_start"], query_metadata["run_end"])
         table = query_metadata["tables"]
+        caplog.set_level(logging.INFO)
         data_map = compile_data(
             **query_metadata,
             data_format="df",
@@ -323,6 +402,46 @@ class TestCompileData:
         run_end = datetime.strptime(run_end, DATETIME_FORMAT)
         assert pd.Timestamp(df[runtime_col].unique()[0]) >= run_start
         assert pd.Timestamp(df[runtime_col].unique()[-1]) <= run_end
+        assert any(
+            [
+                record.msg
+                for record in caplog.get_records("call")
+                if f"Compiling {table} data from the processed cache" in record.msg
+            ]
+        )
+
+    def test_compile_from_processed_cache_after_rename(
+        self, compile_data_to_processed_cache, caplog
+    ):
+        query_metadata = compile_data_to_processed_cache["STPASA"]
+        processed_cache = query_metadata["processed_cache"]
+        table = query_metadata["tables"]
+        xr_files = processed_cache.glob("*.nc")
+        df_files = processed_cache.glob("*.parquet")
+        for file in xr_files:
+            if table in file.name:
+                file.rename(Path(file.parent, "1" + file.suffix))
+        for file in df_files:
+            if table in file.name:
+                file.rename(Path(file.parent, "1" + file.suffix))
+        caplog.set_level(logging.INFO)
+        compile_data(
+            **query_metadata,
+            data_format="xr",
+        )
+        compile_data(
+            **query_metadata,
+            data_format="df",
+        )
+        assert any(
+            [
+                record.msg
+                for record in caplog.get_records("call")
+                if f"Compiling {table} data from the processed cache" in record.msg
+            ]
+        )
+        assert len(list(processed_cache.glob("1.nc"))) == 1
+        assert len(list(processed_cache.glob("1.parquet"))) == 1
 
 
 class TestToXarray:
