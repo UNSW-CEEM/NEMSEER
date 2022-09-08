@@ -1,8 +1,11 @@
+import ast
 import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
 
+import pyarrow.parquet as pq  # type: ignore
+import xarray as xr
 from attrs import converters, define, field, validators
 from dateutil import rrule
 
@@ -178,9 +181,8 @@ class Query:
         - Validates user-requested tables against what is available on NEMWeb
     - Retains query metadata (via constructor class method
       :meth:`nemseer.query.Query.initialise`)
-    - Can dispatch
-      :class:`ForecastTypeDownloader <nemseer.downloader.ForecastTypeDownloader>` and
-      :class:`DataCompiler <nemseer.data_compilers.DataCompiler>`
+    - Can check :attr:`raw_cache` and :attr:`processed_cache` contents to streamline
+      query compilation
 
     Attributes:
         run_start: Forecast runs at or after this datetime are queried.
@@ -193,9 +195,11 @@ class Query:
         tables: Table or tables required. A single table can be supplied as
             a string. Multiple tables can be supplied as a list of strings.
         metadata: Metadata dictionary. Constructed by :meth:`Query.initialise()`.
-        raw_cache (optional): Path to build or reuse :term:`raw_cache`.
+        raw_cache: Path to build or reuse :term:`raw_cache`.
         processed_cache (optional): Path to build or reuse :term:`processed_cache`.
             Should be distinct from :attr:`raw_cache`
+        processed_queries: Defaults to `None` on initialisation. Populated once
+            :meth:`Query.find_table_queries_in_processed_cache` is called.
 
     """
 
@@ -210,7 +214,7 @@ class Query:
     forecasted_end: datetime = field(converter=_dt_converter)
     forecast_type: str = field(validator=validators.in_(FORECAST_TYPES))
     tables: List[str] = field(converter=_tablestr_converter)
-    metadata: Dict
+    metadata: Dict[str, str]
     raw_cache: Path = field(
         converter=Path,
         validator=[
@@ -223,6 +227,7 @@ class Query:
         converter=converters.optional(Path),
         validator=validators.optional(_validate_path),
     )
+    processed_queries: Union[Dict[str, Path], Dict] = field(default=None)
 
     @classmethod
     def initialise(
@@ -243,7 +248,6 @@ class Query:
             "forecasted_start": forecasted_start,
             "forecasted_end": forecasted_end,
             "forecast_type": forecast_type,
-            "tables": tables,
         }
         return cls(
             run_start=run_start,  # type: ignore
@@ -257,7 +261,7 @@ class Query:
             processed_cache=processed_cache,  # type: ignore
         )
 
-    def check_data_in_cache(self) -> bool:
+    def check_all_raw_data_in_cache(self) -> bool:
         """Checks whether *all* requested data is already in the :attr:`raw_cache` as
         parquet
 
@@ -278,3 +282,52 @@ class Query:
             return True
         else:
             return False
+
+    def find_table_queries_in_processed_cache(self, data_format: str) -> None:
+        """Determines which tables already have queries saved in the
+        :attr:`processed_cache`.
+
+        If data_format=df, this function will sieve through the metadata of all parquet
+        files in the :attr:`processed_cache`. Note that parquet metadata is UTF-8
+        encoded. Similarly, data_format=xr will check the metadata of all netCDF files.
+
+        Modifies :attr:`Query.processed_queries` from :class:`None` to a :class:`dict`.
+
+        The :class:`dict` is empty if:
+
+        1. :attr:`processed_cache` is :class:`None`
+        2. No portion of the query has been saved in the :attr:`processed_cache`
+
+        If a portion of the queries are saved in the :attr:`processed_cache`, then
+        :attr:`Query.processed_queries` will be equal to a :class:`dict` that maps
+        the saved query's table name to the saved query's filename.
+
+        Args:
+            data_format: As per :func:`nemseer.compile_data`
+        """
+        tables_in_pcache: Union[Dict[str, Path], Dict] = {}
+        if not self.processed_cache:
+            pass
+        else:
+            if data_format == "df":
+                for file in self.processed_cache.glob("*.parquet"):
+                    byte_metadata = pq.read_metadata(file).metadata
+                    metadata = ast.literal_eval(
+                        (byte_metadata["nemseer".encode()]).decode()
+                    )
+                    if (
+                        metadata_table := metadata.pop("table")
+                    ) in self.tables and metadata == self.metadata:
+                        tables_in_pcache[metadata_table] = file
+                    else:
+                        continue
+            elif data_format == "xr":
+                for file in self.processed_cache.glob("*.nc"):
+                    metadata = xr.open_dataset(file).attrs
+                    if (
+                        metadata_table := metadata.pop("table")
+                    ) in self.tables and metadata == self.metadata:
+                        tables_in_pcache[metadata_table] = file
+                    else:
+                        continue
+            self.processed_queries = tables_in_pcache

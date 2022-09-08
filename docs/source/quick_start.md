@@ -3,21 +3,19 @@
 ```{testsetup}
 from pathlib import Path
 Path("./nemseer_cache/").mkdir()
+Path("./processed_cache/").mkdir()
 ```
 
 ```{testcleanup}
 for file in Path("./nemseer_cache/").iterdir():
     Path(file).unlink()
+for file in Path("./processed_cache/").iterdir():
+    Path(file).unlink()
 Path("./nemseer_cache/").rmdir()
+Path("./processed_cache/").rmdir()
 ```
 
-As of v0.6.0, you can download raw historical forecast data from the {term}`MMSDM Historical Data SQLLoader` via `nemseer`, cache it in the [parquet](quick_start:parquet) format and use `nemseer` to assemble and filter forecast data into a {class}`pandas.DataFrame` or {class}`xarray.Dataset` for further analysis.
-
-## Future functionality
-
-Future `nemseer` functionality will include:
-
-- An optional {term}`processed_cache`. If provided by the user, [netCDF](https://www.unidata.ucar.edu/software/netcdf/) files with query data will be saved in this cache.
+`nemseer` lets you download raw historical forecast data from the {term}`MMSDM Historical Data SQLLoader`, cache it in the [parquet](quick_start:parquet) format and use `nemseer` to assemble and filter forecast data into a {class}`pandas.DataFrame` or {class}`xarray.Dataset` for further analysis. Assembled queries can optionally be saved to a [processed cache](<quick_start:processed cache>).
 
 ## Core concepts and information for users
 
@@ -68,6 +66,20 @@ However, there are some things you can try if you do run into issues with memory
 
 1. You can use `nemseer` to simply download raw data as CSVs or to then cache data in the parquet format. Once you have a cache, you can use tools like [dask](https://docs.dask.org/en/stable/index.html) to process chunks of data in parallel. You may be able to reduce peak memory usage this way. [Dask works best with data formats such as parquet](https://docs.dask.org/en/stable/best-practices.html#store-data-efficiently). It should be noted that `nemseer` converts a single AEMO CSV into a single parquet file. That is, it does not partition the parquet store.
 2. Conversion to {class}`xarray.Dataset` can be memory intensive. As this usually occurs when the data to be converted has a high number of dimensions (as determined by `nemseer`), `nemseer` will print a warning prior to attempting to convert any such data. While [xarray integrates with dask](https://docs.xarray.dev/en/stable/user-guide/dask.html), this functionality is contingent on loading data from a netCDF file.
+
+### Processed cache
+
+The {term}`processed_cache` is optional, but may be useful for some users. Specifying a path for this argument will lead to `nemseer` saving queries (i.e. requested data filtered based on user-supplied {term}`run times` and {term}`forecasted times`) as [parquet](quick_start:parquet) (if the {class}`pandas.DataFrame` data structure is specified) or [netCDF](https://www.unidata.ucar.edu/software/netcdf/) (if the {class}`xarray.Dataset` data structure is specified).
+
+If subsequent `nemseer` queries include this {term}`processed_cache`, `nemseer` will check file metadata of the relevant file types to see if a particular table query has already been saved. If it has, `nemseer` will compile data from the {term}`processed_cache`.
+
+```{note}
+Because `nemseer` looks at metadata stored *in* each file, it does not care about the file name as long as file extensions are preserved (i.e. `*.parquet`, `*.nc`). As such, files in the {term}`processed_cache` can be renamed from default file names assigned by `nemseer`.
+```
+
+```{warning}
+Saving to netCDF will let you load xarray objects into memory. However, saving these datasets to netCDF files may take up large amounts of hard disk space.
+```
 
 ### Deprecated tables
 
@@ -123,18 +135,19 @@ For some pre-dispatch table (`CONSTRAINT`, `LOAD`, `PRICE`, `INTERCONNECTORRES` 
 
 ## Compiling data
 
-The main use case of `nemseer` is to download raw data (if it is not available) and then compile it into a data format for further analysis/processing. To do this, `nemseer` has {func}`compile_raw_data <nemseer.compile_raw_data>`.
+The main use case of `nemseer` is to download raw data (if it is not available) and then compile it into a data format for further analysis/processing. To do this, `nemseer` has {func}`compile_data <nemseer.compile_data>`.
 
 This function:
 
-1. Downloads the relevant raw data and converts it into [parquet](quick_start:parquet) in the {term}`raw_cache`
-2. Returns a dictionary consisting of compiled {class}`pandas.DataFrame`s or {class}`xarray.Dataset`s (i.e. assembled and filtered based on the supplied {term}`run times` and {term}`forecasted times`) mapped to their corresponding table name.
+1. Downloads the relevant raw data and converts it into [parquet](quick_start:parquet) in the {term}`raw_cache`.
+2. If it's supplied, interacts with a {term}`processed_cache` (see [below](<quick_start:compiling data to a processed cache>)).
+3. Returns a dictionary consisting of compiled {class}`pandas.DataFrame`s or {class}`xarray.Dataset`s (i.e. assembled and filtered based on the supplied {term}`run times` and {term}`forecasted times`) mapped to their corresponding table name.
 
 For example, we can compile {term}`STPASA` forecast data contained in the `CASESOLUTION` and `CONSTRAINTSOLUTION` tables. The query below will filter {term}`run times` between "2021/02/01 00:00" and "2021/02/28 00:00" and {term}`forecasted times` between 09:00 on March 1 and 12:00 on March 3. The returned {class}`dict` maps each of the requested tables to their corresponding assembled and filtered datasets. These datasets are {class}`pandas.DataFrame` as `data_format="df"` (this is the default for this argument).
 
 ```{doctest}
 >>> import nemseer
->>> data = nemseer.compile_raw_data(
+>>> data = nemseer.compile_data(
 ... run_start="2021/02/01 00:00",
 ... run_end="2021/02/28 00:00",
 ... forecasted_start="2021/03/01 09:00",
@@ -158,7 +171,7 @@ You can also just query a single table, such as the query below:
 
 ```{doctest}
 >>> import nemseer
->>> data = nemseer.compile_raw_data(
+>>> data = nemseer.compile_data(
 ... "2021/02/01 00:00",
 ... "2021/02/28 00:00",
 ... "2021/03/01 09:00",
@@ -177,7 +190,7 @@ We can also compile data to an {class}`xarray.Dataset`. To do this, we need to s
 
 ```{doctest}
 >>> import nemseer
->>> data = nemseer.compile_raw_data(
+>>> data = nemseer.compile_data(
 ... "2021/02/01 00:00",
 ... "2021/02/28 00:00",
 ... "2021/02/28 00:30",
@@ -196,9 +209,52 @@ dict_keys(['REGIONSOLUTION'])
 <class 'xarray.core.dataset.Dataset'>
 ```
 
+### Compiling data to a processed cache
+
+As outlined [above](<quick_start:processed cache>), compiled data can be saved to the {term}`processed_cache` as parquet (if `data_format` = "df") or as netCDF files (if `data_format` = "xr").
+
+If the same {term}`processed_cache` is supplied to subsequent queries, `nemseer` will check whether any portion of the subsequent query has already been saved in the {term}`processed_cache`. If it has, `nemseer` will load data from the {term}`processed_cache`, thereby bypassing any download/raw data compilation.
+
+With a supplied {term}`processed_cache`, we can save the query to parquet (`data_format` = "df") or to netCDF (`data_format` = "xr"):
+
+```{doctest}
+>>> import nemseer
+>>> data = nemseer.compile_data(
+... "2021/02/01 00:00",
+... "2021/02/28 00:00",
+... "2021/03/01 09:00",
+... "2021/03/01 12:00",
+... "STPASA",
+... "REGIONSOLUTION",
+... "./nemseer_cache/",
+... processed_cache="./processed_cache/",
+... )
+INFO: Query raw data already downloaded to nemseer_cache
+INFO: Writing REGIONSOLUTION to the processed cache as parquet
+```
+
+And if this saved query is a portion of another subsequent query, `nemseer` will load data from the {term}`processed_cache`:
+
+```{doctest}
+>>> import nemseer
+>>> data = nemseer.compile_data(
+... "2021/02/01 00:00",
+... "2021/02/28 00:00",
+... "2021/03/01 09:00",
+... "2021/03/01 12:00",
+... "STPASA",
+... ["CASESOLUTION", "REGIONSOLUTION"],
+... "./nemseer_cache/",
+... processed_cache="./processed_cache/",
+... )
+INFO: Query raw data already downloaded to nemseer_cache
+INFO: Compiling REGIONSOLUTION data from the processed cache
+INFO: Writing CASESOLUTION to the processed cache as parquet
+```
+
 ### Validation and feedback
 
-{func}`compile_raw_data <nemseer.compile_raw_data>` will validate user inputs and provide feedback on valid inputs. Specifically, it validates:
+{func}`compile_data <nemseer.compile_data>` will validate user inputs and provide feedback on valid inputs. Specifically, it validates:
 
 1. Basic datetime chronologies (e.g. {term}`run_end` not before {term}`run_start`)
 2. Whether the requested {term}`forecast type` and table type(s) are valid
@@ -218,7 +274,7 @@ In the example below, we request {term}`run times` that contain data for the {te
 ('2021/02/22 14:00', '2021/02/28 14:00')
 ```
 
-You can see that in the [compiling data examples](<quick_start:compiling data>) we had a wider {term}`run time` range. This is fine since filtering will only retain {term}`run times` that contain the requested {term}`forecasted times`. The inverse is not true: {func}`compile_raw_data <nemseer.compile_raw_data>` will raise errors if the requested {term}`forecasted times` are not valid/do not have forecast outputs for the requested {term}`run times`.
+You can see that in the [compiling data examples](<quick_start:compiling data>) we had a wider {term}`run time` range. This is fine since filtering will only retain {term}`run times` that contain the requested {term}`forecasted times`. The inverse is not true: {func}`compile_data <nemseer.compile_data>` will raise errors if the requested {term}`forecasted times` are not valid/do not have forecast outputs for the requested {term}`run times`.
 
 ## Downloading raw data
 

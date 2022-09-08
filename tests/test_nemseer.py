@@ -1,11 +1,12 @@
 import logging
 from datetime import datetime, timedelta
+from pathlib import Path
 
 import pandas as pd
 import pytest
 import xarray as xr
 
-from nemseer import compile_raw_data, download_raw_data
+from nemseer import compile_data, download_raw_data
 from nemseer.data import (
     DATETIME_FORMAT,
     FORECASTED_COL,
@@ -89,7 +90,7 @@ class TestDowloadRawData:
         )
 
 
-class TestCompileRawData:
+class TestCompileData:
     def setup_compilation_test(
         self, gen_datetime, fix_forecasted_dt, forecast_type, time_delta
     ):
@@ -130,7 +131,7 @@ class TestCompileRawData:
             for fn in fnames:
                 f.write(f"{fn}\n")
         with pytest.raises(ValueError):
-            compile_raw_data(
+            compile_data(
                 run_start,
                 run_end,
                 forecasted_start,
@@ -175,7 +176,7 @@ class TestCompileRawData:
                 f.write(f"{fn}\n")
         caplog.set_level(logging.WARNING)
         mocker.patch("nemseer.data_compilers.pd.concat", mock_pd_concat)
-        compile_raw_data(
+        compile_data(
             run_start,
             run_end,
             forecasted_start,
@@ -205,7 +206,7 @@ class TestCompileRawData:
             gen_datetime, fix_forecasted_dt, forecast_type, time_delta
         )
         with pytest.raises(ValueError):
-            compile_raw_data(
+            compile_data(
                 run_start,
                 run_end,
                 forecasted_start,
@@ -230,7 +231,7 @@ class TestCompileRawData:
             gen_datetime, fix_forecasted_dt, forecast_type, time_delta
         )
         caplog.set_level(logging.WARNING)
-        compile_raw_data(
+        compile_data(
             run_start,
             run_end,
             forecasted_start,
@@ -251,30 +252,49 @@ class TestCompileRawData:
             ]
         )
 
-    def test_compile_two_datetime_cols(
-        self,
-        gen_datetime,
-        fix_forecasted_dt,
-        tmp_path,
+    def test_download_and_write_to_processed_cache(
+        self, compile_data_to_processed_cache
     ):
-        (forecast_type, table) = ("STPASA", "INTERCONNECTORSOLN")
-        time_delta = timedelta(hours=12, minutes=30)
-        (
-            run_start,
-            run_end,
-            forecasted_start,
-            forecasted_end,
-        ) = self.setup_compilation_test(
-            gen_datetime, fix_forecasted_dt, forecast_type, time_delta
+        query_metadata = compile_data_to_processed_cache
+        for forecast_type in query_metadata:
+            processed_cache = query_metadata[forecast_type]["processed_cache"]
+            table = query_metadata[forecast_type]["tables"]
+            parq = processed_cache.glob("*.parquet")
+            nc = processed_cache.glob("*.nc")
+            assert (
+                len(
+                    [fn for fn in parq if forecast_type in fn.name and table in fn.name]
+                )
+                == 1
+            )
+            assert (
+                len([fn for fn in nc if forecast_type in fn.name and table in fn.name])
+                == 1
+            )
+
+    def test_compile_two_datetime_cols_from_raw_cache(
+        self, compile_data_to_processed_cache, caplog
+    ):
+        query_metadata = compile_data_to_processed_cache["STPASA"]
+        (run_start, run_end) = (query_metadata["run_start"], query_metadata["run_end"])
+        (forecasted_start, forecasted_end) = (
+            query_metadata["forecasted_start"],
+            query_metadata["forecasted_end"],
         )
-        data_map = compile_raw_data(
+        (forecast_type, table) = (
+            query_metadata["forecast_type"],
+            query_metadata["tables"],
+        )
+        raw_cache = query_metadata["raw_cache"]
+        caplog.set_level(logging.INFO)
+        data_map = compile_data(
             run_start,
             run_end,
             forecasted_start,
             forecasted_end,
             forecast_type,
             table,
-            raw_cache=tmp_path,
+            raw_cache=raw_cache,
             data_format="df",
         )
         runtime_col = RUNTIME_COL[forecast_type]
@@ -289,31 +309,90 @@ class TestCompileRawData:
         assert pd.Timestamp(df[runtime_col].unique()[-1]) <= run_end
         assert pd.Timestamp(df[forecasted_col].unique()[0]) >= forecasted_start
         assert pd.Timestamp(df[forecasted_col].unique()[-1]) <= forecasted_end
-
-    def test_compile_one_datetime_col(
-        self,
-        gen_datetime,
-        fix_forecasted_dt,
-        tmp_path,
-    ):
-        (forecast_type, table) = ("PREDISPATCH", "CASESOLUTION")
-        time_delta = timedelta(hours=2, minutes=30)
-        (
-            run_start,
-            run_end,
-            forecasted_start,
-            forecasted_end,
-        ) = self.setup_compilation_test(
-            gen_datetime, fix_forecasted_dt, forecast_type, time_delta
+        assert any(
+            [
+                record.msg
+                for record in caplog.get_records("call")
+                if "Query raw data already downloaded to" in record.msg
+            ]
         )
-        data_map = compile_raw_data(
-            run_start,
-            run_end,
-            forecasted_start,
-            forecasted_end,
-            forecast_type,
-            table,
-            raw_cache=tmp_path,
+
+    def test_compile_two_datetime_cols_from_processed_cache(
+        self, compile_data_to_processed_cache, caplog
+    ):
+        query_metadata = compile_data_to_processed_cache["STPASA"]
+        caplog.set_level(logging.INFO)
+        compile_data(
+            **query_metadata,
+            data_format="df",
+        )
+        table = query_metadata["tables"]
+        assert any(
+            [
+                record.msg
+                for record in caplog.get_records("call")
+                if f"Compiling {table} data from the processed cache" in record.msg
+            ]
+        )
+
+    def test_compile_xr_from_processed_cache(
+        self, compile_data_to_processed_cache, caplog
+    ):
+        query_metadata = compile_data_to_processed_cache["STPASA"]
+        caplog.set_level(logging.INFO)
+        compile_data(
+            **query_metadata,
+            data_format="xr",
+        )
+        table = query_metadata["tables"]
+        assert any(
+            [
+                record.msg
+                for record in caplog.get_records("call")
+                if f"Compiling {table} data from the processed cache" in record.msg
+            ]
+        )
+
+    def test_download_and_compile_from_processed_cache(
+        self, compile_data_to_processed_cache, caplog
+    ):
+        query_metadata = compile_data_to_processed_cache["STPASA"]
+        table = query_metadata.pop("tables")
+        tables = [table, "CASESOLUTION"]
+        caplog.set_level(logging.INFO)
+        compile_data(
+            **query_metadata,
+            tables=tables,
+            data_format="df",
+        )
+        query_metadata["tables"] = table
+        assert any(
+            [
+                record.msg
+                for record in caplog.get_records("call")
+                if f"Compiling {table} data from the processed cache" in record.msg
+            ]
+        )
+        assert any(
+            [
+                record.msg
+                for record in caplog.get_records("call")
+                if "Downloading and unzipping CASESOLUTION" in record.msg
+            ]
+        )
+
+    def test_compile_one_datetime_col_from_processed_cache(
+        self,
+        compile_data_to_processed_cache,
+        caplog,
+    ):
+        forecast_type = "P5MIN"
+        query_metadata = compile_data_to_processed_cache[forecast_type]
+        (run_start, run_end) = (query_metadata["run_start"], query_metadata["run_end"])
+        table = query_metadata["tables"]
+        caplog.set_level(logging.INFO)
+        data_map = compile_data(
+            **query_metadata,
             data_format="df",
         )
         runtime_col = RUNTIME_COL[forecast_type]
@@ -323,6 +402,46 @@ class TestCompileRawData:
         run_end = datetime.strptime(run_end, DATETIME_FORMAT)
         assert pd.Timestamp(df[runtime_col].unique()[0]) >= run_start
         assert pd.Timestamp(df[runtime_col].unique()[-1]) <= run_end
+        assert any(
+            [
+                record.msg
+                for record in caplog.get_records("call")
+                if f"Compiling {table} data from the processed cache" in record.msg
+            ]
+        )
+
+    def test_compile_from_processed_cache_after_rename(
+        self, compile_data_to_processed_cache, caplog
+    ):
+        query_metadata = compile_data_to_processed_cache["STPASA"]
+        processed_cache = query_metadata["processed_cache"]
+        table = query_metadata["tables"]
+        xr_files = processed_cache.glob("*.nc")
+        df_files = processed_cache.glob("*.parquet")
+        for file in xr_files:
+            if table in file.name:
+                file.rename(Path(file.parent, "1" + file.suffix))
+        for file in df_files:
+            if table in file.name:
+                file.rename(Path(file.parent, "1" + file.suffix))
+        caplog.set_level(logging.INFO)
+        compile_data(
+            **query_metadata,
+            data_format="xr",
+        )
+        compile_data(
+            **query_metadata,
+            data_format="df",
+        )
+        assert any(
+            [
+                record.msg
+                for record in caplog.get_records("call")
+                if f"Compiling {table} data from the processed cache" in record.msg
+            ]
+        )
+        assert len(list(processed_cache.glob("1.nc"))) == 1
+        assert len(list(processed_cache.glob("1.parquet"))) == 1
 
 
 class TestToXarray:
@@ -339,14 +458,14 @@ class TestToXarray:
             run_end,
             forecasted_start,
             forecasted_end,
-        ) = TestCompileRawData.setup_compilation_test(
-            TestCompileRawData(),
+        ) = TestCompileData.setup_compilation_test(
+            TestCompileData(),
             gen_datetime,
             fix_forecasted_dt,
             forecast_type,
             time_delta,
         )
-        data_map = compile_raw_data(
+        data_map = compile_data(
             run_start,
             run_end,
             forecasted_start,

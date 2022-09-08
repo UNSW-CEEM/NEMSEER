@@ -1,5 +1,6 @@
 import logging
 import pathlib
+from copy import deepcopy
 from zipfile import BadZipFile
 
 import pytest
@@ -273,7 +274,8 @@ class TestForecastTypeDownloader:
 
     def test_skip_existing_component_of_query(self, caplog, download_file_to_cache):
         query = download_file_to_cache
-        query.tables.append("CASESOLUTION")
+        new_query = deepcopy(query)
+        new_query.tables.append("CASESOLUTION")
         downloader = ForecastTypeDownloader.from_Query(query)
         caplog.set_level(logging.INFO)
         downloader.download_csv()
