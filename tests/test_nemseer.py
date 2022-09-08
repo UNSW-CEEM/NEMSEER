@@ -251,6 +251,24 @@ class TestCompileData:
             ]
         )
 
+    def test_write_to_processed_cache(self, compile_data_to_processed_cache):
+        query_metadata = compile_data_to_processed_cache
+        for forecast_type in query_metadata:
+            processed_cache = query_metadata[forecast_type]["processed_cache"]
+            table = query_metadata[forecast_type]["tables"]
+            parq = processed_cache.glob("*.parquet")
+            nc = processed_cache.glob("*.nc")
+            assert (
+                len(
+                    [fn for fn in parq if forecast_type in fn.name and table in fn.name]
+                )
+                == 1
+            )
+            assert (
+                len([fn for fn in nc if forecast_type in fn.name and table in fn.name])
+                == 1
+            )
+
     def test_compile_two_datetime_cols(
         self,
         compile_data_to_processed_cache,
@@ -290,7 +308,7 @@ class TestCompileData:
         assert pd.Timestamp(df[forecasted_col].unique()[-1]) <= forecasted_end
 
     def test_compile_one_datetime_col(self, compile_data_to_processed_cache):
-        forecast_type = "MTPASA"
+        forecast_type = "P5MIN"
         query_metadata = compile_data_to_processed_cache[forecast_type]
         (run_start, run_end) = (query_metadata["run_start"], query_metadata["run_end"])
         table = query_metadata["tables"]
