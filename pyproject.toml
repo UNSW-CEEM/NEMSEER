@@ -70,9 +70,13 @@ optional = true
 pytest = "^7"
 pytest-cov = "^3"
 grequests = "^0.6.0"
+pytest-mock = "^3.8.2"
+
+[tool.poetry.group.examples.dependencies]
+matplotlib = "^3.5.3"
+plotly = "^5.10.0"
 
 # Config for pytest and pytest-cov
-pytest-mock = "^3.8.2"
 [tool.pytest.ini_options]
 # path to tests for pytest
 testpaths = ["tests"]
