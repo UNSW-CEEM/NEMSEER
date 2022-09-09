@@ -75,6 +75,8 @@ pytest-mock = "^3.8.2"
 [tool.poetry.group.examples.dependencies]
 matplotlib = "^3.5.3"
 plotly = "^5.10.0"
+hvplot = "^0.8.1"
+nemosis = "^3.1.0"
 
 # Config for pytest and pytest-cov
 [tool.pytest.ini_options]
