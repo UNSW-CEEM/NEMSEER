@@ -184,8 +184,19 @@ def _generate_MTPASA_runtimes(
 def generate_runtimes(
     forecasted_start: str, forecasted_end: str, forecast_type: str
 ) -> Tuple[str, str]:
-    """For a particular :term:`forecast type`, generates valid `run` times provided that
-    user-supplied `forecasted` times are valid.
+    """For a particular :term:`forecast type`, generates the earliest :term:`run_start`
+    and the latest :term:`run_end` that can be queried for the supplied
+    :term:`forecasted times`.
+
+    In other words, this function will return all :term:`run times` for forecasts that
+    cover the supplied :term:`forecasted times`. As such, using the :term:`run_start`
+    and :term:`run_end` returned by this function with :func:`nemseer.compile_data` will
+    ensure most, if not all of the data for the seleected :term:`forecasted times` is
+    returned.
+
+    N.B. These have been determined based on AEMO documentation and actual data. This
+    may not be accurate for all :term:`forecast types`, e.g. :term:`MTPASA` which is not
+    run at a set time.
 
     Args:
         forecasted_start: Forecasts pertaining to times at or after this
