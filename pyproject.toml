@@ -30,8 +30,15 @@ optional = true
 Sphinx = "^5.0.2"
 furo = "^2022.6.21"
 myst-parser = "^0.18.0"
+# The packages below are required for compiling example notebooks
 jupyter = "^1.0.0"
 notebook = "^6.4.12"
+myst-nb = "^0.16.0"
+matplotlib = "^3.5.3"
+plotly = "^5.10.0"
+hvplot = "^0.8.1"
+nemosis = "^3.1.0"
+
 
 # Packages for developers for debugging
 [tool.poetry.group.debug]
@@ -71,12 +78,6 @@ pytest = "^7"
 pytest-cov = "^3"
 grequests = "^0.6.0"
 pytest-mock = "^3.8.2"
-
-[tool.poetry.group.examples.dependencies]
-matplotlib = "^3.5.3"
-plotly = "^5.10.0"
-hvplot = "^0.8.1"
-nemosis = "^3.1.0"
 
 # Config for pytest and pytest-cov
 [tool.pytest.ini_options]
