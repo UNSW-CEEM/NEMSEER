@@ -56,7 +56,9 @@ The glossary also provides an overview of the various ahead processes run by AEM
 `nemseer` has functionality that allows a user to compile data into two types of in-memory data structures:
 
 - [pandas DataFrames](https://pandas.pydata.org/pandas-docs/stable/user_guide/dsintro.html#dataframe). Pandas is a widely-used Python package for manipulating data.
-- Multi-dimensional [xarray Datasets](https://docs.xarray.dev/en/stable/user-guide/data-structures.html#dataset). xarray is intended for handling and querying data across multiple dimensions (e.g. the regional price forecast for a particular {term}`forecasted time` from a range of {term}`run times`). For more information, refer to the [*Getting started*](https://docs.xarray.dev/en/stable/getting-started-guide/index.html) section of the xarray documentation. The [xarray tutorial](https://tutorial.xarray.dev/intro.html) is also an excellent resource. Converting to xarray can be [memory-intensive](<quick_start:managing memory>).
+- Multi-dimensional [xarray Datasets](https://docs.xarray.dev/en/stable/user-guide/data-structures.html#dataset). xarray is intended for handling and querying data across multiple dimensions (e.g. the regional price forecast for a particular {term}`forecasted time` from a range of {term}`run times`)
+  - For more information, refer to the [*Getting started*](https://docs.xarray.dev/en/stable/getting-started-guide/index.html) section of the xarray documentation. The [xarray tutorial](https://tutorial.xarray.dev/intro.html) is also an excellent resource.
+  - Converting to xarray can be [memory-intensive](<quick_start:managing memory>).
 
 ### Managing memory
 
