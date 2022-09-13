@@ -11,6 +11,7 @@ caption: Contents
 quick_start
 glossary
 nemseer
+examples
 api
 ```
 

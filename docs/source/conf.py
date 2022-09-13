@@ -47,7 +47,8 @@ extensions = [
     "sphinx.ext.doctest",
     "sphinx.ext.todo",
     "sphinx.ext.viewcode",
-    "myst_parser",
+    "sphinx_copybutton",
+    "myst_nb",
 ]
 
 
@@ -111,3 +112,7 @@ html_theme = "furo"
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ["_static"]
+
+# Myst-NB config
+nb_execution_mode = "cache"
+nb_execution_timeout = 600
