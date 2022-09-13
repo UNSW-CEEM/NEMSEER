@@ -358,7 +358,7 @@ class DataCompiler:
                     fn_path = self.processed_cache / Path(fn + ".nc")
                     dataset.attrs = self.metadata  # type: ignore
                     logging.info(f"Writing {table} to the processed cache as netCDF")
-                    dataset.to_netcdf(fn_path)
+                    dataset.to_netcdf(fn_path)  # type: ignore
                 elif dfbool:
                     fn_path = self.processed_cache / Path(fn + ".parquet")
                     pyarrow_table = _df_to_pyarrow_with_metadata(
