@@ -107,6 +107,7 @@ hvhmap = p5_demand_forecasts.hvplot.heatmap(
 ```
 
 ```{code-cell} ipython3
+:tags: [remove-cell]
 pio.write_html(go.Figure(hvplot.render(hvhmap, backend="plotly")), "../_static/hvhmap.html")
 ```
 
