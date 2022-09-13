@@ -48,7 +48,11 @@ The [glossary](https://nemseer.readthedocs.io/en/latest/glossary.html) contains 
 
 ### Quick start
 
-Check out the [Quick start](https://nemseer.readthedocs.io/en/latest/quick_start.html) for examples of how you can use `nemseer`.
+Check out the [Quick start](https://nemseer.readthedocs.io/en/latest/quick_start.html) for guide on to use `nemseer`.
+
+### Examples
+
+Some use case examples have been included in the [Examples](https://nemseer.readthedocs.io/en/latest/examples.html) section of the documentation.
 
 ## Contributing
 
