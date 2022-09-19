@@ -191,7 +191,7 @@ dict_keys(['REGIONSOLUTION'])
 ```{note}
 `nemseer` also accepts datetimes with seconds specified, so long as the seconds are `00`. This is because the datetime fields that are relevant to `nemseer` functionality are specified to the nearest minute.
 
-With datetimes specified down to seconds, you can the same datetimes for `nemseer` as you would for other related tools, such as [`NEMOSIS`](https://github.com/UNSW-CEEM/NEMOSIS).
+With datetimes specified down to seconds, you can the same datetimes for `nemseer` as you would for other related tools, such as [`NEMOSIS`](https://github.com/UNSW-CEEM/NEMOSIS) or [`NEMED`](https://github.com/UNSW-CEEM/NEMED).
 ```
 
 We can also compile data to an {class}`xarray.Dataset`. To do this, we need to set `data_format="xr"`:
