@@ -336,7 +336,7 @@ class TestForecastTypeDownloader:
         )
         downloader.download_csv()
         csv = list(Path(tmp_path).glob("*.[Cc][Ss][Vv]"))[0]
-        mock_nemosis_csv = csv.with_stem("PUBLIC_DVD_DISPATCHLOAD_201312010000")
+        mock_nemosis_csv = csv.with_name("PUBLIC_DVD_DISPATCHLOAD_201312010000.CSV")
         shutil.copy(csv, mock_nemosis_csv)
         downloader.convert_to_parquet()
         assert (
