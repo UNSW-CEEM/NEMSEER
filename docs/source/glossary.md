@@ -57,11 +57,12 @@
      If the expected annual unserved energy, averaged across simulations in the Reliability Run, exceeds the maximum level specified by the reliability standard, a Low Reserve Condition (LRC) is identified. In response to LRCs, AEMO can direct generators to reschedule outages or contract for longer notice RERT[^4].
 
 `PD`
+`5MPD`
 `PREDISPATCH`
 `P5MIN`
 `5-minute pre-dispatch`
 `pre-dispatch`
-   Pre-dispatch processes consists of (30-minute) pre-dispatch (`PREDISPATCH`) and 5-minute pre-dispatch (`P5MIN`). To add to any confusion, when people or documents refer to "pre-dispatch", they are often referring to `PREDISPATCH`. The use of submitted participant offers distinguishes pre-dispatch processes from PASA processes. These are used alongside forecasts for constraints, demand and variable renewable energy generation to forecast dispatch conditions and regional prices for energy and FCAS. Along with {term}`PDPASA` and {term}`STPASA`, pre-dispatch processes are used to identify Lack of Reserve (LOR) conditions. If AEMO deems the market response to be insufficient by this time, it can exercise the Reliability and Emergency Reserve Trader (RERT), issue directions or issue instructions (i.e. instruct network service providers to commence load shedding)[^4].
+   Pre-dispatch processes consists of (30-minute) pre-dispatch (`PREDISPATCH`) and 5-minute pre-dispatch (5MPD or `P5MIN`). To add to any confusion, when people or documents refer to "pre-dispatch", they are often referring to `PREDISPATCH`. The use of submitted participant offers distinguishes pre-dispatch processes from PASA processes. These are used alongside forecasts for constraints, demand and variable renewable energy generation to forecast dispatch conditions and regional prices for energy and FCAS. Along with {term}`PDPASA` and {term}`STPASA`, pre-dispatch processes are used to identify Lack of Reserve (LOR) conditions. If AEMO deems the market response to be insufficient by this time, it can exercise the Reliability and Emergency Reserve Trader (RERT), issue directions or issue instructions (i.e. instruct network service providers to commence load shedding)[^4].
    - `PREDISPATCH` forecasts are generated every half hour at half-hourly resolution until the end of the last {term}`trading day` for which bid band price submission has closed (this occurs at 1230 EST)[^6].
    - `P5MIN` is run for every dispatch interval for the next hour.
    - For both `P5MIN` and `PREDISPATCH`, the impact of demand forecast error on regional energy prices and interconnector flows are explored through a sensitivity analysis[^7]. Only sensitivites for `PREDISPATCH` are available via the {term}`MMSDM Historical Data SQLLOader`.
