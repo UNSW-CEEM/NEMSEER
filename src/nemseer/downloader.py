@@ -464,7 +464,9 @@ class ForecastTypeDownloader:
             memory as :class:`pandas.DataFrame` consumes more than the file size in
             memory.
         """
-        csvs = list(Path(self.raw_cache).glob("*.[Cc][Ss][Vv]"))
+        csvs: List[Path] = []
+        for forecast_type in FORECAST_TYPES:
+            csvs.extend(Path(self.raw_cache).glob(f"*{forecast_type}*.[Cc][Ss][Vv]"))
         for csv in csvs:
             if csv.stat().st_size * 2 >= psutil.virtual_memory().available:
                 logging.warning(
