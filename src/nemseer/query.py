@@ -25,11 +25,21 @@ def _dt_converter(value: str) -> datetime:
         ValueError: If provided datetime string is invalid
     """
     try:
-        return datetime.strptime(value, DATETIME_FORMAT)
+        dt = datetime.strptime(value, DATETIME_FORMAT)
+        return dt
     except ValueError:
-        raise ValueError(
-            "Datetime invalid. Datetime should be provided as follows: yyyy/mm/dd HH:MM"
-        )
+        try:
+            dt = datetime.strptime(value, DATETIME_FORMAT + ":%S")
+            if dt.second != 0:
+                raise ValueError("If seconds provided in datetime, must be zero.")
+            else:
+                return dt
+        except ValueError:
+            raise ValueError(
+                "Datetime invalid."
+                + " Datetime should be provided as yyyy/mm/dd HH:MM, "
+                + " or yyyy/mm/dd HH:MM:00."
+            )
 
 
 def _tablestr_converter(value: Union[str, List[str]]) -> List[str]:

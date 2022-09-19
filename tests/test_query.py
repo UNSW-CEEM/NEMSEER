@@ -17,6 +17,21 @@ def test_minimal_dateinput():
     assert min_dt == datetime(2021, 2, 1, 2, 3)
 
 
+def test_correct_minimal_seconds_input():
+    dt = _dt_converter("2021/2/1 2:3:0")
+    assert dt == datetime(2021, 2, 1, 2, 3, 0)
+
+
+def test_correct_full_seconds_input():
+    dt = _dt_converter("2021/02/01 20:30:00")
+    assert dt == datetime(2021, 2, 1, 20, 30, 0)
+
+
+def test_incorrect_seconds_input():
+    with pytest.raises(ValueError):
+        _dt_converter("2021/02/01 02:03:30")
+
+
 def test_tablestr_converter():
     assert _tablestr_converter("sdfs") == ["sdfs"]
 
