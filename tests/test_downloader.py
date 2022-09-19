@@ -1,6 +1,8 @@
 import logging
 import pathlib
+import shutil
 from copy import deepcopy
+from pathlib import Path
 from zipfile import BadZipFile
 
 import pytest
@@ -309,7 +311,9 @@ class TestForecastTypeDownloader:
             ]
         )
 
-    def test_parquet_conversion(self, caplog, tmp_path, valid_download_datetimes):
+    def test_parquet_conversion_short_circuit(
+        self, caplog, tmp_path, valid_download_datetimes
+    ):
         downloader = ForecastTypeDownloader.from_Query(
             self.valid_casesolution(tmp_path, valid_download_datetimes)
         )
@@ -325,6 +329,21 @@ class TestForecastTypeDownloader:
                 == record.msg
             ]
         )
+
+    def test_only_convert_forecast_csvs(self, tmp_path, valid_download_datetimes):
+        downloader = ForecastTypeDownloader.from_Query(
+            self.valid_casesolution(tmp_path, valid_download_datetimes)
+        )
+        downloader.download_csv()
+        csv = list(Path(tmp_path).glob("*.[Cc][Ss][Vv]"))[0]
+        mock_nemosis_csv = csv.with_name("PUBLIC_DVD_DISPATCHLOAD_201312010000.CSV")
+        shutil.copy(csv, mock_nemosis_csv)
+        downloader.convert_to_parquet()
+        assert (
+            list(Path(tmp_path).glob("*.[Cc][Ss][Vv]"))[0].name
+            == "PUBLIC_DVD_DISPATCHLOAD_201312010000.CSV"
+        )
+        assert len(list(Path(tmp_path).glob("*.parquet"))) == 1
 
     def test_bad_zipfile_handling(self, tmp_path, mocker, valid_download_datetimes):
         def mock_extractall(self, raw_cache):
