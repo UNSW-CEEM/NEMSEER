@@ -14,10 +14,9 @@ kernelspec:
 
 # Visualising demand forecast convergence using `nemseer` and `xarray`
 
-
 +++
 
-In this example, we look at a couple of ways we can plot demand forecast convergence using a set of 5-minute pre-dispatch (`P5MIN`) forecasts for the the evening of 14/07/2022 for NSW.
+In this example, we look at a couple of ways we can plot demand forecast convergence using a set of 5-minute pre-dispatch ({term}`5MPD` or `P5MIN`) forecasts for the evening of 14/07/2022 for NSW.
 
 In particular, we'll look at the ways to plot using `xarray` data structures.
 
@@ -26,18 +25,18 @@ In particular, we'll look at the ways to plot using `xarray` data structures.
 ## Key imports
 
 NEM data tools:
+
 - `NEMOSIS` for actual market data
   - Data obtained from `NEMOSIS` is contained within [`pandas` DataFrames](https://pandas.pydata.org/pandas-docs/version/1.1/user_guide/index.html)
 - `NEMSEER` for historical forecast data
   - In this tutorial, we focus on what we can do with data obtained from `NEMSEER` in `xarray` data structures
   - The [`xarray` tutorial](https://tutorial.xarray.dev/intro.html) is a great resource for learning how to use `xarray` for data handling and plotting
 
-
 Plotting
-- [`matplotlib`](https://matplotlib.org/stable/index.html) for static plotting. Both `xarray` and `pandas` have implemented plotting methods using this library.
-- [`plotly`](https://plotly.com/python/) for interactive plots. In some cases, we will use `plotly` directly, but in others, we will use..
-- [`hvplot`](https://hvplot.holoviz.org/), a high-level API for plotting. `hvplot` can use many backends (default is `bokeh`, but we will use `plotly`) and makes it easy to plot `xarray` data structures using the `.hvplot` accessor
 
+- [`matplotlib`](https://matplotlib.org/stable/index.html) for static plotting. Both `xarray` and `pandas` have implemented plotting methods using this library.
+- [`plotly`](https://plotly.com/python/) for interactive plots. In some cases, we will use `plotly` directly, but in others, we will use `hvplot`.
+- [`hvplot`](https://hvplot.holoviz.org/), a high-level API for plotting. `hvplot` can use many backends (default is `bokeh`, but we will use `plotly`) and makes it easy to plot `xarray` data structures using the `.hvplot` accessor
 
 ```{code-cell} ipython3
 from pathlib import Path
@@ -179,7 +178,7 @@ for ax in fg.axes.flat:
 fg.set_ylabels("TOTALDEMAND (MW)");
 ```
 
-From this, it's a little clearer that demand forecasting draws on current demand. For more information, see this [AEMO document](https://aemo.com.au/-/media/files/electricity/nem/security_and_reliability/dispatch/policy_and_process/five-minute-pd-demand-forecasting-using-historical-demand-change.pdf).
+From this, it's a little clearer that demand forecasting for {term}`5MPD` is heavily influenced by current demand. In actual fact, demand forecasts for the last 11 dispatch intervals in a {term}`5MPD` forecast are based on a recursive application of an average percentage demand change, which is specific to a given dispatch interval and whether the day is a weekday or weekend. This average percentage demand change is calculated using demand data form the last two weeks. For more information, see this [AEMO document on 5MPD demand forecasting](https://aemo.com.au/-/media/files/electricity/nem/security_and_reliability/dispatch/policy_and_process/five-minute-pd-demand-forecasting-using-historical-demand-change.pdf) and this [AEMO document on demand terms in the EMMS data model](https://aemo.com.au/-/media/files/electricity/nem/security_and_reliability/dispatch/policy_and_process/demand-terms-in-emms-data-model.pdf).
 
 +++
 
@@ -227,7 +226,7 @@ file: ../_static/hvhmap+line.html
 
 `hvplot` has easy ways to [integrate interactivity](https://hvplot.holoviz.org/user_guide/Interactive.html). We can trigger this by leaving one dimension as a degree of freedom (e.g. specifying x-axis as `forecasted_time`, y-axis as `TOTALDEMAND` thus leaving `run_time` as a degree of freedom).
 
-We can also get `hvplot` and `plotly` to plot all of the charts across the degree(s) of freedom using `by=`:
+We can also get `hvplot` and `plotly` to plot across the degree(s) of freedom simultaneously using `by=`:
 
 ```{code-cell} ipython3
 run_time_iterations = p5_demand_forecasts.hvplot(by="run_time")
@@ -249,7 +248,7 @@ file: ../_static/run_lines.html
 
 +++
 
-This is quite hard to read. We can clean this up and use a sequential colour scheme to indicate forecast ouputs from later run times:
+This is quite hard to read. We can clean this up and use a sequential colour scheme to indicate forecast outputs from later run times:
 
 ```{code-cell} ipython3
 # obtain data from hvplot
