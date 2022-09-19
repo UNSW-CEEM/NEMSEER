@@ -63,28 +63,28 @@ import plotly.io as pio
 
 ## Study times
 
-Here we'll define our datetime range that we're interested:
-- For `NEMSEER`, you'll need to specify datetimes down to minutes
-- However, `NEMOSIS` only accepts datetime strings with seconds specified.
+Here we'll define our datetime range that we're interested in:
+
+- `NEMOSIS` only accepts datetime strings with seconds specified.
+- `NEMSEER` will accept datetimes with seconds specified, so long as the seconds are `00`. This is because the datetimes relevant to `NEMSEER` functionality are only specified to the nearest minute.
 
 ```{code-cell} ipython3
-(forecasted_start, forecasted_end) = ("2022/07/14 16:55", "2022/07/14 19:00")
-(nemosis_start, nemosis_end) = (forecasted_start + ":00", forecasted_end + ":00")
+(start, end) = ("2022/07/14 16:55:00", "2022/07/14 19:00:00")
 ```
 
 ## Get demand forecast data for NSW
 
 ```{code-cell} ipython3
-p5_run_start, p5_run_end = generate_runtimes(forecasted_start, forecasted_end,
+p5_run_start, p5_run_end = generate_runtimes(start, end,
                                              "P5MIN")
-p5_data = compile_data(p5_run_start, p5_run_end, forecasted_start, forecasted_end,
+p5_data = compile_data(p5_run_start, p5_run_end, start, end,
                        "P5MIN", "REGIONSOLUTION", raw_cache="nemseer_cache/",
                        data_format="xr")
 p5_region = p5_data["REGIONSOLUTION"]
 # .sel() is a lot like .loc() for pandas
 # We then use ["TOTALDEMAND"] to acces that specific variable
 p5_demand_forecasts = p5_region.sel(
-    forecasted_time=slice(forecasted_start, forecasted_end),
+    forecasted_time=slice(start, end),
     REGIONID="NSW1"
 )["TOTALDEMAND"]
 ```
@@ -131,7 +131,7 @@ if not nemosis_cache.exists():
 
 # get demand data for NSW
 nsw_demand = nemosis.dynamic_data_compiler(
-  nemosis_start, nemosis_end, "DISPATCHREGIONSUM", nemosis_cache,
+  start, end, "DISPATCHREGIONSUM", nemosis_cache,
   filter_cols=["REGIONID", "INTERVENTION"],
   filter_values=(["NSW1"],[0])
 )
