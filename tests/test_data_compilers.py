@@ -18,8 +18,14 @@ def test_map_files_to_table():
     assert _map_files_to_table(
         run_start, run_end, "PREDISPATCH", ["PRICE", "PRICE_D"]
     ) == {
-        "PRICE": ["PUBLIC_DVD_PREDISPATCHPRICE_202001010000"],
-        "PRICE_D": ["PUBLIC_DVD_PREDISPATCHPRICE_D_202001010000"],
+        "PRICE": [
+            "PUBLIC_DVD_PREDISPATCHPRICE_202001010000",
+            "PUBLIC_DVD_PREDISPATCHPRICE_202002010000",
+        ],
+        "PRICE_D": [
+            "PUBLIC_DVD_PREDISPATCHPRICE_D_202001010000",
+            "PUBLIC_DVD_PREDISPATCHPRICE_D_202002010000",
+        ],
     }
 
 
@@ -32,7 +38,9 @@ def test_map_enumerated_files_to_table():
     assert _map_files_to_table(run_start, run_end, "PREDISPATCH", ["LOAD"]) == {
         "LOAD": [
             "PUBLIC_DVD_PREDISPATCHLOAD1_202001010000",
+            "PUBLIC_DVD_PREDISPATCHLOAD1_202002010000",
             "PUBLIC_DVD_PREDISPATCHLOAD2_202001010000",
+            "PUBLIC_DVD_PREDISPATCHLOAD2_202002010000",
         ],
     }
 
