@@ -213,5 +213,34 @@ class TestQuery:
         ]
         assert set(fnames) == set(test_fnames)
 
+    def test_edge_case_dates_with_filename_generation(self):
+        forecast_type = "STPASA"
+        table = ["REGIONSOLUTION"]
+        (r_start_1, r_end_1) = (
+            datetime.strptime("2021/01/31 23:00", DATETIME_FORMAT),
+            datetime.strptime("2021/02/01 00:00", DATETIME_FORMAT),
+        )
+        test_1 = generate_sqlloader_filenames(r_start_1, r_end_1, forecast_type, table)
+        assert len(test_1.values()) == 1
+        (r_start_2, r_end_2) = (
+            datetime.strptime("2021/01/31 23:00", DATETIME_FORMAT),
+            datetime.strptime("2021/02/01 01:00", DATETIME_FORMAT),
+        )
+        test_2 = generate_sqlloader_filenames(r_start_2, r_end_2, forecast_type, table)
+        assert len(test_2.values()) == 2
+        (r_start_3, r_end_3) = (
+            datetime.strptime("2021/12/31 23:55", DATETIME_FORMAT),
+            datetime.strptime("2022/01/06 01:00", DATETIME_FORMAT),
+        )
+        test_3 = generate_sqlloader_filenames(r_start_3, r_end_3, forecast_type, table)
+        assert len(test_3.values()) == 2
+
+        (r_start_4, r_end_4) = (
+            datetime.strptime("2021/12/31 23:55", DATETIME_FORMAT),
+            datetime.strptime("2023/01/06 01:00", DATETIME_FORMAT),
+        )
+        test_4 = generate_sqlloader_filenames(r_start_4, r_end_4, forecast_type, table)
+        assert len(test_4.values()) == 14
+
     def test_check_raw_cache(self, download_file_to_cache):
         assert download_file_to_cache.check_all_raw_data_in_cache()
