@@ -7,7 +7,7 @@ from typing import Dict, List, Optional, Tuple, Union
 import pyarrow.parquet as pq  # type: ignore
 import xarray as xr
 from attrs import converters, define, field, validators
-from dateutil import rrule
+from dateutil.relativedelta import relativedelta
 
 from .data import DATETIME_FORMAT, ENUMERATED_TABLES, FORECAST_TYPES
 
@@ -158,7 +158,40 @@ def generate_sqlloader_filenames(
         A tuple of query metadata (`table`, `year`, `month`) mapped to each
         format-agnostic (:term:`SQLLoader`) filename
     """
-    intervening_dates = rrule.rrule(rrule.MONTHLY, dtstart=run_start, until=run_end)
+
+    def _determine_delta_months(start: datetime, end: datetime):
+        """Determines the widest range of months that encompass :attr:`start` and
+        :attr:`end.
+
+        Edge cases must be appropriately handled:
+            - 2014/05/31 and 2014/06/01 have relativedelta of 1 day, but two
+              data months (05/2014 and 06/2014) are required.
+            - 2014/05/31 23:00 to 2014/06/01 00:00 only require data for 05/2014
+
+        Args:
+            start: datetime of start
+            end: datetime of end
+        Returns
+            delta_months, the total number of months to consider
+        """
+        MONTH = relativedelta(months=1)
+        full_delta = relativedelta(run_end, run_start)
+        delta_months = full_delta.months * MONTH
+        if full_delta.years > 0:
+            delta_months += full_delta.years * MONTH * 12
+        if (
+            (start + delta_months).month != end.month
+            and not (end.day == 1 and end.hour == 0 and end.minute == 0)
+            and (
+                full_delta.days != 0 or full_delta.hours != 0 or full_delta.minutes != 0
+            )
+        ):
+            delta_months += MONTH
+        return delta_months
+
+    MONTH = relativedelta(months=1)
+    int_months = _determine_delta_months(run_start, run_end).months
+    intervening_dates = [run_start + x * MONTH for x in range(0, int_months + 1)]
     filename_data = {}
     for ftype in ENUMERATED_TABLES:
         if forecast_type == ftype:
