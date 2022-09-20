@@ -175,7 +175,7 @@ def generate_sqlloader_filenames(
             delta_months, the total number of months to consider
         """
         MONTH = relativedelta(months=1)
-        full_delta = relativedelta(run_end, run_start)
+        full_delta = relativedelta(end, start)
         delta_months = full_delta.months * MONTH
         if full_delta.years > 0:
             delta_months += full_delta.years * MONTH * 12
