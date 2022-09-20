@@ -187,10 +187,10 @@ def generate_sqlloader_filenames(
             )
         ):
             delta_months += MONTH
-        return delta_months
+        return delta_months.months + (delta_months.years * 12)
 
     MONTH = relativedelta(months=1)
-    int_months = _determine_delta_months(run_start, run_end).months
+    int_months = _determine_delta_months(run_start, run_end)
     intervening_dates = [run_start + x * MONTH for x in range(0, int_months + 1)]
     filename_data = {}
     for ftype in ENUMERATED_TABLES:
