@@ -4,5 +4,5 @@
 ---
 maxdepth: 2
 ---
-examples/p5min_demand_forecast_convergence
+examples/visualising_p5min_demand_forecasts
 ```
