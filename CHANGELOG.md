@@ -2,6 +2,14 @@
 
 <!--next-version-placeholder-->
 
+## v0.7.1 (20/09/2022)
+
+- Various bug fixes from beta testing
+  - Selective conversion of CSV to parquet
+  - Correctly implement intervening date generation for filename generation
+- Example tidied up
+- Seconds can now be supplied in datetime inputs (as long as they are `00`)
+
 ## v0.7.0 (08/09/2022)
 
 - Implement `processed_cache
