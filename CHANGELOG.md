@@ -2,6 +2,11 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.0 (26/09/2022)
+
+- Links to examples in all functions in Core Functionality of documentation
+- Detailed example of P5MIN demand forecast errors for 2021
+
 ## v0.7.1 (20/09/2022)
 
 - Various bug fixes from beta testing
