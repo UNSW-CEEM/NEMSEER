@@ -220,6 +220,8 @@ def get_sqlloader_forecast_tables(
       - Removes numbering from enumerated tables for `P5MIN`
         - e.g. `CONSTRAINTSOLUTION(x)` are all reduced to `CONSTRAINTSOLUTION`
 
+    Examples:
+        See :ref:`querying table availability <quick_start:table availability>`
     Args:
         year: Year
         month: Month
@@ -248,7 +250,9 @@ def get_sqlloader_forecast_tables(
 
 def get_sqlloader_years_and_months() -> Dict[int, List[int]]:
     """Years and months with data on NEMWeb MMSDM Historical Data SQLLoader
-
+    Examples:
+        See :ref:`querying date ranges \
+        <quick_start:date range of available data>`
     Returns:
         Months mapped to each year. Data is available for each of these months.
     """

@@ -42,6 +42,9 @@ def download_raw_data(
     1. :attr:`run_start` and :attr:`run_end`
     2. :attr:`forecasted_start` and :attr:`forecasted_end`
 
+    Examples:
+        See :ref:`downloading raw data examples <quick_start:downloading raw data>`.
+
     Arguments:
         forecast_type: One of :data:`nemseer.forecast_types`
         tables: Table or tables required. A single table can be supplied as
@@ -135,7 +138,7 @@ def compile_data(
     For each queried table, this function:
 
     1. If required, downloads raw forecast data for the table and converts to the
-        requested data structure.
+       requested data structure.
     2. Otherwise, compiles table data from either of or both of the caches.
     3. Applies user-requested filtering to :term:`run times` and
        :term:`forecasted times` to any raw data.
@@ -143,6 +146,9 @@ def compile_data(
 
     If :attr:`data_format` = "df" (default), a :class:`pandas.DataFrame` is returned.
     Otherwise, if :attr:`data_format` = "xr", a :class:`xarray.Dataset` is returned.
+
+    Examples:
+        See :ref:`compiling data examples <quick_start:compiling data>`.
 
     Arguments:
         run_start: Forecast runs at or after this datetime are queried.

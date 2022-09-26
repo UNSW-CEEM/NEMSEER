@@ -7,7 +7,7 @@ jupytext:
     format_version: 0.13
     jupytext_version: 1.14.1
 kernelspec:
-  display_name: Python 3
+  display_name: Python 3 (ipykernel)
   language: python
   name: python3
 ---
@@ -74,6 +74,8 @@ Here we'll define our datetime range that we're interested in:
 ## Get demand forecast data for NSW
 
 ```{code-cell} ipython3
+:tags: [remove-output]
+
 p5_run_start, p5_run_end = generate_runtimes(start, end,
                                              "P5MIN")
 p5_data = compile_data(p5_run_start, p5_run_end, start, end,
@@ -107,6 +109,7 @@ hvhmap = p5_demand_forecasts.hvplot.heatmap(
 
 ```{code-cell} ipython3
 :tags: [remove-cell]
+
 pio.write_html(go.Figure(hvplot.render(hvhmap, backend="plotly")), "../_static/hvhmap.html")
 ```
 
@@ -123,6 +126,7 @@ file: ../_static/hvhmap.html
 To compare forecasts with actual demand data, we will use `NEMOSIS` to obtain actual demand data for NSW for this evening.
 
 ```{code-cell} ipython3
+:tags: [remove-output]
 # create a folder for NEMOSIS data
 nemosis_cache = Path("nemosis_cache/")
 if not nemosis_cache.exists():
@@ -213,6 +217,7 @@ fig = fig.update_layout(
 
 ```{code-cell} ipython3
 :tags: [remove-cell]
+
 pio.write_html(fig, "../_static/hvhmap+line.html")
 ```
 
@@ -237,6 +242,7 @@ run_lines = go.Figure(hvplot.render(run_time_iterations, backend="plotly"))
 
 ```{code-cell} ipython3
 :tags: [remove-cell]
+
 pio.write_html(run_lines, "../_static/run_lines.html")
 ```
 
@@ -276,6 +282,7 @@ overlay = overlay.update_layout(
 
 ```{code-cell} ipython3
 :tags: [remove-cell]
+
 pio.write_html(overlay, "../_static/cleaner_run_lines.html")
 ```
 
@@ -287,6 +294,7 @@ file: ../_static/cleaner_run_lines.html
 
 ```{code-cell} ipython3
 :tags: [remove-cell]
+
 for folder in ("./nemosis_cache/", "./nemseer_cache/"):
     folder = Path(folder)
     for file in folder.iterdir():

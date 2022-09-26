@@ -198,6 +198,10 @@ def generate_runtimes(
     may not be accurate for all :term:`forecast types`, e.g. :term:`MTPASA` which is not
     run at a set time.
 
+    Examples:
+        See :ref:`getting valid run times for a set of forecasted time \
+        <quick_start:getting valid run times for a set of forecasted times>`.
+
     Args:
         forecasted_start: Forecasts pertaining to times at or after this
             datetime are retained.
