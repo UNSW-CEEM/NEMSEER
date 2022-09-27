@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.1 (27/09/2022)
+
+- Where they exist, drop intervention periods when converting to xarray and provide user with warning
+
 ## v1.0.0 (26/09/2022)
 
 - Links to examples in all functions in Core Functionality of documentation

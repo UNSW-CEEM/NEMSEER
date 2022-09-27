@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nemseer"
-version = "1.0.0"
+version = "1.0.1"
 description = "A package for downloading and handling forecasts for the National Electricity Market (NEM) from the Australian Energy Market Operator (AEMO)."
 authors = ["Abhijith Prakash"]
 license = "BSD 3-Clause"
