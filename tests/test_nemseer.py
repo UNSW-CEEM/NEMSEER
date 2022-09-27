@@ -507,3 +507,31 @@ class TestToXarray:
                 for record in caplog.get_records("call")
             ]
         )
+
+    def test_intervention_handling(self, caplog):
+        df = pd.DataFrame(
+            {
+                "RUN_DATETIME": list(range(0, 2)),
+                "RUN_TYPE": list(range(0, 2)),
+                "REGIONID": list(range(0, 2)),
+                "DUID": list(range(0, 2)),
+                "CONSTRAINTID": list(range(0, 2)),
+                "INTERVAL_DATETIME": list(range(0, 2)),
+                "INTERVENTION": list(range(0, 2)),
+            }
+        )
+        caplog.set_level(logging.WARNING)
+        ds = to_xarray(df, "STPASA")
+        assert len(caplog.get_records("call")) == 2
+        assert any(
+            [
+                (
+                    "Intervention periods detected. Discarding intervention runs for"
+                    + " conversion to xarray. For all data including intervention runs,"
+                    + " select conversion to pandas DataFrame."
+                )
+                in record.msg
+                for record in caplog.get_records("call")
+            ]
+        )
+        assert 1 not in ds.to_dataframe()["INTERVENTION"].unique()

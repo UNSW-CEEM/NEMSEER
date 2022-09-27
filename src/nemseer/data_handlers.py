@@ -250,5 +250,12 @@ def to_xarray(df: pd.DataFrame, forecast_type: str):
             "High-dimensional data. Large datetime requests may result in the Python "
             + "process being killed by the system"
         )
+    if "INTERVENTION" in df.columns and any(df["INTERVENTION"] > 0):
+        logging.warning(
+            "Intervention periods detected. Discarding intervention runs for conversion"
+            + " to xarray. For all data including intervention runs, select conversion"
+            + " to pandas DataFrame."
+        )
+        df = df[df["INTERVENTION"] == 0]
     ds = _df_to_xarray(df)
     return ds
