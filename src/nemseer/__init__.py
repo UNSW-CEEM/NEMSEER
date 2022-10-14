@@ -1,6 +1,7 @@
 # read version from installed package
 import logging
 import sys
+import warnings
 from importlib.metadata import version
 
 # aliases for SQLLoader functions
@@ -16,6 +17,8 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 logging.basicConfig(
     stream=sys.stdout, level=logging.INFO, format="%(levelname)s: %(message)s"
 )
+
+warnings.simplefilter(action="ignore", category=FutureWarning)
 
 __all__ = [
     "compile_data",
