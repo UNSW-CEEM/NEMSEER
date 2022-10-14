@@ -2,6 +2,13 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.2 (14/10/2022)
+
+Minor fixes:
+
+- Fix logging to use `nemseer` logger, not root logger
+- Suppress pandas Future Warning
+
 ## v1.0.1 (27/09/2022)
 
 - Where they exist, drop intervention periods when converting to xarray and provide user with warning
