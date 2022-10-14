@@ -321,7 +321,7 @@ class Query:
             (self.raw_cache / Path(fname + ".parquet")).exists() for fname in fnames
         ]
         if all(check):
-            logging.info(f"Query raw data already downloaded to {self.raw_cache}")
+            logger.info(f"Query raw data already downloaded to {self.raw_cache}")
             return True
         else:
             return False

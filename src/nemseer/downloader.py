@@ -346,7 +346,7 @@ def get_unzipped_csv(url: str, raw_cache: Path) -> None:
             z.extractall(raw_cache)
             z.close()
         except BadZipFile:
-            logging.error(f"{z.testzip()} invalid or corrupted")
+            logger.error(f"{z.testzip()} invalid or corrupted")
             invalid_files = raw_cache / Path(INVALID_STUBS_FILE)
             _invalid_zip_to_file(invalid_files, fn.group(1))
         Path(file_path).unlink()
@@ -374,7 +374,7 @@ def _validate_tables_on_run_start(instance, attribute, value) -> None:
             if table in DEPRECATED_TABLES[instance.forecast_type]
         ]
     ):
-        logging.warning(f"{instance.forecast_type} {dep_tabs} deprecated.")
+        logger.warning(f"{instance.forecast_type} {dep_tabs} deprecated.")
     if not set(value).issubset(set(actual_tables)):
         raise ValueError(
             "Table(s) not available from MMS Historical Data SQL Loader"
@@ -438,7 +438,7 @@ class ForecastTypeDownloader:
             fname = filename_data[metadata]
             (year, month, table) = metadata
             if (self.raw_cache / Path(fname + ".parquet")).exists():
-                logging.info(f"{table} for {month}/{year} in raw_cache")
+                logger.info(f"{table} for {month}/{year} in raw_cache")
                 continue
             else:
                 if invalid_or_corrupted_stubfile.exists():
@@ -446,7 +446,7 @@ class ForecastTypeDownloader:
                         invalid_or_corrupted = f.readlines()
                     check_files = [f.strip() for f in invalid_or_corrupted]
                     if fname in check_files:
-                        logging.warning(
+                        logger.warning(
                             f"{fname} previously found to be invalid/corrupted. "
                             + "Skipping download for this file. "
                             + "If downloading manually works, remove from "
@@ -473,16 +473,16 @@ class ForecastTypeDownloader:
             csvs.extend(Path(self.raw_cache).glob(f"*{forecast_type}*.[Cc][Ss][Vv]"))
         for csv in csvs:
             if csv.stat().st_size * 2 >= psutil.virtual_memory().available:
-                logging.warning(
+                logger.warning(
                     f"Attempting to convert {csv} to parquet,"
                     + " but your available system memory may be too low for this."
                 )
             df = clean_forecast_csv(csv)
             parquet_name = csv.name[0:-3] + "parquet"
             if not csv.with_name(parquet_name).exists():
-                logging.info(f"Converting {csv.name} to parquet")
+                logger.info(f"Converting {csv.name} to parquet")
                 df.to_parquet(csv.with_name(parquet_name))
             else:
-                logging.info(f"{parquet_name} already exists")
+                logger.info(f"{parquet_name} already exists")
             if not keep_csv:
                 csv.unlink()

@@ -106,7 +106,7 @@ def clean_forecast_csv(filepath_or_buffer: Union[str, Path]) -> pd.DataFrame:
         df[col] = pd.to_numeric(df[col], downcast="float")
     if any(dup_df := df.duplicated()):
         dup_rows = dup_df.loc[dup_df is True]
-        logging.warning(
+        logger.warning(
             "Duplicate rows detected. Dropping the following rows:\n" + f"{dup_rows}"
         )
         df = df.drop_duplicates()
@@ -246,12 +246,12 @@ def to_xarray(df: pd.DataFrame, forecast_type: str):
     if len(dim_cols) >= 5 or any(
         [col for col in df.columns if len(df[col].unique()) > 300]
     ):
-        logging.warning(
+        logger.warning(
             "High-dimensional data. Large datetime requests may result in the Python "
             + "process being killed by the system"
         )
     if "INTERVENTION" in df.columns and any(df["INTERVENTION"] > 0):
-        logging.warning(
+        logger.warning(
             "Intervention periods detected. Discarding intervention runs for conversion"
             + " to xarray. For all data including intervention runs, select conversion"
             + " to pandas DataFrame."

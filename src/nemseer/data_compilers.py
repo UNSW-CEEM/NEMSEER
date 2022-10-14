@@ -212,7 +212,7 @@ class DataCompiler:
                     + ".invalid_aemo_files.txt"
                 )
             elif len(filtered_files) < len(files):
-                logging.warning(
+                logger.warning(
                     "Some files not compiled as these were found to be"
                     + " invalid/corrupt on previous download. You can force nemseer"
                     + " to load these files by deleting them from "
@@ -233,13 +233,13 @@ class DataCompiler:
                 dfs.append(df.reset_index(drop=True))
             concat_df = pd.concat(dfs)
             if any(concat_df.duplicated()):
-                logging.warning(
+                logger.warning(
                     "Duplicate rows detected whilst concatenating data. "
                     + "Dropping these rows."
                 )
                 concat_df = concat_df.drop_duplicates()
             if data_format == "xr":
-                logging.info(f"Converting {table} data to xarray.")
+                logger.info(f"Converting {table} data to xarray.")
                 concat_data = to_xarray(concat_df, self.forecast_type)
             else:
                 concat_data = concat_df
@@ -271,7 +271,7 @@ class DataCompiler:
         else:
             for table in self.processed_queries:
                 file = self.processed_queries[table]
-                logging.info(f"Compiling {table} data from the processed cache")
+                logger.info(f"Compiling {table} data from the processed cache")
                 data = read_fn[data_format](file)
                 processed_data[table] = data
             if not self.compiled_data:
@@ -357,14 +357,14 @@ class DataCompiler:
                 if xrbool:
                     fn_path = self.processed_cache / Path(fn + ".nc")
                     dataset.attrs = self.metadata  # type: ignore
-                    logging.info(f"Writing {table} to the processed cache as netCDF")
+                    logger.info(f"Writing {table} to the processed cache as netCDF")
                     dataset.to_netcdf(fn_path)  # type: ignore
                 elif dfbool:
                     fn_path = self.processed_cache / Path(fn + ".parquet")
                     pyarrow_table = _df_to_pyarrow_with_metadata(
                         dataset, self.metadata  # type: ignore
                     )
-                    logging.info(f"Writing {table} to the processed cache as parquet")
+                    logger.info(f"Writing {table} to the processed cache as parquet")
                     pq.write_table(pyarrow_table, fn_path)
                 else:
                     raise ValueError(
