@@ -68,4 +68,10 @@ Please note that this project is released with a [Code of Conduct](./CONDUCT.md)
 
 `nemseer` was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter).
 
-Thanks to Nicholas Gorman for his help in reviewing `nemseer` code and to Dylan McConnell for his assistance in interpreting PASA run types.
+### Contributor Acknowledgements
+
+Thanks to:
+
+- Nicholas Gorman for reviewing `nemseer` code
+- Dylan McConnell for assistance in interpreting PASA run types
+- Declan Heim for suggesting improvements to `nemseer` examples
