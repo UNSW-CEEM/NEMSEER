@@ -9,7 +9,7 @@ readme = "README.md"
 # Main dependencies for the package via poetry. Package users will need these dependencies.
 [tool.poetry.dependencies]
 python = ">= 3.8, < 3.11"
-attrs = "^21"
+attrs = "^21.3.0"
 beautifulsoup4 = "^4"
 netCDF4 = "^1.6.0"
 numpy = "^1.23.0"
