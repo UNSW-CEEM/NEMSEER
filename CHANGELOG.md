@@ -2,6 +2,10 @@
 
 <!--next-version-placeholder-->
 
+## v1.0.3 (9/11/2022)
+
+- Fix `attrs` dependency version
+
 ## v1.0.2 (14/10/2022)
 
 Minor fixes:
