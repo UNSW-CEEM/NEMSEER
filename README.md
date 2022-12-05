@@ -65,7 +65,7 @@ Please note that this project is released with a [Code of Conduct](./CONDUCT.md)
 
 If you use `nemseer`, please cite the package via the [Zenodo DOI](https://doi.org/10.5281/zenodo.7397514).
 
-If you use code or analysis from any of the demand/price error examples in the documentation, please also cite `NEMSEER` via [this conference paper](https://www.researchgate.net/publication/329798805_NEMOSIS_-_NEM_Open_Source_Information_Service_open-source_access_to_Australian_National_Electricity_Market_Data)
+If you use code or analysis from any of the demand error and/or price convergence examples in the documentation, please also cite `NEMOSIS` via [this conference paper](https://www.researchgate.net/publication/329798805_NEMOSIS_-_NEM_Open_Source_Information_Service_open-source_access_to_Australian_National_Electricity_Market_Data)
 
 ## License
 
