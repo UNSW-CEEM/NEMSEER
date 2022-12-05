@@ -1,6 +1,9 @@
 # Changelog
 
 <!--next-version-placeholder-->
+## v1.0.4 (5/12/2022)
+
+- Version bump for Zenodo DOI
 
 ## v1.0.3 (9/11/2022)
 
