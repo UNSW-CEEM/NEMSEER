@@ -19,14 +19,11 @@ authors:
      orcid: 0000-0002-9587-6835
      affiliation: "1, 3"
 affiliations:
- - name: School of Electrical Engineering and Telecommunications, University of New South
-Wales, Australia
+ - name: School of Electrical Engineering and Telecommunications, University of New South Wales, Australia
     index: 1
- - name: School of Photovoltaics and Renewable Energy Engineering, University of New South Wales,
-Australia
+ - name: School of Photovoltaics and Renewable Energy Engineering, University of New South Wales, Australia
    index: 2
- - name: Collaboration on Energy and Environmental Markets (CEEM), University of New
-South Wales, Australia
+ - name: Collaboration on Energy and Environmental Markets (CEEM), University of New South Wales, Australia
    index: 3
 date: 10 March 2023
 bibliography: paper.bib
