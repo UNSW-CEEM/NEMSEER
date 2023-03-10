@@ -6,7 +6,7 @@ tags:
   - National Electricity Market
   - Forecast
   - PASA
-  - Pre-dispatch
+  - Predispatch
 authors:
   - name: Abhijith Prakash
      orcid: 0000-0002-2945-4757
