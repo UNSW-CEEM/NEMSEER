@@ -37,6 +37,7 @@ notebook = "^6.4.12"
 myst-nb = "^0.16.0"
 matplotlib = "^3.5.3"
 plotly = "^5.10.0"
+kaleido = "0.2.1"
 hvplot = "^0.8.1"
 nemosis = "^3.2.0"
 
