@@ -43,7 +43,7 @@ If you are proposing a feature:
 Ready to contribute? Here's how to set up `nemseer` for local development.
 
 1. Download a copy of `nemseer` locally.
-2. Install `poetry` `v1.2.0`
+2. Install `poetry` `v1.4.0`
 
     - The command below applies to UNIX systems (Mac/Linux)
 
