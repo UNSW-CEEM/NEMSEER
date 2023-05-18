@@ -75,6 +75,6 @@ Furthermore, the package documentation contains examples (with Python code) that
 
 We acknowledge contributions from Nicholas Gorman, Declan Heim and Dylan McConnell.
 
-`NEMSEER` was developed as a part of research supported by an Australian Government Research Training Program Scholarship.
+Development of `NEMSEER` was supported by the [UNSW Digital Grid Future Institute](https://www.dgfi.unsw.edu.au), and constitutes broader research work supported by an Australian Government Research Training Program Scholarship.
 
 # References
