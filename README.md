@@ -75,6 +75,8 @@ If you use code or analysis from any of the demand error and/or price convergenc
 
 `nemseer` was created with [`cookiecutter`](https://cookiecutter.readthedocs.io/en/latest/) and the `py-pkgs-cookiecutter` [template](https://github.com/py-pkgs/py-pkgs-cookiecutter).
 
+Development of `nemseer` was funded by the [UNSW Digital Grid Futures Institute](https://www.dgfi.unsw.edu.au/).
+
 ### Contributor Acknowledgements
 
 Thanks to:
