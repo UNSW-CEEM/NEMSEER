@@ -3,12 +3,12 @@ name = "nemseer"
 version = "1.0.4"
 description = "A package for downloading and handling forecasts for the National Electricity Market (NEM) from the Australian Energy Market Operator (AEMO)."
 authors = ["Abhijith Prakash"]
-license = "BSD 3-Clause"
+license = "GPL-3.0-or-later"
 readme = "README.md"
 
 # Main dependencies for the package via poetry. Package users will need these dependencies.
 [tool.poetry.dependencies]
-python = ">= 3.8, < 3.11"
+python = ">= 3.8,<3.12"
 attrs = "^21.3.0"
 beautifulsoup4 = "^4"
 netCDF4 = "^1.6.0"
@@ -16,7 +16,7 @@ numpy = "^1.23.0"
 packaging = "^21.3"
 pandas = "^1.2"
 psutil = "^5.9.1"
-pyarrow = "^9.0.0"
+pyarrow = "*"
 requests = "^2"
 tqdm = "^4.64.0"
 xarray = "^2022"
@@ -68,7 +68,7 @@ pandas-stubs = "^1.4.3.220724"
 types-tqdm = "^4.64.4"
 black = "^22.6.0"
 isort = "^5.10.1"
-pre-commit = "^2.20.0"
+pre-commit = "*"
 
 # Packages for developers for testing
 [tool.poetry.group.test]
