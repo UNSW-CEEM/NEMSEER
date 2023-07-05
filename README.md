@@ -61,15 +61,17 @@ Interested in contributing? Check out the [contributing guidelines](./CONTRIBUTI
 
 Please note that this project is released with a [Code of Conduct](./CONDUCT.md). By contributing to this project, you agree to abide by its terms.
 
-## Citation
+## Citation & Licenses
 
 If you use `nemseer`, please cite the package via the [Zenodo DOI](https://doi.org/10.5281/zenodo.7397514).
 
 If you use code or analysis from any of the demand error and/or price convergence examples in the documentation, please also cite `NEMOSIS` via [this conference paper](https://www.researchgate.net/publication/329798805_NEMOSIS_-_NEM_Open_Source_Information_Service_open-source_access_to_Australian_National_Electricity_Market_Data)
 
-## License
+### Licenses
 
-`nemseer` was created by Abhijith Prakash. It is licensed under the terms of the [BSD 3-Clause license](./LICENSE).
+`nemseer` was created by Abhijith Prakash. It is licensed under the terms of the [GNU GPL-3.0-or-later](./LICENSE).
+
+The content within the documentation for this project is licensed under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/).
 
 ## Credits
 
