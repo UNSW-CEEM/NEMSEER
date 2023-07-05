@@ -1,6 +1,11 @@
 # Changelog
 
-<!--next-version-placeholder-->
+## v1.0.5 (5/05/2023)
+
+- Support Python 3.11 and add to CI testing
+- Update dependencies
+- Relicense `nemseer` under GPL3 and documentation under CC BY
+
 ## v1.0.4 (5/12/2022)
 
 - Version bump for Zenodo DOI
