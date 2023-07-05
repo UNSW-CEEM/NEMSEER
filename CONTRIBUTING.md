@@ -63,12 +63,12 @@ Ready to contribute? Here's how to set up `nemseer` for local development.
 
     - Developers should install additional `poetry` groups for development:
       - `docs` for documentation dependencies
-      - `lint` for linters. `nemseer` uses `flake8` and `mypy` for type annotations
+      - `style` for linters. `nemseer` uses `flake8` and `mypy` for type annotations
       - `test` for testing utilities
       - (optional) `debug` for debugging tools
 
         ```console
-        $ poetry install --with=docs,lint,test
+        $ poetry install --with=docs,style,test
         ```
 
     - If you are on Windows and attempting to install dependencies results in an error such as the one below, refer to the [fix below](https://github.com/UNSW-CEEM/NEMSEER/blob/master/CONTRIBUTING.md#fix-for-running-poetry-on-windows):
@@ -88,15 +88,21 @@ Ready to contribute? Here's how to set up `nemseer` for local development.
       ```
     - Use the virtual env in your terminal by running `poetry shell`, or direct your favourite text editor to the poetry environment
 
-4. Use `git` (or similar) to create a branch for local development and make your changes:
+4. Install the `pre-commit` git hook scripts that `nemseer` uses by running the following code within your Poetry environment (e.g. after running `poetry shell`)
+
+      ```console
+      $ pre-commit install
+      ```
+
+5. Use `git` (or similar) to create a branch for local development and make your changes:
 
     ```console
     $ git checkout -b name-of-your-bugfix-or-feature
     ```
 
-5. When you're done making changes, check that your changes conform to any code formatting requirements and pass any tests.
+6. When you're done making changes, check that your changes conform to any code formatting requirements and pass any tests.
 
-6. Commit your changes and open a pull request.
+7. Commit your changes and open a pull request.
 
 ## Pull Request Guidelines
 
