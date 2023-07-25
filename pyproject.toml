@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "nemseer"
-version = "1.0.5"
+version = "1.0.6"
 description = "A package for downloading and handling forecasts for the National Electricity Market (NEM) from the Australian Energy Market Operator (AEMO)."
 authors = ["Abhijith Prakash"]
 license = "GPL-3.0-or-later"
@@ -8,18 +8,18 @@ readme = "README.md"
 
 # Main dependencies for the package via poetry. Package users will need these dependencies.
 [tool.poetry.dependencies]
-python = ">= 3.8,<3.12"
-attrs = "^21.3.0"
-beautifulsoup4 = "^4"
-netCDF4 = "^1.6.0"
-numpy = "^1.23.0"
+python = ">=3.8,<3.12"
+attrs = "^21"
+beautifulsoup4 = "*"
+netCDF4 = "^1"
+numpy = "*"
 packaging = "^21.3"
-pandas = "^1.2"
-psutil = "^5.9.1"
+pandas = "*"
+psutil = "^5"
 pyarrow = "*"
 requests = "^2"
-tqdm = "^4.64.0"
-xarray = "^2022"
+tqdm = "^4"
+xarray = "*"
 
 # Packages for developers for creating documentation
 [tool.poetry.group.docs]
@@ -27,19 +27,19 @@ optional = true
 
 [tool.poetry.group.docs.dependencies]
 # MyST parser for Sphinx documentation with furo theme
-Sphinx = "^5.0.2"
-furo = "^2022.6.21"
-myst-parser = "^0.18.0"
-sphinx-copybutton = "^0.5.0"
+Sphinx = "^5"
+furo = "*"
+myst-parser = "*"
+sphinx-copybutton = "*"
 # The packages below are required for compiling example notebooks
 jupyter = "^1.0.0"
 notebook = "^6.4.12"
 myst-nb = "^0.16.0"
-matplotlib = "^3.5.3"
-plotly = "^5.10.0"
-kaleido = "0.2.1"
-hvplot = "^0.8.1"
-nemosis = "^3.2.0"
+matplotlib = "^3"
+plotly = "^5"
+kaleido = "0.2"
+hvplot = "^0.8"
+nemosis = "^3"
 
 
 # Packages for developers for debugging
@@ -77,7 +77,7 @@ optional = true
 [tool.poetry.group.test.dependencies]
 # pytest and pytest-cov for coverage
 pytest = "^7"
-pytest-cov = "^3"
+pytest-cov = "^4"
 grequests = "^0.6.0"
 pytest-mock = "^3.8.2"
 

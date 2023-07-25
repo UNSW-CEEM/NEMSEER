@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.0.6 (25/07/2023)
+
+- Reduce stringency of dependencies
+- Update dependencies
+- Ensure datetime parsing can handle seconds
+
 ## v1.0.5 (5/05/2023)
 
 - Support Python 3.11 and add to CI testing
