@@ -151,17 +151,17 @@ class DataCompiler:
                     if table in raw_tables:
                         tables = _enumerate_tables(tables, table, enumerate_to)
         return cls(
-            run_start=query.run_start,
-            run_end=query.run_end,
-            forecasted_start=query.forecasted_start,
-            forecasted_end=query.forecasted_end,
-            forecast_type=query.forecast_type,
-            metadata=query.metadata,
-            raw_cache=query.raw_cache,
-            processed_cache=query.processed_cache,
-            processed_queries=query.processed_queries,
-            raw_tables=raw_tables,
-            compiled_data=None,
+            query.run_start,
+            query.run_end,
+            query.forecasted_start,
+            query.forecasted_end,
+            query.forecast_type,
+            query.metadata,
+            query.raw_cache,
+            query.processed_cache,
+            query.processed_queries,
+            raw_tables,
+            None,
         )
 
     def invalid_or_corrupted_files(self) -> List[str]:

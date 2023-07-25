@@ -37,12 +37,17 @@ repos:
 
 # Runs mypy
 # Uses local environment as opposed to mypy-mirror to enable access to dependencies
--   repo: local
+-   repo: https://github.com/pre-commit/mirrors-mypy
+    rev: v1.4.1
     hooks:
     -   id: mypy
-        name: mypy
-        language: system
-        entry: poetry run mypy
+        #        name: mypy
+        #        language: system
+        #        entry: poetry run mypy
         # excludes checking files in docs
         exclude: ^(docs/)
         types: [python]
+        additional_dependencies:
+          - attrs
+          - types-python-dateutil
+          - types-requests
