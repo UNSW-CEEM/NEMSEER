@@ -49,7 +49,7 @@ The glossary also provides an overview of the various ahead processes run by AEM
 
 ### Parquet
 
-[Parquet](https://www.databricks.com/glossary/what-is-parquet) files can be loaded using data analysis packages such as [pandas](https://pandas.pydata.org/docs/reference/api/pandas.read_parquet.html), and work well with packages for handling large on-memory/cluster datasets (e.g. [dask](https://docs.dask.org/en/stable/generated/dask.dataframe.read_parquet.html)). Parquet offers efficient data compression and columnar data storage, which can mean faster queries from file. Parquet files also store file metadata (which can include table schema).
+[Parquet](https://www.databricks.com/glossary/what-is-parquet) files can be loaded using data analysis packages such as [pandas](https://pandas.pydata.org/docs/reference/api/pandas.read_parquet.html), and work well with packages for handling large on-memory/cluster datasets (e.g. [polars](https://www.pola.rs/) and [dask](https://docs.dask.org/en/stable/generated/dask.dataframe.read_parquet.html)). Parquet offers efficient data compression and columnar data storage, which can mean faster queries from file. Parquet files also store file metadata (which can include table schema).
 
 ### Types of compiled data
 
@@ -66,7 +66,7 @@ Some queries via `nemseer` may require a large amount of memory to complete. Whi
 
 However, there are some things you can try if you do run into issues with memory. The suggestions below also apply to large queries on powerful computers:
 
-1. You can use `nemseer` to simply download raw data as CSVs or to then cache data in the parquet format. Once you have a cache, you can use tools like [dask](https://docs.dask.org/en/stable/index.html) to process chunks of data in parallel. You may be able to reduce peak memory usage this way. [Dask works best with data formats such as parquet](https://docs.dask.org/en/stable/best-practices.html#store-data-efficiently). It should be noted that `nemseer` converts a single AEMO CSV into a single parquet file. That is, it does not partition the parquet store.
+1. You can use `nemseer` to simply download raw data as CSVs or to then cache data in the parquet format. Once you have a cache, you can use tools like [polars](https://www.pola.rs/) or [dask](https://docs.dask.org/en/stable/index.html) to process chunks of data in parallel. You may be able to reduce peak memory usage this way. It should be noted that `nemseer` converts a single AEMO CSV into a single parquet file. That is, it does not partition the parquet store.
 2. Conversion to {class}`xarray.Dataset` can be memory intensive. As this usually occurs when the data to be converted has a high number of dimensions (as determined by `nemseer`), `nemseer` will print a warning prior to attempting to convert any such data. While [xarray integrates with dask](https://docs.xarray.dev/en/stable/user-guide/dask.html), this functionality is contingent on loading data from a netCDF file.
 
 ### Processed cache
