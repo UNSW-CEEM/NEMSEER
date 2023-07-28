@@ -58,6 +58,13 @@ import numpy as np
 
 # plotly rendering
 import plotly.io as pio
+import plotly.express as px
+```
+
+## Plot styling
+
+```{code-cell} ipython3
+plt.style.use(Path("styling", "matplotlib_styling.mplstyle"))
 ```
 
 ## Study times
@@ -160,8 +167,7 @@ ax_demand = ax.twinx()
 ax_demand.plot(nsw_demand.index, nsw_demand["TOTALDEMAND"], ls="--", marker=".",
                label="Actual TOTALDEMAND")
 ax_demand.legend(loc="lower center")
-ax.set_title("P5MIN Demand Forecasts for NSW - 14/07/2022")
-fig.tight_layout();
+ax.set_title("P5MIN Demand Forecasts for NSW - 14/07/2022");
 ```
 
 ## Faceted Plotting
@@ -203,7 +209,8 @@ fig = go.Figure(hvplot.render(hmap, backend="plotly"))
 # add actual demand as a line trace
 line = go.Scatter(
     x=nsw_demand.index, y=nsw_demand["TOTALDEMAND"], yaxis="y2",
-    line={"color": "black", "dash": "dash"}, name="Actual TOTALDEMAND")
+    line={"color": "black", "dash": "dash"}, name="Actual TOTALDEMAND",
+    )
 fig.add_trace(line)
 # update_layout defines the second y-axis and figure width and height
 fig = fig.update_layout(
@@ -267,7 +274,8 @@ overlay = go.Figure(plotly_data)
 # add actual demand data
 line = go.Scatter(
     x=nsw_demand.index, y=nsw_demand["TOTALDEMAND"], yaxis="y2",
-    line={"color": "black", "dash": "dash"}, name="Actual TOTALDEMAND")
+    line={"color": "black", "dash": "dash"}, name="Actual TOTALDEMAND",
+    )
 overlay.add_trace(line)
 # update the layout to specify the secondary y-axis
 overlay = overlay.update_layout(
