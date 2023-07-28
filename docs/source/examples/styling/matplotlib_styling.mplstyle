@@ -61,7 +61,7 @@ lines.solid_capstyle  : butt  ## {butt, round, projecting}
 ## See https://matplotlib.org/api/artist_api.html#module-matplotlib.patches
 ## for more information on patch properties.
 patch.linewidth       : 0.5      ## edge width in points.
-#patch.facecolor       : 348ABD
+patch.facecolor       : 348ABD
 patch.edgecolor       : f0f0f0  ## if forced, or patch is not filled
 #patch.force_edgecolor : False  ## True to always use edgecolor
 patch.antialiased     : True   ## render patches in antialiased (no jaggies)
@@ -168,15 +168,15 @@ patch.antialiased     : True   ## render patches in antialiased (no jaggies)
 ## relative to font.size, using the following values: xx-small, x-small,
 ## small, medium, large, x-large, xx-large, larger, or smaller
 
-font.family  : serif
+font.family  : sans-serif
 #font.style   : normal
 #font.variant : normal
 font.weight  : normal
 #font.stretch : normal
 font.size    : 10.0
 
-font.serif      : Source Sans Pro, Palatino, DejaVu Serif, Bitstream Vera Serif, Computer Modern Roman, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Charter, serif
-font.sans-serif : Source Sans Pro, Helvetica, Computer Modern Sans Serif, Avant Garde, sans-serif
+font.serif      : Palatino, DejaVu Serif, Bitstream Vera Serif, Computer Modern Roman, New Century Schoolbook, Century Schoolbook L, Utopia, ITC Bookman, Bookman, Nimbus Roman No9 L, Times New Roman, Times, Charter, serif
+font.sans-serif : Source Sans 3, Helvetica, Computer Modern Sans Serif, Avant Garde, sans-serif
 #font.cursive    : Apple Chancery, Textile, Zapf Chancery, Sand, Script MT, Felipa, cursive
 #font.fantasy    : Comic Neue, Comic Sans MS, Chicago, Charcoal, ImpactWestern, Humor Sans, xkcd, fantasy
 #font.monospace  : DejaVu Sans Mono, Bitstream Vera Sans Mono, Computer Modern Typewriter, Andale Mono, Nimbus Mono L, Courier New, Courier, Fixed, Terminal, monospace
@@ -453,7 +453,7 @@ legend.fancybox      : True     ## if True, use a rounded box for the
 #figure.titleweight : normal    ## weight of the figure title
 figure.figsize     : 6.6, 4.4  ## figure size in inches
 #figure.dpi         : 600       ## figure dots per inch
-figure.facecolor   : f0f0f0     ## figure facecolor
+figure.facecolor   : white     ## figure facecolor
 #figure.edgecolor   : white     ## figure edgecolor
 #figure.frameon     : True      ## enable figure frame
 #figure.max_open_warning : 20   ## The maximum number of figures to open through
@@ -568,7 +568,7 @@ figure.constrained_layout.use : True  ## When True, automatically make plot
 ## e.g., you may want a higher resolution, or to make the figure
 ## background white
 #savefig.dpi       : figure      ## figure dots per inch or 'figure'
-savefig.facecolor : f0f0f0       ## figure facecolor when saving
+savefig.facecolor : white       ## figure facecolor when saving
 savefig.edgecolor : f0f0f0       ## figure edgecolor when saving
 #savefig.format    : png         ## {png, ps, pdf, svg}
 savefig.bbox      : tight        ## {tight, standard}
