@@ -16,9 +16,7 @@ kernelspec:
 
 +++
 
-In this example, we look at a couple of ways we can plot demand forecast convergence using a set of 5-minute pre-dispatch ({term}`5MPD` or `P5MIN`) forecasts for the evening of 14/07/2022 for NSW.
-
-In particular, we'll look at the ways to plot using `xarray` data structures.
+In this example, we look at a couple of ways we can plot demand forecast convergence using a set of 5-minute pre-dispatch ({term}`5MPD` or `P5MIN`) forecasts for the evening of 14/07/2022 for NSW. In particular, we'll look at the ways to plot using `xarray` data structures.
 
 +++
 
