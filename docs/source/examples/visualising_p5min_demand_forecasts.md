@@ -61,12 +61,6 @@ import plotly.io as pio
 import plotly.express as px
 ```
 
-## Plot styling
-
-```{code-cell} ipython3
-plt.style.use(Path("styling", "matplotlib_styling.mplstyle"))
-```
-
 ## Study times
 
 Here we'll define our datetime range that we're interested in:
