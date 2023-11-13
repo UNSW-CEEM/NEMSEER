@@ -20,7 +20,7 @@ repos:
 
 # Runs black
 -   repo: https://github.com/psf/black
-    rev: 23.10.1
+    rev: 23.11.0
     hooks:
     -   id: black
         # It is recommended to specify the latest version of Python
@@ -38,7 +38,7 @@ repos:
 # Runs mypy
 # Uses local environment as opposed to mypy-mirror to enable access to dependencies
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.6.1
+    rev: v1.7.0
     hooks:
     -   id: mypy
         #        name: mypy
