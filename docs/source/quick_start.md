@@ -127,13 +127,17 @@ Below, we fetch {term}`pre-dispatch` tables available for January 2022 (i.e. thi
 ['CASESOLUTION', 'CONSTRAINT', 'CONSTRAINT_D', 'INTERCONNECTORRES', 'INTERCONNECTORRES_D', 'INTERCONNECTR_SENS_D', 'LOAD', 'LOAD_D', 'MNSPBIDTRK', 'OFFERTRK', 'PRICE', 'PRICESENSITIVITIE_D', 'PRICE_D', 'REGIONSUM', 'REGIONSUM_D', 'SCENARIODEMAND', 'SCENARIODEMANDTRK']
 ```
 
-AEMO's [MMS Data Model reports](https://nemweb.com.au/Reports/Current/MMSDataModelReport/Electricity/MMS%20Data%20Model%20Report.htm) describe tables and columns that are available via `nemseer`.
+#### Descriptions of tables and columns
+
+AEMO's [MMS Data Model documentation](https://nemweb.com.au/Reports/Current/MMSDataModelReport/Electricity/MMS%20Data%20Model%20Report.htm) describes the tables and columns that are available via `nemseer`.
+
+To use this documentation, first find the package that corresponds to the {term}`forecast type` you are interested in. Some of the package names differ from the {term}`forecast type`s that `nemseer` uses. For example, tables for {term}`STPASA` are obtained using the `nemseer` {term}`forecast_type``STPASA`, whereas the same tables are documented by AEMO within the `STPASA_SOLUTION` package.
+
+Once you locate the right package, you can find descriptions of the tables made available by `nemseer`.
 
 #### `PREDISPATCH` tables
 
-```{note}
 For some pre-dispatch table (`CONSTRAINT`, `LOAD`, `PRICE`, `INTERCONNECTORRES` and `REGIONSUM`), there are two types of tables. Those ending with `_D` only contain the latest forecast for a particular interval, whereas those without `_D` have all relevant forecasts for an interval of interest.
-```
 
 ## Compiling data
 
@@ -141,7 +145,7 @@ The main use case of `nemseer` is to download raw data (if it is not available i
 
 This function:
 
-1. Downloads the relevant raw data and converts it into [parquet](quick_start:parquet) in the {term}`raw_cache`.
+1. Downloads the relevant raw data[^1] and converts it into [parquet](quick_start:parquet) in the {term}`raw_cache`.
 2. If it's supplied, interacts with a {term}`processed_cache` (see [below](<quick_start:compiling data to a processed cache>)).
 3. Returns a dictionary consisting of compiled {class}`pandas.DataFrame`s or {class}`xarray.Dataset`s (i.e. assembled and filtered based on the supplied {term}`run times` and {term}`forecasted times`) mapped to their corresponding table name.
 
@@ -286,7 +290,7 @@ You can see that in the [compiling data examples](<quick_start:compiling data>) 
 
 ## Downloading raw data
 
-You can download data to a cache using {func}`download_raw_data() <nemseer.download_raw_data>`. This function only downloads data to the {term}`raw_cache`.
+You can download raw data[^1] to a cache using {func}`download_raw_data() <nemseer.download_raw_data>`. This function only downloads data to the {term}`raw_cache`.
 
 CSVs can be retained by specifying `keep_csv=True`.
 
@@ -324,3 +328,4 @@ Alternatively, provide {term}`run times`:
 INFO: Downloading and unzipping REGIONSOLUTION for 1/2021
 INFO: Converting PUBLIC_DVD_P5MIN_REGIONSOLUTION_202101010000.CSV to parquet
 ```
+[^1]: As explained by the glossary note for AEMO's {term}`MMSDM Historical Data SQLLOader`, `nemseer` accesses monthly raw data. The month in the raw data filename corresponds to the month in which the forecast was run. As such, a {term}`forecasted_start` and {term}`forecasted_end` in the same month may actually require two raw data files (i.e. {term}`run_start` and {term}`run_end` may be in different months).

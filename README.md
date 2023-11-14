@@ -16,6 +16,12 @@ A package for downloading and handling historical National Electricity Market (N
 pip install nemseer
 ```
 
+Many `nemseer` use-cases require [`NEMOSIS`](https://github.com/UNSW-CEEM/NEMOSIS), which can also be installed using `pip`:
+
+```bash
+pip install nemosis
+```
+
 ## Overview
 
 `nemseer` allows you to access historical AEMO [pre-dispatch](https://aemo.com.au/en/energy-systems/electricity/national-electricity-market-nem/data-nem/market-management-system-mms-data/pre-dispatch) and [Projected Assessment of System Adequacy (PASA)](https://wa.aemo.com.au/energy-systems/electricity/national-electricity-market-nem/nem-forecasting-and-planning/forecasting-and-reliability/projected-assessment-of-system-adequacy) forecast[^1] data available through the [MMSDM Historical Data SQLLoader](https://nemseer.readthedocs.io/en/latest/glossary.html#term-MMSDM-Historical-Data-SQLLOader). `nemseer` can then compile this data into [pandas DataFrames](https://pandas.pydata.org/pandas-docs/stable/user_guide/dsintro.html#dataframe) or [xarray Datasets](https://docs.xarray.dev/en/stable/user-guide/data-structures.html#dataset).
@@ -55,6 +61,10 @@ Check out the [Quick start](https://nemseer.readthedocs.io/en/latest/quick_start
 ### Examples
 
 Some use case examples have been included in the [Examples](https://nemseer.readthedocs.io/en/latest/examples.html) section of the documentation.
+
+## Support
+
+If you are having an issue with this software that has not already been raised in the [issues register](https://github.com/UNSW-CEEM/NEMSEER/issues), please [raise a new issue](https://github.com/UNSW-CEEM/NEMSEER/issues/new).
 
 ## Contributing
 
