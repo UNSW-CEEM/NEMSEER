@@ -1,5 +1,8 @@
 # Changelog
 
+## v1.0.7 (21/11/2023
+- JOSS review changes
+
 ## v1.0.6 (25/07/2023)
 
 - Reduce stringency of dependencies

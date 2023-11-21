@@ -23,7 +23,7 @@ copyright = "2023, Abhijith (Abi) Prakash"
 author = "Abhijith (Abi) Prakash"
 
 # The full version, including alpha/beta/rc tags
-release = "1.0.6"
+release = "1.0.7"
 
 
 # -- General configuration ---------------------------------------------------
