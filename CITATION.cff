@@ -1,17 +1,46 @@
-# This CITATION.cff file was generated with cffinit.
-# Visit https://bit.ly/cffinit to generate yours today!
-
-cff-version: 1.2.0
-title: NEMSEER
-message: >-
-  If you use this software, please cite it using the
-  metadata from this file.
-type: software
+cff-version: "1.2.0"
 authors:
-  - given-names: Abhijith
-    family-names: Prakash
-    email: abiprakash007@gmail.com
-    affiliation: >-
-      Collaboration on Energy and Environmental
-      Markets, UNSW Sydney
-    orcid: 'https://orcid.org/0000-0002-2945-4757'
+- family-names: Prakash
+  given-names: Abhijith
+  orcid: "https://orcid.org/0000-0002-2945-4757"
+- family-names: Bruce
+  given-names: Anna
+  orcid: "https://orcid.org/0000-0003-1820-4039"
+- family-names: MacGill
+  given-names: Iain
+  orcid: "https://orcid.org/0000-0002-9587-6835"
+contact:
+- family-names: Prakash
+  given-names: Abhijith
+  orcid: "https://orcid.org/0000-0002-2945-4757"
+doi: v1.0.7
+message: If you use this software, please cite our article in the
+  Journal of Open Source Software.
+preferred-citation:
+  authors:
+  - family-names: Prakash
+    given-names: Abhijith
+    orcid: "https://orcid.org/0000-0002-2945-4757"
+  - family-names: Bruce
+    given-names: Anna
+    orcid: "https://orcid.org/0000-0003-1820-4039"
+  - family-names: MacGill
+    given-names: Iain
+    orcid: "https://orcid.org/0000-0002-9587-6835"
+  date-published: 2023-12-09
+  doi: 10.21105/joss.05883
+  issn: 2475-9066
+  issue: 92
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 5883
+  title: "NEMSEER: A Python package for downloading and handling
+    historical National Electricity Market forecast data produced by the
+    Australian Energy Market Operator"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.05883"
+  volume: 8
+title: "NEMSEER: A Python package for downloading and handling
+  historical National Electricity Market forecast data produced by the
+  Australian Energy Market Operator"
