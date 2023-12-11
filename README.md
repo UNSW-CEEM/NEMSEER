@@ -6,7 +6,7 @@
 [![codecov](https://codecov.io/gh/UNSW-CEEM/NEMSEER/branch/master/graph/badge.svg?token=BO69YSQIGI)](https://codecov.io/gh/UNSW-CEEM/NEMSEER)
 [![pre-commit.ci status](https://results.pre-commit.ci/badge/github/UNSW-CEEM/NEMSEER/master.svg)](https://results.pre-commit.ci/latest/github/UNSW-CEEM/NEMSEER/master)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![DOI](https://zenodo.org/badge/508154456.svg)](https://zenodo.org/badge/latestdoi/508154456)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.05883/status.svg)](https://doi.org/10.21105/joss.05883)
 
 A package for downloading and handling historical National Electricity Market (NEM) forecast data produced by the Australian Energy Market Operator (AEMO).
 
@@ -25,6 +25,8 @@ pip install nemosis
 ## Overview
 
 `nemseer` allows you to access historical AEMO [pre-dispatch](https://aemo.com.au/en/energy-systems/electricity/national-electricity-market-nem/data-nem/market-management-system-mms-data/pre-dispatch) and [Projected Assessment of System Adequacy (PASA)](https://wa.aemo.com.au/energy-systems/electricity/national-electricity-market-nem/nem-forecasting-and-planning/forecasting-and-reliability/projected-assessment-of-system-adequacy) forecast[^1] data available through the [MMSDM Historical Data SQLLoader](https://nemseer.readthedocs.io/en/latest/glossary.html#term-MMSDM-Historical-Data-SQLLOader). `nemseer` can then compile this data into [pandas DataFrames](https://pandas.pydata.org/pandas-docs/stable/user_guide/dsintro.html#dataframe) or [xarray Datasets](https://docs.xarray.dev/en/stable/user-guide/data-structures.html#dataset).
+
+An overview of `nemseer` functionality and potential use-cases are provided in the [JOSS paper for this package](https://doi.org/10.21105/joss.05883).
 
 ![forecast_overview](docs/source/_static/forecast_timeframes.png)
 
@@ -74,7 +76,7 @@ Please note that this project is released with a [Code of Conduct](./CONDUCT.md)
 
 ## Citation
 
-If you use `nemseer`, please cite the package via the [Zenodo DOI](https://doi.org/10.5281/zenodo.7397514).
+If you use `nemseer`, please cite the [JOSS paper for this package](https://doi.org/10.21105/joss.05883)
 
 If you use code or analysis from any of the demand error and/or price convergence examples in the documentation, please also cite `NEMOSIS` via [this conference paper](https://www.researchgate.net/publication/329798805_NEMOSIS_-_NEM_Open_Source_Information_Service_open-source_access_to_Australian_National_Electricity_Market_Data)
 
