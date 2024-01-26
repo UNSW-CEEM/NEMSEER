@@ -66,6 +66,8 @@
    - `PREDISPATCH` forecasts are generated every half hour at half-hourly resolution until the end of the last {term}`trading day` for which bid band price submission has closed (this occurs at 1230 EST)[^6].
    - `P5MIN` is run for every dispatch interval for the next hour.
    - For both `P5MIN` and `PREDISPATCH`, the impact of demand forecast error on regional energy prices and interconnector flows are explored through a sensitivity analysis[^7]. Only sensitivites for `PREDISPATCH` are available via the {term}`MMSDM Historical Data SQLLOader`.
+   - The Fast-start Inflexibility Profiles (FSIP) are accommodated into `P5MIN` but not `PREDISPATCH`[^8]. Energy constraints are used in presumably both similar to the PASA processes[^9]. 
+   - The Economic Participation Factor (EPF) and Intervention Pricing calculations are not performed in either `P5MIN` or `PREDISPATCH`[^9]. Similarly, the unit dispatch targets are not downloaded to Automatic Generation Control (AGC) in these pre-dispatch processes[^9].
 
 `market day`
 `trading day`
@@ -97,3 +99,5 @@ March 2012.
 [^5]: Australian Energy Market Operator, 2021. Medium Term PASA Process Description.
 [^6]: Australian Energy Market Operator, 2021. Pre-dispatch operating procedure.
 [^7]: Australian Energy Market Operator, 2021. Pre-Dispatch Sensitivities.
+[^8]: Australian Energy Market Operator, 2021. Pre-Dispatch.
+[^9]: Australian Energy Market Operator, 2010. Pre-Dispatch Process Description.
