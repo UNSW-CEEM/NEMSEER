@@ -97,5 +97,6 @@ Development of `nemseer` was funded by the [UNSW Digital Grid Futures Institute]
 Thanks to:
 
 - Nicholas Gorman for reviewing `nemseer` code
+- Krisztina Katona for reviewing and improving the glossary
 - Dylan McConnell for assistance in interpreting PASA run types
 - Declan Heim for suggesting improvements to `nemseer` examples
