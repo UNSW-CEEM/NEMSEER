@@ -65,9 +65,12 @@
    Pre-dispatch processes consists of (30-minute) pre-dispatch (`PREDISPATCH`) and 5-minute pre-dispatch (5MPD or `P5MIN`). To add to any confusion, when people or documents refer to "pre-dispatch", they are often referring to `PREDISPATCH`. The use of submitted participant offers distinguishes pre-dispatch processes from PASA processes. These are used alongside forecasts for constraints, demand and variable renewable energy generation to forecast dispatch conditions and regional prices for energy and FCAS. Along with {term}`PDPASA` and {term}`STPASA`, pre-dispatch processes are used to identify Lack of Reserve (LOR) conditions. If AEMO deems the market response to be insufficient by this time, it can exercise the Reliability and Emergency Reserve Trader (RERT), issue directions or issue instructions (i.e. instruct network service providers to commence load shedding)[^4].
    - `PREDISPATCH` forecasts are generated every half hour at half-hourly resolution until the end of the last {term}`trading day` for which bid band price submission has closed (this occurs at 1230 EST)[^6].
    - `P5MIN` is run for every dispatch interval for the next hour.
-   - For both `P5MIN` and `PREDISPATCH`, the impact of demand forecast error on regional energy prices and interconnector flows are explored through a sensitivity analysis[^7]. Only sensitivites for `PREDISPATCH` are available via the {term}`MMSDM Historical Data SQLLOader`.
-   - The Fast-start Inflexibility Profiles (FSIP) are accommodated into `P5MIN` but not `PREDISPATCH`[^8]. Energy constraints are used in presumably both similar to the PASA processes[^9].
-   - The Economic Participation Factor (EPF) and Intervention Pricing calculations are not performed in either `P5MIN` or `PREDISPATCH`[^9]. Similarly, the unit dispatch targets are not downloaded to Automatic Generation Control (AGC) in these pre-dispatch processes[^9].
+   - For differences between `P5MIN`, `PREDISPATCH` and actual dispatch, refer to pages 32 and 33 of this reference[^10]. Notable differences are:
+      - `P5MIN` and `PREDISPATCH` explore the impact of demand forecast error on regional energy prices and interconnector flows through a sensitivity analysis[^7]. Only sensitivites for `PREDISPATCH` are available via the {term}`MMSDM Historical Data SQLLOader`.
+      - The Fast-start Inflexibility Profiles (FSIP) are accommodated in `P5MIN` but not `PREDISPATCH`[^8].
+      - Unit Daily Energy constraints are used in `P5MIN` and `PREDISPATCH`, presumably in similar manner to their use in the PASA processes[^9].
+      - The Economic Participation Factor (EPF) and Intervention Pricing calculations are not performed in either `P5MIN` or `PREDISPATCH`[^9].
+      - Unit dispatch targets from these pre-dispatch processes are not downloaded to Automatic Generation Control (AGC)[^9].
 
 `market day`
 `trading day`
@@ -101,3 +104,4 @@ March 2012.
 [^7]: Australian Energy Market Operator, 2021. Pre-Dispatch Sensitivities.
 [^8]: Australian Energy Market Operator, 2021. Pre-Dispatch.
 [^9]: Australian Energy Market Operator, 2010. Pre-Dispatch Process Description.
+[^10]: Katona, Krisztina and Sklibosios Nikitopoulos, Christina and Schloegl, Erik, A Price Mechanism Survey of the Australian National Electricity Market (April 25, 2023). Available at SSRN: https://ssrn.com/abstract=4428450 or http://dx.doi.org/10.2139/ssrn.4428450
