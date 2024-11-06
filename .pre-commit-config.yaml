@@ -3,7 +3,7 @@
 # See https://pre-commit.com/hooks.html for more hooks
 repos:
 -   repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.6.0
+    rev: v5.0.0
     hooks:
     -   id: trailing-whitespace # trims trailing whitespace
     -   id: end-of-file-fixer # files end with one newline
@@ -20,7 +20,7 @@ repos:
 
 # Runs black
 -   repo: https://github.com/psf/black
-    rev: 24.8.0
+    rev: 24.10.0
     hooks:
     -   id: black
         # It is recommended to specify the latest version of Python
@@ -38,7 +38,7 @@ repos:
 # Runs mypy
 # Uses local environment as opposed to mypy-mirror to enable access to dependencies
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.11.1
+    rev: v1.13.0
     hooks:
     -   id: mypy
         #        name: mypy
