@@ -38,7 +38,7 @@ repos:
 # Runs mypy
 # Uses local environment as opposed to mypy-mirror to enable access to dependencies
 -   repo: https://github.com/pre-commit/mirrors-mypy
-    rev: v1.13.0
+    rev: v1.14.0
     hooks:
     -   id: mypy
         #        name: mypy
