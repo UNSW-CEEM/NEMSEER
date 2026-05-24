@@ -30,44 +30,59 @@ def test_standard_sqlloader_url():
         + "PUBLIC_DVD_STPASA_REGIONSOLUTION_202102010000.zip"
     )
     url = _construct_sqlloader_forecastdata_url(2024, 7, "STPASA", "REGIONSOLUTION")
-    assert url == ("https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
-                   "2024/MMSDM_2024_07/MMSDM_Historical_Data_SQLLoader/DATA/"
-                   "PUBLIC_DVD_STPASA_REGIONSOLUTION_202407010000.zip"
-                   )
+    assert url == (
+        "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+        "2024/MMSDM_2024_07/MMSDM_Historical_Data_SQLLoader/DATA/"
+        "PUBLIC_DVD_STPASA_REGIONSOLUTION_202407010000.zip"
+    )
     url = _construct_sqlloader_forecastdata_url(2024, 8, "STPASA", "REGIONSOLUTION")
-    assert url == ("https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
-                   "2024/MMSDM_2024_08/MMSDM_Historical_Data_SQLLoader/DATA/"
-                   "PUBLIC_ARCHIVE%2523STPASA_REGIONSOLUTION%2523FILE01%2523202408010000.zip"
-                   )
+    assert url == (
+        "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+        "2024/MMSDM_2024_08/MMSDM_Historical_Data_SQLLoader/DATA/"
+        "PUBLIC_ARCHIVE%2523STPASA_REGIONSOLUTION%2523FILE01%2523202408010000.zip"
+    )
     url = _construct_sqlloader_forecastdata_url(2025, 3, "P5MIN", "CASESOLUTION")
-    assert url == ("https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
-                   "2025/MMSDM_2025_03/MMSDM_Historical_Data_SQLLoader/DATA/"
-                   "PUBLIC_ARCHIVE%2523P5MIN_CASESOLUTION%2523FILE01%2523202503010000.zip")
+    assert url == (
+        "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+        "2025/MMSDM_2025_03/MMSDM_Historical_Data_SQLLoader/DATA/"
+        "PUBLIC_ARCHIVE%2523P5MIN_CASESOLUTION%2523FILE01%2523202503010000.zip"
+    )
     url = _construct_sqlloader_forecastdata_url(2026, 1, "PREDISPATCH", "MNSPBIDTRK")
-    assert url == ("https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
-                   "2026/MMSDM_2026_01/MMSDM_Historical_Data_SQLLoader/DATA/"
-                   "PUBLIC_ARCHIVE%2523PREDISPATCH_MNSPBIDTRK%2523FILE01%2523202601010000.zip")
+    assert url == (
+        "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+        "2026/MMSDM_2026_01/MMSDM_Historical_Data_SQLLoader/DATA/"
+        "PUBLIC_ARCHIVE%2523PREDISPATCH_MNSPBIDTRK%2523FILE01%2523202601010000.zip"
+    )
     url = _construct_sqlloader_forecastdata_url(2026, 4, "PREDISPATCH", "REGIONSUM")
-    assert url == ("https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
-                   "2026/MMSDM_2026_04/MMSDM_Historical_Data_SQLLoader/PREDISP_ALL_DATA/"
-                   "PUBLIC_ARCHIVE%2523PREDISPATCHREGIONSUM%2523ALL%2523FILE01%2523202604010000.zip")
+    assert url == (
+        "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+        "2026/MMSDM_2026_04/MMSDM_Historical_Data_SQLLoader/PREDISP_ALL_DATA/"
+        "PUBLIC_ARCHIVE%2523PREDISPATCHREGIONSUM%2523ALL%2523FILE01%2523202604010000.zip"
+    )
     url = _construct_sqlloader_forecastdata_url(2026, 3, "PREDISPATCH", "OFFERTRK")
-    assert url == ("https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
-                   "2026/MMSDM_2026_03/MMSDM_Historical_Data_SQLLoader/DATA/"
-                   "PUBLIC_ARCHIVE%2523PREDISPATCHOFFERTRK%2523FILE01%2523202603010000.zip")
+    assert url == (
+        "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+        "2026/MMSDM_2026_03/MMSDM_Historical_Data_SQLLoader/DATA/"
+        "PUBLIC_ARCHIVE%2523PREDISPATCHOFFERTRK%2523FILE01%2523202603010000.zip"
+    )
 
 
 def test_get_wait_seconds():
     class HeaderHolder:
         headers = dict()
+
     response = HeaderHolder()
     assert get_wait_seconds(response, 3) == 8
     response.headers["Retry-After"] = "1"
     assert get_wait_seconds(response, 2) == 1
-    in_20s = datetime.datetime.now(zoneinfo.ZoneInfo("UTC")) + datetime.timedelta(seconds=20)
+    in_20s = datetime.datetime.now(zoneinfo.ZoneInfo("UTC")) + datetime.timedelta(
+        seconds=20
+    )
     response.headers["Retry-After"] = in_20s.strftime("%a, %d %b %Y %H:%M:%S GMT")
     assert get_wait_seconds(response, 5) == pytest.approx(20, abs=1)
-    in_30s = datetime.datetime.now(zoneinfo.ZoneInfo("UTC")) + datetime.timedelta(seconds=30)
+    in_30s = datetime.datetime.now(zoneinfo.ZoneInfo("UTC")) + datetime.timedelta(
+        seconds=30
+    )
     response.headers["Retry-After"] = in_30s.strftime("%A, %d %b %Y %H:%M:%S %Z")
     assert get_wait_seconds(response, 5) == pytest.approx(30, abs=1)
 

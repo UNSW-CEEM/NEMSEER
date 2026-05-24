@@ -118,8 +118,8 @@ def _enumerate_tables(tables: List[str], table_str: str, range_to: int) -> List[
 
 
 def _construct_sqlloader_filename(
-    year: int, month: int, forecast_type: str, table: str
-, all_data: bool = False) -> str:
+    year: int, month: int, forecast_type: str, table: str, all_data: bool = False
+) -> str:
     """Constructs filename without file type
 
     Args:

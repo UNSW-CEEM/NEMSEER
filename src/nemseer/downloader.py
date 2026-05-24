@@ -101,7 +101,7 @@ def _request_content(
     return r
 
 
-def get_wait_seconds(response, attempt) -> float|int    :
+def get_wait_seconds(response, attempt) -> float | int:
     """
     Calculates wait time based on Retry-After header with
     exponential backoff as a failover.
@@ -110,7 +110,7 @@ def get_wait_seconds(response, attempt) -> float|int    :
     In that case it backs off exponentially.
     """
     # 1. Default failover: Exponential Backoff (2, 4, 8, 16...)
-    fallback_delay = 2 ** attempt
+    fallback_delay = 2**attempt
     header = response.headers.get("Retry-After")
     if not header:
         return fallback_delay
@@ -123,13 +123,14 @@ def get_wait_seconds(response, attempt) -> float|int    :
             retry_date = parsedate_to_datetime(header)
             if retry_date.tzinfo is None:
                 retry_date = retry_date.replace(tzinfo=timezone.utc)
-            retry_after_delay = (retry_date - datetime.now(timezone.utc)).total_seconds()
+            retry_after_delay = (
+                retry_date - datetime.now(timezone.utc)
+            ).total_seconds()
             # Use header value if positive, else use fallback
             return retry_after_delay if retry_after_delay > 0 else fallback_delay
     except (ValueError, TypeError, OverflowError):
         # Fallback if parsing fails (bad format, etc.)
         return fallback_delay
-
 
 
 def _rerequest_to_obtain_soup(
@@ -159,7 +160,7 @@ def _rerequest_to_obtain_soup(
         # exponentially increase delay so that server is less likely to block later requests
         attempt += 1
         delay = get_wait_seconds(r, attempt)
-        if delay > 2 ** max_attempts:
+        if delay > 2**max_attempts:
             # server asked for a delay which is too long so we will abort rather than wait
             r.raise_for_status()
         sleep(delay)
@@ -229,7 +230,9 @@ def _construct_sqlloader_forecastdata_url(
     else:
         all_data = False
     data_url = _construct_yearmonth_url(year, month, forecast_type, all_data=all_data)
-    fn = _construct_sqlloader_filename(year, month, forecast_type, table, all_data=all_data)
+    fn = _construct_sqlloader_filename(
+        year, month, forecast_type, table, all_data=all_data
+    )
     url = data_url + fn + ".zip"
     return url
 
