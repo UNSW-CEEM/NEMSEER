@@ -1,9 +1,11 @@
 import logging
 import shutil
-from datetime import datetime
+from datetime import datetime, timezone
+from email.utils import parsedate_to_datetime
 from itertools import cycle
 from pathlib import Path
 from re import match
+from time import sleep
 from typing import Dict, Generator, List
 from zipfile import BadZipFile, ZipFile
 
@@ -99,6 +101,37 @@ def _request_content(
     return r
 
 
+def get_wait_seconds(response, attempt) -> float|int    :
+    """
+    Calculates wait time based on Retry-After header with
+    exponential backoff as a failover.
+    Useful for response code 429 - rate limited
+    Can also be used with AEMO reponse code 403 which won't have a Retry-After header.
+    In that case it backs off exponentially.
+    """
+    # 1. Default failover: Exponential Backoff (2, 4, 8, 16...)
+    fallback_delay = 2 ** attempt
+    header = response.headers.get("Retry-After")
+    if not header:
+        return fallback_delay
+    try:
+        if header.isdigit():
+            # Handle integer seconds
+            return int(header)
+        else:
+            # Handle HTTP-date string
+            retry_date = parsedate_to_datetime(header)
+            if retry_date.tzinfo is None:
+                retry_date = retry_date.replace(tzinfo=timezone.utc)
+            retry_after_delay = (retry_date - datetime.now(timezone.utc)).total_seconds()
+            # Use header value if positive, else use fallback
+            return retry_after_delay if retry_after_delay > 0 else fallback_delay
+    except (ValueError, TypeError, OverflowError):
+        # Fallback if parsing fails (bad format, etc.)
+        return fallback_delay
+
+
+
 def _rerequest_to_obtain_soup(
     url: str, useragent: str, additional_header: Dict = {}
 ) -> BeautifulSoup:
@@ -114,11 +147,29 @@ def _rerequest_to_obtain_soup(
         BeautifulSoup object with parsed HTML.
 
     """
+    max_attempts = 7
+    attempt = 0
+    useragent_generator = _build_useragent_generator(max_attempts)
+
     r = _request_content(url, useragent, additional_header=additional_header)
-    while (ok := r.status_code == requests.status_codes.codes["OK"]) < 1:
+    while not r.ok and attempt < max_attempts:
+        if r.status_code in [500, 502, 503, 504, 404, 400]:
+            # Server is throwing errors so no point in persisting with 5xx or bad url 4xx
+            r.raise_for_status()
+        # exponentially increase delay so that server is less likely to block later requests
+        attempt += 1
+        delay = get_wait_seconds(r, attempt)
+        if delay > 2 ** max_attempts:
+            # server asked for a delay which is too long so we will abort rather than wait
+            r.raise_for_status()
+        sleep(delay)
+        # use a new useragent each time to mitigate 403 responses
+        useragent = next(useragent_generator)
         r = _request_content(url, useragent, additional_header=additional_header)
-        if r.status_code == requests.status_codes.codes["OK"]:
-            ok += 1
+
+    if not r.ok:
+        # Server continually returning 403 or 401 so raise an exception
+        r.raise_for_status()
     soup = BeautifulSoup(r.content, "html.parser")
     return soup
 
@@ -174,10 +225,11 @@ def _construct_sqlloader_forecastdata_url(
         and (table_basename := match(r"([A-Z_]*)[0-9]?", table))
         and table_basename.group(1) in PREDISP_ALL_DATA
     ):
-        data_url = _construct_yearmonth_url(year, month, forecast_type, all_data=True)
+        all_data = True
     else:
-        data_url = _construct_yearmonth_url(year, month, forecast_type)
-    fn = _construct_sqlloader_filename(year, month, forecast_type, table)
+        all_data = False
+    data_url = _construct_yearmonth_url(year, month, forecast_type, all_data=all_data)
+    fn = _construct_sqlloader_filename(year, month, forecast_type, table, all_data=all_data)
     url = data_url + fn + ".zip"
     return url
 

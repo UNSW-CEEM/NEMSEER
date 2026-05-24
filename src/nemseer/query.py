@@ -119,7 +119,7 @@ def _enumerate_tables(tables: List[str], table_str: str, range_to: int) -> List[
 
 def _construct_sqlloader_filename(
     year: int, month: int, forecast_type: str, table: str
-) -> str:
+, all_data: bool = False) -> str:
     """Constructs filename without file type
 
     Args:
@@ -131,11 +131,22 @@ def _construct_sqlloader_filename(
         Filename string without file type
     """
     (stryear, strmonth) = (str(year), str(month).rjust(2, "0"))
-    if forecast_type == "PREDISPATCH" and table != "MNSPBIDTRK":
-        prefix = f"PUBLIC_DVD_{forecast_type}{table}"
+    if (year, month) < (2024, 8):
+        # Format of file name up to and including July 2024
+        s1 = "PUBLIC_DVD_"
+        s4 = "_"
+        s3 = ""
     else:
-        prefix = f"PUBLIC_DVD_{forecast_type}_{table}"
-    fn = prefix + f"_{stryear}{strmonth}010000"
+        # Format of file name from August 2024 onwards
+        s1 = "PUBLIC_ARCHIVE%2523"
+        s4 = "%2523FILE01%2523"
+        s3 = "%2523ALL" if all_data else ""
+    if forecast_type == "PREDISPATCH" and table != "MNSPBIDTRK":
+        # Most filename separate forecast type and table name with _ except PREDISPATCH and not MNSPBIDTRK
+        s2 = ""
+    else:
+        s2 = "_"
+    fn = f"{s1}{forecast_type}{s2}{table}{s3}{s4}{stryear}{strmonth}010000"
     return fn
 
 

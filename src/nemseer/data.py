@@ -2,7 +2,7 @@
 #: See also :term:`forecast types`, and :term:`pre-dispatch` and :term:`PASA`.
 FORECAST_TYPES = ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA")
 
-MMSDM_ARCHIVE_URL = "http://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+MMSDM_ARCHIVE_URL = "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
 """Wholesale electricity data archive base URL"""
 
 #: Tables which should be directed to the PREDISP_ALL_DATA URL.

@@ -163,7 +163,7 @@ def _generate_MTPASA_runtimes(
         forecasted_start: Forecasts pertaining to times at or after this
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
-            datetime are retaned.
+            datetime are retained.
     Returns:
         Tuple of datetimes containing  the widest range of possible `forecasted` times
     """

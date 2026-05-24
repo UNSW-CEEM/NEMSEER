@@ -1,6 +1,8 @@
+import datetime
 import logging
 import pathlib
 import shutil
+import zoneinfo
 from copy import deepcopy
 from pathlib import Path
 from zipfile import BadZipFile
@@ -15,6 +17,7 @@ from nemseer.downloader import (
     get_sqlloader_forecast_tables,
     get_sqlloader_years_and_months,
     get_unzipped_csv,
+    get_wait_seconds,
 )
 from nemseer.query import Query, generate_sqlloader_filenames
 
@@ -53,6 +56,20 @@ def test_standard_sqlloader_url():
                    "2026/MMSDM_2026_03/MMSDM_Historical_Data_SQLLoader/DATA/"
                    "PUBLIC_ARCHIVE%2523PREDISPATCHOFFERTRK%2523FILE01%2523202603010000.zip")
 
+
+def test_get_wait_seconds():
+    class HeaderHolder:
+        headers = dict()
+    response = HeaderHolder()
+    assert get_wait_seconds(response, 3) == 8
+    response.headers["Retry-After"] = "1"
+    assert get_wait_seconds(response, 2) == 1
+    in_20s = datetime.datetime.now(zoneinfo.ZoneInfo("UTC")) + datetime.timedelta(seconds=20)
+    response.headers["Retry-After"] = in_20s.strftime("%a, %d %b %Y %H:%M:%S GMT")
+    assert get_wait_seconds(response, 5) == pytest.approx(20, abs=1)
+    in_30s = datetime.datetime.now(zoneinfo.ZoneInfo("UTC")) + datetime.timedelta(seconds=30)
+    response.headers["Retry-After"] = in_30s.strftime("%A, %d %b %Y %H:%M:%S %Z")
+    assert get_wait_seconds(response, 5) == pytest.approx(30, abs=1)
 
 
 def test_allmonths_available():
