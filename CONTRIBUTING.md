@@ -43,7 +43,7 @@ If you are proposing a feature:
 Ready to contribute? Here's how to set up `nemseer` for local development.
 
 1. Download a copy of `nemseer` locally.
-2. Install `poetry` `v1.4.0`
+2. Install `poetry` `v2.4.1`
 
     - The command below applies to UNIX systems (Mac/Linux)
 
@@ -62,13 +62,15 @@ Ready to contribute? Here's how to set up `nemseer` for local development.
 3. Install `nemseer` using `poetry`:
 
     - Developers should install additional `poetry` groups for development:
-      - `docs` for documentation dependencies
+      - `docs` for documentation dependencies (incompatible with test because installs anyio)
       - `style` for linters. `nemseer` uses `flake8` and `mypy` for type annotations
-      - `test` for testing utilities
+      - `test` for testing utilities (incompatible with docs because installs grequests)
       - (optional) `debug` for debugging tools
 
+      - For example, one of the following two lines
         ```console
-        $ poetry install --with=docs,style,test
+        $ poetry install --with=style,test
+        $ poetry install --with=docs,style
         ```
 
     - If you are on Windows and attempting to install dependencies results in an error such as the one below, refer to the [fix below](https://github.com/UNSW-CEEM/NEMSEER/blob/master/CONTRIBUTING.md#fix-for-running-poetry-on-windows):
@@ -88,10 +90,10 @@ Ready to contribute? Here's how to set up `nemseer` for local development.
       ```
     - Use the virtual env in your terminal by running `poetry shell`, or direct your favourite text editor to the poetry environment
 
-4. Install the `pre-commit` git hook scripts that `nemseer` uses by running the following code within your Poetry environment (e.g. after running `poetry shell`)
+4. Install the `pre-commit` git hook scripts that `nemseer` uses by running the following code within your Poetry environment
 
       ```console
-      $ pre-commit install
+      $ poetry self add poetry-pre-commit-plugin
       ```
 
 5. Use `git` (or similar) to create a branch for local development and make your changes:
