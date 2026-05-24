@@ -1,26 +1,26 @@
-[tool.poetry]
+[project]
 name = "nemseer"
 version = "1.0.7"
 description = "A package for downloading and handling forecasts for the National Electricity Market (NEM) from the Australian Energy Market Operator (AEMO)."
-authors = ["Abhijith Prakash"]
+authors = [{name="Abhijith Prakash"}]
 license = "GPL-3.0-or-later"
 readme = "README.md"
+requires-python = ">=3.11,<3.15"
 
 # Main dependencies for the package via poetry. Package users will need these dependencies.
-[tool.poetry.dependencies]
-python = ">=3.8,<3.15"
-attrs = "^21"
-beautifulsoup4 = "*"
-netCDF4 = "^1"
-numpy = "*"
-packaging = "^21.3"
-pandas = "*"
-psutil = "^5"
-pyarrow = "*"
-requests = "^2"
-tqdm = "^4"
-xarray = "*"
-
+dependencies = [
+    "attrs~=26.1.0",
+    "beautifulsoup4",
+    "netCDF4~=1.7.2",
+    "numpy",
+    "packaging~=26.2",
+    "pandas",
+    "psutil>=7.2.2",
+    "pyarrow",
+    "requests>=2.34.2,<3.0.0",
+    "tqdm>=4.67.3",
+    "xarray",
+]
 # Packages for developers for creating documentation
 [tool.poetry.group.docs]
 optional = true
@@ -63,11 +63,11 @@ mypy = "*"
 types-requests = "^2"
 types-beautifulsoup4 = "*"
 types-python-dateutil = "^2"
-types-psutil = "^5"
+types-psutil = ">=7.2.2.20260518"
 pandas-stubs = "*"
 types-tqdm = "^4"
-black = "^22.6.0"
-isort = "^5.10.1"
+black = "^26.5.1"
+isort = "^8.0.1"
 pre-commit = "*"
 
 # Packages for developers for testing
@@ -76,10 +76,10 @@ optional = true
 
 [tool.poetry.group.test.dependencies]
 # pytest and pytest-cov for coverage
-pytest = "^7"
-pytest-cov = "^4"
-grequests = "^0.6.0"
-pytest-mock = "^3.8.2"
+pytest = "^9.0.3"
+pytest-cov = "^7.1.0"
+grequests = "^0.7.0"
+pytest-mock = "^3.15.1"
 
 # Config for pytest and pytest-cov
 [tool.pytest.ini_options]
