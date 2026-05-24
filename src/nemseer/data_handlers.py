@@ -31,7 +31,7 @@ def _parse_datetime_cols(df: pd.DataFrame) -> pd.DataFrame:
     dt_cols = DATETIME_COLS
     dt_cols_present = dt_cols.intersection(set(df.columns.tolist()))
     for col in dt_cols_present:
-        df.loc[:, col] = pd.to_datetime(df[col], format=DATETIME_FORMAT + ":%S")
+        df[col] = pd.to_datetime(df[col], format=DATETIME_FORMAT + ":%S")
     return df
 
 
@@ -55,7 +55,7 @@ def _parse_id_cols(df: pd.DataFrame) -> pd.DataFrame:
     }
     id_cols_present = id_cols.intersection(set(df.columns.tolist()))
     for col in id_cols_present:
-        df.loc[:, col] = df[col].astype("category")
+        df[col] = df[col].astype("category")
     return df
 
 
