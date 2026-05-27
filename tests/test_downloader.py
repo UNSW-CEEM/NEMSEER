@@ -10,7 +10,7 @@ from zipfile import BadZipFile
 import pytest
 import requests
 
-from nemseer.data import INVALID_STUBS_FILE, MMSDM_ARCHIVE_URL
+from nemseer.data import INVALID_STUBS_FILE
 from nemseer.downloader import (
     ForecastTypeDownloader,
     _construct_sqlloader_forecastdata_url,
@@ -57,7 +57,8 @@ def test_standard_sqlloader_url():
     assert url == (
         "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
         "2026/MMSDM_2026_04/MMSDM_Historical_Data_SQLLoader/PREDISP_ALL_DATA/"
-        "PUBLIC_ARCHIVE%2523PREDISPATCHREGIONSUM%2523ALL%2523FILE01%2523202604010000.zip"
+        "PUBLIC_ARCHIVE%2523PREDISPATCHREGIONSUM%2523ALL%2523FILE01%2523202604010000"
+        ".zip"
     )
     url = _construct_sqlloader_forecastdata_url(2026, 3, "PREDISPATCH", "OFFERTRK")
     assert url == (
@@ -87,6 +88,7 @@ def test_get_wait_seconds():
     assert get_wait_seconds(response, 5) == pytest.approx(30, abs=1)
 
 
+@pytest.mark.slow
 def test_allmonths_available():
     years_months = get_sqlloader_years_and_months()
     test_index = int(len(years_months) / 2)
@@ -99,42 +101,91 @@ def test_tables_for_invalid_forecasttype(get_test_year_and_month):
         get_sqlloader_forecast_tables(*get_test_year_and_month, "FAIL")
 
 
-def test_table_fetch_for_p5min(get_test_year_and_month):
-    p5tables = get_sqlloader_forecast_tables(*get_test_year_and_month, "P5MIN")
-    assert set(p5tables) == set(
-        [
-            "CONSTRAINTSOLUTION",
-            "CASESOLUTION",
-            "REGIONSOLUTION",
-            "UNITSOLUTION",
-            "INTERCONNECTORSOLN",
-        ]
+@pytest.mark.parametrize(
+    ("year", "month", "extra_tables"),
+    (
+        (
+            2015,
+            1,
+            {
+                "UNITSOLUTION",
+            },
+        ),
+        (
+            2020,
+            2,
+            {
+                "UNITSOLUTION",
+            },
+        ),
+        (2024, 7, {"UNITSOLUTION", "SCENARIODEMAND", "SCENARIODEMANDTRK"}),
+        (
+            2024,
+            8,
+            {
+                "INTERSENSITIVITIES",
+                "PRICESENSITIVITIES",
+                "SCENARIODEMAND",
+                "SCENARIODEMANDTRK",
+            },
+        ),
+        (
+            2025,
+            12,
+            {
+                "BLOCKEDCONSTRAINT",
+                "INTERSENSITIVITIES",
+                "PRICESENSITIVITIES",
+                "SCENARIODEMAND",
+                "SCENARIODEMANDTRK",
+            },
+        ),
+    ),
+)
+def test_table_fetch_for_p5min(year: int, month: int, extra_tables: set[str]):
+    base_tables = {
+        "CONSTRAINTSOLUTION",
+        "CASESOLUTION",
+        "REGIONSOLUTION",
+        "INTERCONNECTORSOLN",
+    }
+    expected_tables = base_tables | extra_tables
+    p5tables = get_sqlloader_forecast_tables(
+        year=year, month=month, forecast_type="P5MIN"
     )
+    assert set(p5tables) == expected_tables
 
 
-def test_table_fetch_for_pd(get_test_year_and_month):
-    pdtables = get_sqlloader_forecast_tables(*get_test_year_and_month, "PREDISPATCH")
-    assert set(pdtables) == set(
-        [
-            "CASESOLUTION",
-            "CONSTRAINT",
-            "CONSTRAINT_D",
-            "INTERCONNECTORRES",
-            "INTERCONNECTORRES_D",
-            "INTERCONNECTR_SENS_D",
-            "LOAD",
-            "LOAD_D",
-            "MNSPBIDTRK",
-            "OFFERTRK",
-            "PRICE",
-            "PRICESENSITIVITIE_D",
-            "PRICE_D",
-            "REGIONSUM",
-            "REGIONSUM_D",
-            "SCENARIODEMAND",
-            "SCENARIODEMANDTRK",
-        ]
+@pytest.mark.parametrize(
+    ("year", "month", "extra_tables"),
+    (
+        (2015, 1, set()),
+        (2020, 2, set()),
+        (2024, 7, set()),
+        (2024, 8, {"PRICESENSITIVITIES"}),
+        (2025, 12, {"BLOCKEDCONSTRAINT", "PRICESENSITIVITIES"}),
+    ),
+)
+def test_table_fetch_for_pd(year: int, month: int, extra_tables: set[str]):
+    base_tables = {
+        "CASESOLUTION",
+        "CONSTRAINT",
+        "INTERCONNECTORRES",
+        "LOAD",
+        "MNSPBIDTRK",
+        "OFFERTRK",
+        "PRICE",
+        "REGIONSUM",
+        "SCENARIODEMAND",
+        "SCENARIODEMANDTRK",
+    }
+    expected_tables = base_tables | extra_tables
+    pdtables = get_sqlloader_forecast_tables(
+        year=year, month=month, forecast_type="PREDISPATCH"
     )
+    # we don't care for tables that end in _D because they only exist prior to Aug 2024
+    set_pd_tables = set(t for t in pdtables if not t.endswith("_D"))
+    assert set_pd_tables == expected_tables
 
 
 class TestForecastTypeDownloader:

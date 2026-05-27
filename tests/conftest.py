@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 import grequests  # type: ignore
 import pytest
 
-from nemseer.downloader import get_sqlloader_years_and_months
 from nemseer.forecast_type.run_time_generators import generate_runtimes
 from nemseer.nemseer import compile_data, download_raw_data
 from nemseer.query import Query
@@ -14,19 +13,15 @@ assert grequests
 
 @pytest.fixture(scope="module")
 def get_test_year_and_month():
-    years_months = get_sqlloader_years_and_months()
-    test_index = int(len(years_months) / 2)
-    test_year = list(years_months.keys())[test_index]
-    test_month = years_months[test_year][5]
-    return (test_year, test_month)
+    return 2024, 8
 
 
 @pytest.fixture(scope="session")
 def valid_download_datetimes():
-    run_start = "2021/02/01 00:00"
-    run_end = "2021/02/05 00:00"
-    forecasted_start = "2021/02/08 00:00"
-    forecasted_end = "2021/02/08 23:55"
+    run_start = "2025/02/01 00:00"
+    run_end = "2025/02/05 00:00"
+    forecasted_start = "2025/02/08 00:00"
+    forecasted_end = "2025/02/08 23:55"
     return run_start, run_end, forecasted_start, forecasted_end
 
 

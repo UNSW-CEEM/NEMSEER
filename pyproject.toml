@@ -1,6 +1,6 @@
 [project]
 name = "nemseer"
-version = "1.0.7"
+version = "1.0.7.dev"
 description = "A package for downloading and handling forecasts for the National Electricity Market (NEM) from the Australian Energy Market Operator (AEMO)."
 authors = [{name="Abhijith Prakash"}]
 license = "GPL-3.0-or-later"
@@ -91,6 +91,9 @@ testpaths = ["tests"]
 # --cov-branch runs branch coverage. See https://breadcrumbscollector.tech/how-to-use-code-coverage-in-python-with-pytest/
 # --cov-repot html dumps HTML and xml summaries of pytest-cov in the "tests" folder
 addopts = "-ra --cov=src/ --cov-branch --cov-report xml:tests/coverage.xml --cov-report html:tests/htmlcov"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
 
 # Config isort to be compatible with black
 [tool.isort]
