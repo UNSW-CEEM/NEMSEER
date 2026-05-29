@@ -1,5 +1,6 @@
 import ast
 import logging
+import warnings
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
@@ -9,7 +10,12 @@ import xarray as xr
 from attrs import converters, define, field, validators
 from dateutil.relativedelta import relativedelta
 
-from .data import DATETIME_FORMAT, ENUMERATED_TABLES, FORECAST_TYPES
+from .data import (
+    DATETIME_FORMAT,
+    ENUMERATED_TABLES_BY_MONTH,
+    FORECAST_TYPES,
+    PREDISP_ALL_DATA,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -111,14 +117,127 @@ def _enumerate_tables(tables: List[str], table_str: str, range_to: int) -> List[
     Returns:
         `tables` with enumerated `table_str`
     """
+    warnings.warn(
+        "Use _enumerate_files_for_month now that number changes over time",
+        DeprecationWarning,
+    )
     tables.remove(table_str)
     for i in range(1, range_to + 1):
         tables.append(f"{table_str}{i}")
     return tables
 
 
+def _enumerate_files_for_month(
+    year: int, month: int, forecast_type: str, table_str: str
+) -> dict[tuple[int, int, str, int | None], str]:
+    """Given a table name which doesn't include counter #FILE02 or 2, returns a list
+     with enumerated file names with counter
+
+    For example, given forecast 'PREDISPATCH' and table 'CONSTRAINT' will populate
+    `tables` with ['CONSTRAINT1',...,'CONSTRAINT4'].
+
+    Args:
+        tables: Table list
+        table_str: Table string to enumerate
+        range_to: Integer to enumerate to
+    Returns:
+        `tables` with enumerated `table_str`
+    """
+    if forecast_type == "PREDISPATCH" and table_str in PREDISP_ALL_DATA:
+        all_data = True
+    else:
+        all_data = False
+    enumerated_files: dict[tuple[int, int, str, int | None], str] = {}
+    for y, m in ENUMERATED_TABLES_BY_MONTH:
+        if (year, month) >= (y, m):
+            table_multiples = ENUMERATED_TABLES_BY_MONTH[y, m].get(forecast_type, {})
+            multiple = table_multiples.get(table_str, 1)
+            if multiple > 1:
+                for counter in range(1, multiple + 1):
+                    enumerated_files[(year, month, table_str, counter)] = (
+                        _construct_sqlloader_filename(
+                            year,
+                            month,
+                            forecast_type,
+                            table_str,
+                            counter,
+                            all_data=all_data,
+                        )
+                    )
+            else:
+                enumerated_files[(year, month, table_str, None)] = (
+                    _construct_sqlloader_filename(
+                        year, month, forecast_type, table_str, all_data=all_data
+                    )
+                )
+            break
+    return enumerated_files
+
+
+def _construct_sqlloader_filename_sections(
+    year: int,
+    month: int,
+    forecast_type: str,
+    table: str,
+    counter: int | None = None,
+    all_data: bool = False,
+) -> tuple[str, str, str, str, str, str, str, str, str, str, str]:
+    """Constructs sections of filename
+
+    Args:
+        year: Year
+        month: Month
+        forecast_type: One of :data:`nemseer.forecast_types`. :term:`forecast types`
+        table: The name of the table required
+        counter: 1, 2, 3, or 4 if there are multiple files for the one table.
+                 Use None if only one file total.
+        all_data: Boolean indicating whether to use filename from ALL_DATA (True) or
+                  DATA (False)
+    Returns:
+        collection of sections s[0] to s[9]
+        s[0] = prefix PUBLIC_DVD_ or PUBLIC_ARCHIVE#
+        s[1] = forecast_type
+        s[2] = whether optional underscore between forecast_type and table
+        s[3] = table
+        s[4] = indicator #ALL whether all data is included for post Aug 2024
+        s[5] = #FILE label for post Aug 2024
+        s[6] = file counter
+        s[7] = end of filename before timestamp str
+        s[8] = year as a str
+        s[9] = month as a str
+        s[10] = day and time, always 010000
+    """
+    (str_year, str_month) = (str(year), str(month).rjust(2, "0"))
+    if (year, month) < (2024, 8):
+        # Format of file name up to and including July 2024
+        s0 = "PUBLIC_DVD_"
+        s4 = ""
+        s5 = ""
+        s6 = "" if counter is None else f"{counter:1d}"
+        s7 = "_"
+    else:
+        # Format of file name from August 2024 onwards
+        s0 = "PUBLIC_ARCHIVE%2523"
+        s4 = "%2523ALL" if all_data else ""
+        s5 = "%2523FILE"
+        s6 = "01" if counter is None else f"{counter:0>2d}"
+        s7 = "%2523"
+    if forecast_type == "PREDISPATCH" and table != "MNSPBIDTRK":
+        # Most filename separate forecast type and table name with _
+        # except PREDISPATCH and not MNSPBIDTRK
+        s2 = ""
+    else:
+        s2 = "_"
+    return s0, forecast_type, s2, table, s4, s5, s6, s7, str_year, str_month, "010000"
+
+
 def _construct_sqlloader_filename(
-    year: int, month: int, forecast_type: str, table: str, all_data: bool = False
+    year: int,
+    month: int,
+    forecast_type: str,
+    table: str,
+    counter: int | None = None,
+    all_data: bool = False,
 ) -> str:
     """Constructs filename without file type
 
@@ -127,26 +246,17 @@ def _construct_sqlloader_filename(
         month: Month
         forecast_type: One of :data:`nemseer.forecast_types`. See :term:`forecast types`
         table: The name of the table required
+        counter: number 1, 2, 3 or 4 if there are multiple files for the one table.
+                 Use None if only one file total
+        all_data: Boolean indicating whether to use filename from ALL_DATA (True) or
+                  DATA (False)
     Returns:
         Filename string without file type
     """
-    (stryear, strmonth) = (str(year), str(month).rjust(2, "0"))
-    if (year, month) < (2024, 8):
-        # Format of file name up to and including July 2024
-        s1 = "PUBLIC_DVD_"
-        s4 = "_"
-        s3 = ""
-    else:
-        # Format of file name from August 2024 onwards
-        s1 = "PUBLIC_ARCHIVE%2523"
-        s4 = "%2523FILE01%2523"
-        s3 = "%2523ALL" if all_data else ""
-    if forecast_type == "PREDISPATCH" and table != "MNSPBIDTRK":
-        # Most filename separate forecast type and table name with _ except PREDISPATCH and not MNSPBIDTRK
-        s2 = ""
-    else:
-        s2 = "_"
-    fn = f"{s1}{forecast_type}{s2}{table}{s3}{s4}{stryear}{strmonth}010000"
+    s = _construct_sqlloader_filename_sections(
+        year, month, forecast_type, table, counter=counter, all_data=all_data
+    )
+    fn = "".join(s)
     return fn
 
 
@@ -155,7 +265,7 @@ def generate_sqlloader_filenames(
     run_end: datetime,
     forecast_type: str,
     tables: List[str],
-) -> Dict[Tuple[int, int, str], str]:
+) -> Dict[Tuple[int, int, str, int | None], str]:
     """Generates MMSDM Historical Data SQLLoader file names based on provided query data
 
     Returns a tuple of query metadata (`table`, `year`, `month`) mapped to each filename
@@ -166,7 +276,7 @@ def generate_sqlloader_filenames(
         forecast_type: One of :data:`nemseer.forecast_types`.
         tables: Table or tables required, provided as a List.
     Returns:
-        A tuple of query metadata (`table`, `year`, `month`) mapped to each
+        A tuple of query metadata (`year`, `month`, `table`, `counter`) mapped to each
         format-agnostic (:term:`SQLLoader`) filename
     """
 
@@ -204,16 +314,12 @@ def generate_sqlloader_filenames(
     int_months = _determine_delta_months(run_start, run_end)
     intervening_dates = [run_start + x * MONTH for x in range(0, int_months + 1)]
     filename_data = {}
-    for ftype in ENUMERATED_TABLES:
-        if forecast_type == ftype:
-            for table, enumerate_to in ENUMERATED_TABLES[ftype]:
-                if table in tables:
-                    tables = _enumerate_tables(tables, table, enumerate_to)
     for table in tables:
         for date in intervening_dates:
             (year, month) = (date.year, date.month)
-            fname = _construct_sqlloader_filename(year, month, forecast_type, table)
-            filename_data[(year, month, table)] = fname
+            filename_data.update(
+                _enumerate_files_for_month(year, month, forecast_type, table)
+            )
     return filename_data
 
 
@@ -295,7 +401,7 @@ class Query:
         raw_cache: str,
         processed_cache: Optional[str] = None,
     ) -> "Query":
-        """Constructor method for :class:`Query`. Assembles query metatdata."""
+        """Constructor method for :class:`Query`. Assembles query metadata."""
         metadata = {
             "run_start": run_start,
             "run_end": run_end,
@@ -323,13 +429,14 @@ class Query:
         handles partial :attr:`raw_cache` completeness
 
         If all requested data is already in the :attr:`raw_cache` as parquet,
-        returns True. Otherwise returns False.
+        returns True. Otherwise, returns False.
         """
         fnames = generate_sqlloader_filenames(
             self.run_start, self.run_end, self.forecast_type, self.tables
         ).values()
         check = [
-            (self.raw_cache / Path(fname + ".parquet")).exists() for fname in fnames
+            (self.raw_cache / Path(fname.replace("%2523", "#") + ".parquet")).exists()
+            for fname in fnames
         ]
         if all(check):
             logger.info(f"Query raw data already downloaded to {self.raw_cache}")

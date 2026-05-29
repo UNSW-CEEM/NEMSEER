@@ -477,7 +477,7 @@ class TestToXarray:
         )
         assert data_map is not None
         assert type(data_map[table]) is xr.Dataset
-        assert len(data_map[table].dims.keys()) > 1
+        assert len(data_map[table].sizes.keys()) > 1
 
     def test_high_dimensionality_warning(self, caplog):
         df1 = pd.DataFrame(

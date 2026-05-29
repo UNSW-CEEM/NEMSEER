@@ -17,7 +17,6 @@ from tqdm.auto import tqdm
 
 from .data import (
     DEPRECATED_TABLES,
-    ENUMERATED_TABLES,
     FORECAST_TYPES,
     INVALID_STUBS_FILE,
     MMSDM_ARCHIVE_URL,
@@ -28,7 +27,7 @@ from .data_handlers import clean_forecast_csv
 from .query import (
     Query,
     _construct_sqlloader_filename,
-    _enumerate_tables,
+    _construct_sqlloader_filename_sections,
     generate_sqlloader_filenames,
 )
 
@@ -101,7 +100,7 @@ def _request_content(
     return r
 
 
-def get_wait_seconds(response, attempt) -> float | int:
+def get_wait_seconds(response, attempt: int) -> int:
     """
     Calculates wait time based on Retry-After header with
     exponential backoff as a failover.
@@ -110,7 +109,7 @@ def get_wait_seconds(response, attempt) -> float | int:
     In that case it backs off exponentially.
     """
     # 1. Default failover: Exponential Backoff (2, 4, 8, 16...)
-    fallback_delay = 2**attempt
+    fallback_delay: int = 2**attempt
     header = response.headers.get("Retry-After")
     if not header:
         return fallback_delay
@@ -123,9 +122,9 @@ def get_wait_seconds(response, attempt) -> float | int:
             retry_date = parsedate_to_datetime(header)
             if retry_date.tzinfo is None:
                 retry_date = retry_date.replace(tzinfo=timezone.utc)
-            retry_after_delay = (
-                retry_date - datetime.now(timezone.utc)
-            ).total_seconds()
+            retry_after_delay: int = int(
+                (retry_date - datetime.now(timezone.utc)).total_seconds()
+            )
             # Use header value if positive, else use fallback
             return retry_after_delay if retry_after_delay > 0 else fallback_delay
     except (ValueError, TypeError, OverflowError):
@@ -155,13 +154,13 @@ def _rerequest_to_obtain_soup(
     r = _request_content(url, useragent, additional_header=additional_header)
     while not r.ok and attempt < max_attempts:
         if r.status_code in [500, 502, 503, 504, 404, 400]:
-            # Server is throwing errors so no point in persisting with 5xx or bad url 4xx
+            # Server is throwing errors so no point persisting with 5xx or bad url 4xx
             r.raise_for_status()
-        # exponentially increase delay so that server is less likely to block later requests
+        # exponentially increase delay so server less likely to block later requests
         attempt += 1
         delay = get_wait_seconds(r, attempt)
         if delay > 2**max_attempts:
-            # server asked for a delay which is too long so we will abort rather than wait
+            # server asked for delay which is too long so abort rather than wait
             r.raise_for_status()
         sleep(delay)
         # use a new useragent each time to mitigate 403 responses
@@ -207,7 +206,7 @@ def _construct_yearmonth_url(
 
 
 def _construct_sqlloader_forecastdata_url(
-    year: int, month: int, forecast_type: str, table: str
+    year: int, month: int, forecast_type: str, table: str, counter: int | None = None
 ) -> str:
     """Constructs URL that points to a MMSDM Historical Data SQLLoader zip file
 
@@ -218,6 +217,8 @@ def _construct_sqlloader_forecastdata_url(
         year: Year
         month: Month
         forecast_type: One of :data:`nemseer.forecast_types`
+        table: Table name without counter
+        counter: Counter number if multiple files for table name, else None
     Returns:
         URL to zip file
     """
@@ -231,7 +232,7 @@ def _construct_sqlloader_forecastdata_url(
         all_data = False
     data_url = _construct_yearmonth_url(year, month, forecast_type, all_data=all_data)
     fn = _construct_sqlloader_filename(
-        year, month, forecast_type, table, all_data=all_data
+        year, month, forecast_type, table, counter=counter, all_data=all_data
     )
     url = data_url + fn + ".zip"
     return url
@@ -281,15 +282,26 @@ def get_sqlloader_forecast_tables(
         year: Year
         month: Month
         forecast_type: One of :data:`nemseer.forecast_types`
+        actual: on NEMWeb (True) or can be requested via `nemseer` (False). Not used
 
     Returns:
         List of tables associated with that forecast type for that period
     """
     _validate_forecast_type(forecast_type)
-    if actual:
-        table_capture = f".*/PUBLIC_DVD_{forecast_type}([A-Z_0-9]*)_[0-9]*.zip"
-    else:
-        table_capture = f".*/PUBLIC_DVD_{forecast_type}([A-Z_]*)[0-9]?_[0-9]*.zip"
+    s = _construct_sqlloader_filename_sections(year, month, forecast_type, "")
+    # s[0] = prefix PUBLIC_DVD_ or PUBLIC_ARCHIVE#
+    # s[1] = forecast_type
+    # s[2] = whether optional underscore between forecast_type and table
+    #        not accurate because table not provided
+    # s[3] = table
+    # s[4] = indicator #ALL whether all data is included for post Aug 2024
+    # s[5] = #FILE label for post Aug 2024
+    # s[6] = file counter
+    # s[7] = end of filename before timestamp str, _ or #
+    # s[8] = year as a str
+    # s[9] = month as a str
+    # s[10] = day and time as str. always "010000"
+    table_capture = f".*/{s[0]}{s[1]}_?([A-Z_]*){s[4]}{s[5]}[0-9]*{s[7]}[0-9]*.zip"
     data_url = _construct_yearmonth_url(year, month, forecast_type)
     tables = _get_captured_group_from_links(data_url, table_capture)
     if forecast_type == "PREDISPATCH":
@@ -395,7 +407,9 @@ def get_unzipped_csv(url: str, raw_cache: Path) -> None:
         len(csvfn := z.namelist()) == 1
         and (zfn := match(".*DATA/(.*).zip", url))
         and (fn := match("(.*).[cC][sS][vV]", csvfn.pop()))
-        and (fn.group(1) == zfn.group(1))
+        and (
+            fn.group(1) == zfn.group(1).replace("%2523", "#")
+        )  # AEMO have double escaped # in filenames when constructing URLs
     ):
         try:
             z.extractall(raw_cache)
@@ -432,9 +446,9 @@ def _validate_tables_on_run_start(instance, attribute, value) -> None:
         logger.warning(f"{instance.forecast_type} {dep_tabs} deprecated.")
     if not set(value).issubset(set(actual_tables)):
         raise ValueError(
-            "Table(s) not available from MMS Historical Data SQL Loader"
-            + f" (for {start_dt.month}/{start_dt.year}).\n"
-            + f"Tables include: {requestable_tables}"
+            f"Table(s) {value} not available from MMS Historical Data SQL Loader"
+            + f" (for {start_dt.month}/{start_dt.year} {instance.forecast_type}).\n"
+            + f"Tables include:\n{requestable_tables=}\n     {actual_tables=}"
         )
 
 
@@ -463,18 +477,11 @@ class ForecastTypeDownloader:
     def from_Query(cls, query: Query) -> "ForecastTypeDownloader":
         """Constructor method for :class:`ForecastTypeDownloader` from
         :class:`Query <nemseer.query.Query>`"""
-        tables = query.tables
-        for ftype in ENUMERATED_TABLES:
-            if query.forecast_type == ftype:
-                for table, enumerate_to in ENUMERATED_TABLES[ftype]:
-                    if table in tables:
-                        tables = _enumerate_tables(tables, table, enumerate_to)
-
         return cls(
             run_start=query.run_start,
             run_end=query.run_end,
             forecast_type=query.forecast_type,
-            tables=tables,
+            tables=query.tables,
             raw_cache=query.raw_cache,
         )
 
@@ -491,9 +498,13 @@ class ForecastTypeDownloader:
         invalid_or_corrupted_stubfile = self.raw_cache / Path(INVALID_STUBS_FILE)
         for metadata in filename_data.keys():
             fname = filename_data[metadata]
-            (year, month, table) = metadata
-            if (self.raw_cache / Path(fname + ".parquet")).exists():
-                logger.info(f"{table} for {month}/{year} in raw_cache")
+            fname_parquet = fname.replace("%2523", "#") + ".parquet"
+            (year, month, table, counter) = metadata
+            if (self.raw_cache / Path(fname_parquet)).exists():
+                logger.info(
+                    f"{table} {'' if counter is None else counter} for {month}/{year} "
+                    f"in raw_cache"
+                )
                 continue
             else:
                 if invalid_or_corrupted_stubfile.exists():
@@ -510,7 +521,7 @@ class ForecastTypeDownloader:
                         )
                         continue
                 url = _construct_sqlloader_forecastdata_url(
-                    year, month, self.forecast_type, table
+                    year, month, self.forecast_type, table, counter
                 )
                 logger.info(f"Downloading and unzipping {table} for {month}/{year}")
                 get_unzipped_csv(url, self.raw_cache)

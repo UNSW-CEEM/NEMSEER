@@ -1,3 +1,5 @@
+import logging
+
 import grequests  # type: ignore
 import pytest
 import requests
@@ -8,12 +10,18 @@ from nemseer.downloader import (
     _construct_sqlloader_forecastdata_url,
 )
 
+logger = logging.getLogger(__name__)
+
 
 @pytest.mark.parametrize("ftype", forecast_types)
 class TestAllTableRequests:
     def test_all_table_requests_valid(self, ftype, get_test_year_and_month):
         def _check_size(response: requests.Response):
             size = int(response.headers.get("Content-Length", 0))
+            if size < 100:
+                logger.warning(
+                    f"{size=} for {ftype=} {response.url=} {response.status_code=} "
+                )
             assert size > 100
 
         year, month = get_test_year_and_month

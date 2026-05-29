@@ -26,6 +26,16 @@ def valid_download_datetimes():
 
 
 @pytest.fixture(scope="session")
+def valid_download_datetimes_pre202408():
+    # Some tests only make sense on data prior to Aug 2024
+    run_start = "2020/02/01 00:00"
+    run_end = "2020/02/05 00:00"
+    forecasted_start = "2020/02/08 00:00"
+    forecasted_end = "2020/02/08 23:55"
+    return run_start, run_end, forecasted_start, forecasted_end
+
+
+@pytest.fixture(scope="session")
 def download_file_to_cache(tmp_path_factory, valid_download_datetimes):
     (
         run_start,
@@ -56,7 +66,7 @@ def download_file_to_cache(tmp_path_factory, valid_download_datetimes):
 def compile_data_to_processed_cache(tmp_path_factory):
     queries = {
         "STPASA": "INTERCONNECTORSOLN",
-        "PREDISPATCH": "REGIONSUM_D",
+        "PREDISPATCH": "REGIONSUM",
         "P5MIN": "CASESOLUTION",
     }
     forecasted_start = "2022/03/15 00:00"
@@ -87,7 +97,7 @@ def compile_data_to_processed_cache(tmp_path_factory):
             table,
             raw_cache=raw_cache,
             processed_cache=processed_cache,
-            data_format="df",
+            data_format="xr",
         )
         compile_data(
             run_start,
@@ -98,7 +108,7 @@ def compile_data_to_processed_cache(tmp_path_factory):
             table,
             raw_cache=raw_cache,
             processed_cache=processed_cache,
-            data_format="xr",
+            data_format="df",
         )
     return query_metadata
 

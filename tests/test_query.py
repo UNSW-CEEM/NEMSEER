@@ -6,7 +6,7 @@ from nemseer.data import DATETIME_FORMAT
 from nemseer.query import (
     Query,
     _dt_converter,
-    _enumerate_tables,
+    _enumerate_files_for_month,
     _tablestr_converter,
     generate_sqlloader_filenames,
 )
@@ -40,15 +40,81 @@ def test_tablstr_redundant_conversion():
     assert _tablestr_converter(["sdfs"]) == ["sdfs"]
 
 
-def test_enumerate_tables():
-    tables = ["REGIONDISPATCH", "DISPATCHLOAD", "testing"]
-    table_str = "testing"
-    assert _enumerate_tables(tables, table_str, 2) == [
-        "REGIONDISPATCH",
-        "DISPATCHLOAD",
-        "testing1",
-        "testing2",
-    ]
+def test_enumerate_files_for_month():
+    assert _enumerate_files_for_month(2024, 7, "PREDISPATCH", "LOAD") == {
+        (2024, 7, "LOAD", 1): "PUBLIC_DVD_PREDISPATCHLOAD1_202407010000",
+        (2024, 7, "LOAD", 2): "PUBLIC_DVD_PREDISPATCHLOAD2_202407010000",
+    }
+    assert _enumerate_files_for_month(2024, 8, "PREDISPATCH", "LOAD") == {
+        (
+            2024,
+            8,
+            "LOAD",
+            None,
+        ): "PUBLIC_ARCHIVE%2523PREDISPATCHLOAD%2523ALL%2523FILE01%2523202408010000",
+    }
+    assert _enumerate_files_for_month(2024, 1, "P5MIN", "CONSTRAINTSOLUTION") == {
+        (
+            2024,
+            1,
+            "CONSTRAINTSOLUTION",
+            1,
+        ): "PUBLIC_DVD_P5MIN_CONSTRAINTSOLUTION1_202401010000",
+        (
+            2024,
+            1,
+            "CONSTRAINTSOLUTION",
+            2,
+        ): "PUBLIC_DVD_P5MIN_CONSTRAINTSOLUTION2_202401010000",
+        (
+            2024,
+            1,
+            "CONSTRAINTSOLUTION",
+            3,
+        ): "PUBLIC_DVD_P5MIN_CONSTRAINTSOLUTION3_202401010000",
+        (
+            2024,
+            1,
+            "CONSTRAINTSOLUTION",
+            4,
+        ): "PUBLIC_DVD_P5MIN_CONSTRAINTSOLUTION4_202401010000",
+    }
+    assert _enumerate_files_for_month(2024, 8, "P5MIN", "CONSTRAINTSOLUTION") == {
+        (
+            2024,
+            8,
+            "CONSTRAINTSOLUTION",
+            1,
+        ): "PUBLIC_ARCHIVE%2523P5MIN_CONSTRAINTSOLUTION%2523FILE01%2523202408010000",
+        (
+            2024,
+            8,
+            "CONSTRAINTSOLUTION",
+            2,
+        ): "PUBLIC_ARCHIVE%2523P5MIN_CONSTRAINTSOLUTION%2523FILE02%2523202408010000",
+        (
+            2024,
+            8,
+            "CONSTRAINTSOLUTION",
+            3,
+        ): "PUBLIC_ARCHIVE%2523P5MIN_CONSTRAINTSOLUTION%2523FILE03%2523202408010000",
+    }
+    assert _enumerate_files_for_month(2024, 1, "STPASA", "REGIONSOLUTION") == {
+        (
+            2024,
+            1,
+            "REGIONSOLUTION",
+            None,
+        ): "PUBLIC_DVD_STPASA_REGIONSOLUTION_202401010000"
+    }
+    assert _enumerate_files_for_month(2024, 8, "STPASA", "REGIONSOLUTION") == {
+        (
+            2024,
+            8,
+            "REGIONSOLUTION",
+            None,
+        ): "PUBLIC_ARCHIVE%2523STPASA_REGIONSOLUTION%2523FILE01%2523202408010000"
+    }
 
 
 class TestQuery:
@@ -210,6 +276,17 @@ class TestQuery:
         ).values()
         test_fnames = [
             f"PUBLIC_DVD_P5MIN_CONSTRAINTSOLUTION{i}_202102010000" for i in range(1, 5)
+        ]
+        assert set(fnames) == set(test_fnames)
+        fnames = generate_sqlloader_filenames(
+            datetime(2024, 8, 4, 15, 0),
+            datetime(2024, 8, 4, 15, 0),
+            "P5MIN",
+            ["CONSTRAINTSOLUTION"],
+        ).values()
+        test_fnames = [
+            f"PUBLIC_ARCHIVE%2523P5MIN_CONSTRAINTSOLUTION%2523FILE0{i}%2523202408010000"
+            for i in range(1, 4)
         ]
         assert set(fnames) == set(test_fnames)
 
