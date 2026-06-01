@@ -23,11 +23,11 @@ jobs:
 
       # Checkout the repo so the workflow can access it
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Set up Python
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -82,7 +82,7 @@ jobs:
 
       # Checkout the repo so the workflow can access it
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Install the specified version of poetry
       - name: Get poetry
@@ -102,7 +102,7 @@ jobs:
 
       # Set up Python, with a cache for poetry deps
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
@@ -134,11 +134,11 @@ jobs:
     steps:
       # Checkout the repo so the workflow can access it
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Set up Python
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
