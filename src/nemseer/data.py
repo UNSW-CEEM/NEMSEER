@@ -15,14 +15,6 @@ PREDISP_ALL_DATA = ("CONSTRAINT", "INTERCONNECTORRES", "PRICE", "LOAD", "REGIONS
 MTPASA_DUID_URL = "http://nemweb.com.au/Reports/Current/MTPASA_DUIDAvailability/"
 """MTPASA DUID Availability"""
 
-#: Enumerated tables for each forecast type
-#: DEPRECATED. Use ENUMERATED_TABLES_BY_MONTH
-#: First element of tuple is table name
-#: Second element of tuple is number which to enumerate table to
-ENUMERATED_TABLES = {
-    "P5MIN": [("CONSTRAINTSOLUTION", 4)],
-    "PREDISPATCH": [("CONSTRAINT", 2), ("LOAD", 2)],
-}
 # Enumerated tables for each forecast type and in each date range
 # Key is tuple showing year and month when it first started to apply
 # Value is dict

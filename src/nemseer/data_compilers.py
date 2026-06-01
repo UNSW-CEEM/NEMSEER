@@ -332,20 +332,17 @@ class DataCompiler:
         if self.compiled_data is None:
             raise IOError("No compiled data to write to processed cache")
         data = self.compiled_data
-        xrbool = all([type(data) is xr.Dataset for data in self.compiled_data.values()])
-        dfbool = all(
-            [type(data) is pd.DataFrame for data in self.compiled_data.values()]
-        )
         for table in data.keys():
             if self.processed_queries and table in self.processed_queries.keys():
                 continue
             else:
                 fn = _build_query_filename(self, table)
                 self.metadata.update({"table": table})
-                dataset = data[table]
-                if xrbool:
+                data_table = data[table]
+                if isinstance(data_table, xr.Dataset):
+                    dataset: xr.Dataset = data_table
                     fn_path = self.processed_cache / Path(fn + ".nc")
-                    dataset.attrs = self.metadata  # type: ignore
+                    dataset.attrs = self.metadata
                     logger.info(f"Writing {table} to the processed cache as netCDF")
                     # netcdf can't save CategoricalDtype columns
                     # if using pandas>=3.0.0 or xarray>=2025.4.0 CategoricalDtype
@@ -356,12 +353,13 @@ class DataCompiler:
                                 f"writing netCDF - Variable {name} has dtype "
                                 f"{var.dtype} - converting to str"
                             )
-                            dataset[name] = dataset[name].astype(str)
+                            dataset = dataset.assign({name: dataset[name].astype(str)})
                     dataset.to_netcdf(fn_path)  # type: ignore
-                elif dfbool:
+                elif isinstance(data_table, pd.DataFrame):
+                    df = data_table
                     fn_path = self.processed_cache / Path(fn + ".parquet")
                     pyarrow_table = _df_to_pyarrow_with_metadata(
-                        dataset, self.metadata  # type: ignore
+                        df, self.metadata  # type: ignore
                     )
                     logger.info(f"Writing {table} to the processed cache as parquet")
                     pq.write_table(pyarrow_table, fn_path)

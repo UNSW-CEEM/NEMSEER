@@ -1,6 +1,5 @@
 import ast
 import logging
-import warnings
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Union
@@ -56,7 +55,7 @@ def _tablestr_converter(value: Union[str, List[str]]) -> List[str]:
     Returns:
         List of strings
     """
-    if type(value) is str:
+    if isinstance(value, str):
         return [value]
     else:
         return list(value)
@@ -102,29 +101,6 @@ def _validate_raw_not_processed(instance, attribute, value) -> None:
             raise ValueError(
                 f"{attribute.name} should be distinct from processed_cache"
             )
-
-
-def _enumerate_tables(tables: List[str], table_str: str, range_to: int) -> List[str]:
-    """Given a table name, populates a list with enumerated table names
-
-    For example, given 'CONSTRAINTSOLUTION' and `range_to`=3, will populate
-    `tables` with ['CONSTRAINTSOLUTION1',...,'CONSTRAINTSOLUTION3'].
-
-    Args:
-        tables: Table list
-        table_str: Table string to enumerate
-        range_to: Integer to enumerate to
-    Returns:
-        `tables` with enumerated `table_str`
-    """
-    warnings.warn(
-        "Use _enumerate_files_for_month now that number changes over time",
-        DeprecationWarning,
-    )
-    tables.remove(table_str)
-    for i in range(1, range_to + 1):
-        tables.append(f"{table_str}{i}")
-    return tables
 
 
 def _enumerate_files_for_month(
