@@ -68,7 +68,7 @@ def _generate_P5MIN_runtimes(
         forecasted_start: Forecasts pertaining to times at or after this
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
-            datetime are retaned.
+            datetime are retained.
     Returns:
         Tuple of datetimes containing  the widest range of possible `forecasted` times
     """
@@ -90,7 +90,7 @@ def _generate_PREDISPATCH_runtimes(
         forecasted_start: Forecasts pertaining to times at or after this
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
-            datetime are retaned.
+            datetime are retained.
     Returns:
         Tuple of datetimes containing  the widest range of possible `forecasted` times
     """
@@ -114,7 +114,7 @@ def _generate_PDPASA_runtimes(
         forecasted_start: Forecasts pertaining to times at or after this
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
-            datetime are retaned.
+            datetime are retained.
     Returns:
         Tuple of datetimes containing  the widest range of possible `forecasted` times
     """
@@ -137,7 +137,7 @@ def _generate_STPASA_runtimes(
         forecasted_start: Forecasts pertaining to times at or after this
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
-            datetime are retaned.
+            datetime are retained.
     Returns:
         Tuple of datetimes containing  the widest range of possible `forecasted` times
     """

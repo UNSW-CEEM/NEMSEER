@@ -118,9 +118,12 @@ def _gen_datetime():
 
     From this gist: https://gist.github.com/rg3915/db907d7455a4949dbe69
     """
-    min_year = 2015
+    # Earliest runtime data on nemweb in correct format is 2015 (Jan)
+    # MTPASA tests go back 2 years 15 days so make earliest start Feb 2017 for tests
+    # This will give latest forecast time of Feb 2026 which works
+    min_year = 2017
     max_year = 2025
-    start = datetime(min_year, 1, 1, 00, 00, 00)
+    start = datetime(min_year, 2, 1, 00, 00, 00)
     years = max_year - min_year + 1
     end = start + timedelta(days=365 * years)
     return start + (end - start) * random.random()
