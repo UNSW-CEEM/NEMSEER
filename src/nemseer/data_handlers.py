@@ -67,14 +67,14 @@ def _parse_predispatch_seq_no(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         :class:`pandas.DataFrame` with additional column `PREDISPATCH_RUN_DATETIME`
     """
-    df["PREDISPATCHSEQNO"] = df["PREDISPATCHSEQNO"].astype(int).astype(str)
-    parsed = df["PREDISPATCHSEQNO"].str.extract(r"^([0-9]{8})([0-9]{2})$")
+    ser_pd_sn = df["PREDISPATCHSEQNO"].astype(int).astype(str)
+    parsed = ser_pd_sn.str.extract(r"^([0-9]{8})([0-9]{2})$")
     year_month_day = pd.to_datetime(parsed[0], format="%Y%m%d")
     hour_min = ((parsed[1].astype(int) - 1) * pd.Timedelta(minutes=30)).add(
         pd.Timedelta(hours=4, minutes=30)
     )
-    df["PREDISPATCH_RUN_DATETIME"] = year_month_day + hour_min  # type: ignore
-    return df
+    ser_pd_r_dt = year_month_day + hour_min
+    return df.assign(PREDISPATCHSEQNO=ser_pd_sn, PREDISPATCH_RUN_DATETIME=ser_pd_r_dt)
 
 
 def clean_forecast_csv(filepath_or_buffer: Union[str, Path]) -> pd.DataFrame:
