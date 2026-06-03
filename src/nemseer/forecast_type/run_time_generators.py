@@ -20,7 +20,7 @@ def _determine_valid_earliest_run_for_PD(forecasted_dt: datetime) -> datetime:
     submission closed at 1230.
 
     Args:
-        dt: A `forecasted` time.
+        forecasted_dt: A `forecasted` time.
     Returns:
         A 1300 run time, corresponding to the earliest possible run.
 
@@ -44,7 +44,7 @@ def _determine_valid_latest_run_for_STPASA(forecasted_dt: datetime) -> datetime:
     hourly). To ensure "backwards-compatability", this function returns a run at 14:00.
 
     Args:
-        dt: A `forecasted` time.
+        forecasted_dt: A `forecasted` time.
     Returns:
         (One of the) earliest possible run times.
 

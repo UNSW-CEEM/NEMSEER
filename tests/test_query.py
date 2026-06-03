@@ -3,6 +3,7 @@ from datetime import datetime
 import pytest
 
 from nemseer.data import DATETIME_FORMAT
+from nemseer.forecast_type.forecasted_time_generators import generate_forecasted_times
 from nemseer.query import (
     Query,
     _dt_converter,
@@ -255,13 +256,17 @@ class TestQuery:
                 processed_cache=testdir,
             )
 
-    @pytest.mark.xfail(raises=ValueError)
     def test_mtpasa_duidavailability(self, tmp_path):
+        run_start = self.same_forecast_dates[0]
+        run_end = self.same_forecast_dates[1]
+        forecast_start, forecast_end = generate_forecasted_times(
+            run_start, run_end, "MTPASA"
+        )
         Query.initialise(
-            self.backward_dates[0],
-            self.backward_dates_pair[0],
-            self.backward_dates[1],
-            self.backward_dates_pair[1],
+            run_start,
+            run_end,
+            forecast_start,
+            forecast_end,
             "MTPASA",
             "DUIDAVAILABILITY",
             tmp_path,

@@ -288,6 +288,20 @@ In the example below, we request {term}`run times` that contain data for the {te
 
 You can see that in the [compiling data examples](<quick_start:compiling data>) we had a wider {term}`run time` range. This is fine since filtering will only retain {term}`run times` that contain the requested {term}`forecasted times`. The inverse is not true: {func}`compile_data <nemseer.compile_data>` will raise errors if the requested {term}`forecasted times` are not valid/do not have forecast outputs for the requested {term}`run times`.
 
+### Getting valid forecasted times for a set of run times
+
+If you're interested in run data for a particular datetime range (i.e. between {term}`run_start` and {term}`run_end`) but not sure what the valid {term}`forecasted times` for this range are, you can use {func}`generate_forecasted_times <nemseer.generate_forecasted_times>`.
+
+This function returns the first {term}`forecasted_start` and last {term}`forecasted_end` between which forecast outputs for the {term}`run times` are available.
+
+In the example below, we request {term}`forecasted times` that contain data for the {term}`run times` used in the [compiling data examples](<quick_start:compiling data>):
+
+```{doctest}
+>>> import nemseer
+>>> nemseer.generate_forecasted_times("2022/03/01 09:00", "2022/03/01 12:00", "STPASA")
+('2022/03/02 04:30', '2022/03/08 04:00')
+```
+
 ## Downloading raw data
 
 You can download raw data[^1] to a cache using {func}`download_raw_data() <nemseer.download_raw_data>`. This function only downloads data to the {term}`raw_cache`.
