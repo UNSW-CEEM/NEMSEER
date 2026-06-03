@@ -62,15 +62,13 @@ Ready to contribute? Here's how to set up `nemseer` for local development.
 3. Install `nemseer` using `poetry`:
 
     - Developers should install additional `poetry` groups for development:
-      - `docs` for documentation dependencies (incompatible with test because installs anyio)
+      - `docs` for documentation dependencies
       - `style` for linters. `nemseer` uses `flake8` and `mypy` for type annotations
-      - `test` for testing utilities (incompatible with docs because installs grequests)
+      - `test` for testing utilities
       - (optional) `debug` for debugging tools
 
-      - For example, one of the following two lines
         ```console
-        $ poetry install --with=style,test
-        $ poetry install --with=docs,style
+        $ poetry install --with=docs,style,test
         ```
 
     - If you are on Windows and attempting to install dependencies results in an error such as the one below, refer to the [fix below](https://github.com/UNSW-CEEM/NEMSEER/blob/master/CONTRIBUTING.md#fix-for-running-poetry-on-windows):
@@ -127,8 +125,8 @@ We will implement the fix described [here](https://github.com/python-poetry/poet
 2. Find the `_run` method of class `Env`
 3. Comment out and add lines as demonstrated below (this is done in the last three line of the code block below)
 
-    ```python
-    def _run(self, cmd: list[str], **kwargs: Any) -> int | str:
+```python
+def _run(self, cmd: list[str], **kwargs: Any) -> int | str:
     """
     Run a command inside the Python environment.
     """
@@ -140,7 +138,7 @@ We will implement the fix described [here](https://github.com/python-poetry/poet
         #if self._is_windows:
         #    kwargs["shell"] = True
         kwargs["shell"] = False
-    ```
+```
 
 ## Code of Conduct
 

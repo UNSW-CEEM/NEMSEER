@@ -1,8 +1,8 @@
 import logging
 
-import grequests  # type: ignore
 import pytest
 import requests
+from requests_futures.sessions import FuturesSession
 
 from nemseer import forecast_types, get_tables
 from nemseer.downloader import (
@@ -27,9 +27,14 @@ class TestAllTableRequests:
         year, month = get_test_year_and_month
         ftype_tables = get_tables(year, month, ftype)
         useragents = _build_useragent_generator(len(ftype_tables))
-        reqs = []
-        for table in ftype_tables:
-            url = _construct_sqlloader_forecastdata_url(year, month, ftype, table)
-            reqs.append(grequests.get(url, headers={"User-Agent": next(useragents)}))
-        for resp in grequests.imap(reqs, size=len(reqs)):
-            _check_size(resp)
+        with FuturesSession(max_workers=len(ftype_tables)) as session:
+            futures = [
+                session.get(url, headers={"User-Agent": next(useragents)})
+                for url in [
+                    _construct_sqlloader_forecastdata_url(year, month, ftype, table)
+                    for table in ftype_tables
+                ]
+            ]
+            for future in futures:
+                resp = future.result()
+                _check_size(resp)

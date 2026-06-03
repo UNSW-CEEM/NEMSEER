@@ -1,14 +1,11 @@
 import random
 from datetime import datetime, timedelta
 
-import grequests  # type: ignore
 import pytest
 
 from nemseer.forecast_type.run_time_generators import generate_runtimes
 from nemseer.nemseer import compile_data, download_raw_data
 from nemseer.query import Query
-
-assert grequests
 
 
 @pytest.fixture(scope="module")

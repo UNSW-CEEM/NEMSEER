@@ -67,6 +67,7 @@ def _parse_predispatch_seq_no(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         :class:`pandas.DataFrame` with additional column `PREDISPATCH_RUN_DATETIME`
     """
+    df = df.copy()  # defragment
     ser_pd_sn = df["PREDISPATCHSEQNO"].astype(int).astype(str)
     parsed = ser_pd_sn.str.extract(r"^([0-9]{8})([0-9]{2})$")
     year_month_day = pd.to_datetime(parsed[0], format="%Y%m%d")
@@ -101,9 +102,10 @@ def clean_forecast_csv(filepath_or_buffer: Union[str, Path]) -> pd.DataFrame:
     if "PREDISPATCHSEQNO" in df.columns:
         df = _parse_predispatch_seq_no(df)
     for col in [col for col in df.columns if df.dtypes[col] == "float64"]:
-        df[col] = pd.to_numeric(df[col], downcast="integer")
-    for col in [col for col in df.columns if df.dtypes[col] == "float64"]:
-        df[col] = pd.to_numeric(df[col], downcast="float")
+        if df[col].notna().all() and (df[col] % 1 == 0).all():
+            df[col] = df[col].astype("int64")
+        else:
+            df[col] = df[col].astype("float32")
     if any(dup_df := df.duplicated()):
         dup_rows = dup_df.loc[dup_df is True]
         logger.warning(

@@ -372,7 +372,7 @@ version = "2.0.0"
 description = "Foreign Function Interface for Python calling C code."
 optional = false
 python-versions = ">=3.9"
-groups = ["docs", "test"]
+groups = ["docs"]
 files = [
     {file = "cffi-2.0.0-cp310-cp310-macosx_10_13_x86_64.whl", hash = "sha256:0cf2d91ecc3fcc0625c2c530fe004f82c110405f101548512cce44322fa8ac44"},
     {file = "cffi-2.0.0-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:f73b96c41e3b2adedc34a7356e64c8eb96e03a3782b535e043a986276ce12a49"},
@@ -459,7 +459,6 @@ files = [
     {file = "cffi-2.0.0-cp39-cp39-win_amd64.whl", hash = "sha256:b882b3df248017dba09d6b16defe9b5c407fe32fc7c65a9c69798e6175601be9"},
     {file = "cffi-2.0.0.tar.gz", hash = "sha256:44d1b5909021139fe36001ae048dbdde8214afa20200eda0f64c068cac5d5529"},
 ]
-markers = {test = "sys_platform == \"win32\" and platform_python_implementation == \"CPython\""}
 
 [package.dependencies]
 pycparser = {version = "*", markers = "implementation_name != \"PyPy\""}
@@ -1266,82 +1265,13 @@ sphinx = ">=7.0,<10.0"
 sphinx-basic-ng = ">=1.0.0b2"
 
 [[package]]
-name = "gevent"
-version = "26.5.0"
-description = "Coroutine-based network library"
-optional = false
-python-versions = ">=3.9"
-groups = ["test"]
-files = [
-    {file = "gevent-26.5.0-cp310-cp310-manylinux_2_28_x86_64.whl", hash = "sha256:2ba673dcbf7747513b58fa64ca7e9d6a828bc5c604d1552d23db89006d7911df"},
-    {file = "gevent-26.5.0-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:271b1474d81bb33036631adb16a35e5a1ee9dc414b05c999d6b01dc839a89975"},
-    {file = "gevent-26.5.0-cp311-cp311-manylinux_2_28_aarch64.whl", hash = "sha256:cd3dc60581687e2618286108f8e2f820d8446be4b34131065011c066e911d39c"},
-    {file = "gevent-26.5.0-cp311-cp311-manylinux_2_28_ppc64le.whl", hash = "sha256:dc7fa28b2d627f8e87595f39043b6dec71e8e7fb97e685e5506c47cf3ff8cb2e"},
-    {file = "gevent-26.5.0-cp311-cp311-manylinux_2_28_s390x.whl", hash = "sha256:68c5fc21cef80268cdff88a4ae6c025fabb019b071f6f8ee4d20a7bccbddb873"},
-    {file = "gevent-26.5.0-cp311-cp311-manylinux_2_28_x86_64.whl", hash = "sha256:d325502eb0695708ef8c899f605573ed6847f3961f8159627dba267fbf3ce457"},
-    {file = "gevent-26.5.0-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:a11daf3a588b932c8bf965fb18444c69aff48badec88435e988cf8d67137075a"},
-    {file = "gevent-26.5.0-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:1101b5ef82a3fb178550cfd80f32293dc8dd2f3d0828292223ebba29d6f76e33"},
-    {file = "gevent-26.5.0-cp311-cp311-win_amd64.whl", hash = "sha256:5233109ad4f3af16393ba9888f238919a05ce15ce68d6831ac8a0da8dfb750ae"},
-    {file = "gevent-26.5.0-cp311-cp311-win_arm64.whl", hash = "sha256:3be804565168ffacebeb21af9f1cd689831a89f0f12fc0c3f423c730c3c9eb31"},
-    {file = "gevent-26.5.0-cp312-cp312-macosx_11_0_universal2.whl", hash = "sha256:e80ad2a8a1e8bdaa5605e3bf4929e0cebf9ea7b8237c83362f7257698bb14280"},
-    {file = "gevent-26.5.0-cp312-cp312-manylinux_2_28_aarch64.whl", hash = "sha256:fe42c037253580a3386fce275f8a2a845e540f5a729916934a732f13d42e72cc"},
-    {file = "gevent-26.5.0-cp312-cp312-manylinux_2_28_ppc64le.whl", hash = "sha256:9f463c7d6f69d13b6fe8e3b832a6175a6e95328a940f38495d25496d1ae8ad88"},
-    {file = "gevent-26.5.0-cp312-cp312-manylinux_2_28_s390x.whl", hash = "sha256:96d5e96b1b14a4c1023dcfcc114533217f13febc3b6169254f23fc18d19fee29"},
-    {file = "gevent-26.5.0-cp312-cp312-manylinux_2_28_x86_64.whl", hash = "sha256:bccff69c462e3650a0fd1d4e9cfc8b6effe15f3e9b1cad20a7bb5ce14b057efd"},
-    {file = "gevent-26.5.0-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:f519139354d5ca7625df9ddb1b2ffada885c14abc5b4dbae3682e967ddf79669"},
-    {file = "gevent-26.5.0-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:0bf57df54f1c66273bf3601c2a1e41b12138fe848933718369663bc54f177ca2"},
-    {file = "gevent-26.5.0-cp312-cp312-win_amd64.whl", hash = "sha256:e49ce0de007dfd7412edbc2b5d41cce33b049bb1b7086f50be5a09e601bde603"},
-    {file = "gevent-26.5.0-cp312-cp312-win_arm64.whl", hash = "sha256:5c5ff29495a2eed2a244de8150f21893d6c1b15d8b4b5719ab4bbfa06db1e28f"},
-    {file = "gevent-26.5.0-cp313-cp313-macosx_11_0_universal2.whl", hash = "sha256:9b4d3f34c913d1a6bec6d030365a517f3b527a9773b12e58cf56c3339bbe96e6"},
-    {file = "gevent-26.5.0-cp313-cp313-manylinux_2_28_aarch64.whl", hash = "sha256:1d8da4e799431feeb4c9e441ac7431f0baabb9106976790d884289d08ac08359"},
-    {file = "gevent-26.5.0-cp313-cp313-manylinux_2_28_ppc64le.whl", hash = "sha256:51becdb4c30a8f45c1c028ad7a97bf5a1ed141f74b159a31aa9cc6aa1e6263a6"},
-    {file = "gevent-26.5.0-cp313-cp313-manylinux_2_28_s390x.whl", hash = "sha256:c42bbcd3d453b08ad8915fd3feaf3d44a3562cdf1c7b208f9837149711e16d9d"},
-    {file = "gevent-26.5.0-cp313-cp313-manylinux_2_28_x86_64.whl", hash = "sha256:bd3445e4fbeeb46690ed8efe94b8d1d46b14aa04af8866ae7a8da5997828d1c6"},
-    {file = "gevent-26.5.0-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:b573d5b2826edc705f31f07da6889ad483a6a0d64944ebd8d32205f7c5bf46fb"},
-    {file = "gevent-26.5.0-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:4d53b1b28f2082a151bded2850b53f6baed02f742d2a1584029e8bd42d457fb4"},
-    {file = "gevent-26.5.0-cp313-cp313-win_amd64.whl", hash = "sha256:23569ce0c254eb821fc3dcfe250843dde8b3180b09bae9e222e41aa3fa4885b7"},
-    {file = "gevent-26.5.0-cp313-cp313-win_arm64.whl", hash = "sha256:40cdcdb2e404b6c82b82a4576bdb33958f23fc2deb0d933e9e022b362001e647"},
-    {file = "gevent-26.5.0-cp314-cp314-macosx_11_0_universal2.whl", hash = "sha256:75a0050e4b87f08ddee7e56f59e6014cd7fcdc3153046c09a847940515d12c85"},
-    {file = "gevent-26.5.0-cp314-cp314-manylinux_2_28_aarch64.whl", hash = "sha256:fd1a0b83a04e19378d9466ae0ee2b5937cf1d7fbfdcb916b2aea82179a208574"},
-    {file = "gevent-26.5.0-cp314-cp314-manylinux_2_28_ppc64le.whl", hash = "sha256:4c964c15076e76391d523ec24202f579a2535f7e301a40efb1656ae046d3eb69"},
-    {file = "gevent-26.5.0-cp314-cp314-manylinux_2_28_s390x.whl", hash = "sha256:45d5438d1c84da5df7e832434627624709543630977332bb4e2d05ecca362cc9"},
-    {file = "gevent-26.5.0-cp314-cp314-manylinux_2_28_x86_64.whl", hash = "sha256:354f35924113abc954819216c2a6ee16751958c615681e0490946e31b437bd2f"},
-    {file = "gevent-26.5.0-cp314-cp314-musllinux_1_2_aarch64.whl", hash = "sha256:a47cd2d32f6404212d374ad8014a3491d7477dcf0cc09c5a2308ad6d325fd663"},
-    {file = "gevent-26.5.0-cp314-cp314-musllinux_1_2_x86_64.whl", hash = "sha256:032157cebdedb84f2f52cdd980f2f5f2623eed6a8f083aadf44b44c47f628642"},
-    {file = "gevent-26.5.0-cp314-cp314-win_amd64.whl", hash = "sha256:9c414935ba5fc88359110968851d3616f119082c937390d00a1c0f4f59be814f"},
-    {file = "gevent-26.5.0-cp314-cp314-win_arm64.whl", hash = "sha256:2a0f5993a04b95a35b3a118b1a58ba272833f9b547b774001dea29f90620882f"},
-    {file = "gevent-26.5.0-cp315-cp315-macosx_11_0_universal2.whl", hash = "sha256:2e117df896a2660c9ebd4e2b5afc02dfd6e2ddf9b495e787e67c72d105432b09"},
-    {file = "gevent-26.5.0-cp315-cp315-manylinux_2_28_aarch64.whl", hash = "sha256:af5ffe9c11ffb8a39b6bef2e8b722aa2043ae4980977915c6aa8c68b4bc26e46"},
-    {file = "gevent-26.5.0-cp315-cp315-manylinux_2_28_ppc64le.whl", hash = "sha256:7da34aef7e87c43dd3662e5785e79ed505c01399a7cb42876d2d8925969fd75f"},
-    {file = "gevent-26.5.0-cp315-cp315-manylinux_2_28_s390x.whl", hash = "sha256:1c6293a7046bcc6f3d8972a74b19cd7a4cfd02d3881edf0fcf827aa514bd247b"},
-    {file = "gevent-26.5.0-cp315-cp315-manylinux_2_28_x86_64.whl", hash = "sha256:d3bde0f140a275b2fa88e4b6516bda85551930e10bc2fd95e18c1b7d11cb780c"},
-    {file = "gevent-26.5.0-cp315-cp315-musllinux_1_2_aarch64.whl", hash = "sha256:e29fb4b17d9958ec8cb7f6339a111b29bc23f2c2efbef86189d1248bb4862d17"},
-    {file = "gevent-26.5.0-cp315-cp315-musllinux_1_2_x86_64.whl", hash = "sha256:b2239df2f7570efa03736678f3f053bb1bdd22a8a16cd28a2feb7d32ea5f533f"},
-    {file = "gevent-26.5.0-cp315-cp315-win_amd64.whl", hash = "sha256:aae214952fd38d27a42dc416bb70193962ec932384b63445d29bbb5817a1c042"},
-    {file = "gevent-26.5.0-cp315-cp315-win_arm64.whl", hash = "sha256:f7067564f139e33bf26a31ee3b13d168d76eb99a44b85ced626652b158baa80c"},
-    {file = "gevent-26.5.0.tar.gz", hash = "sha256:1655eb04c1e20d71b2aa4a3c7528162dd58ff6cc46a037af1f01f534c80fefba"},
-]
-
-[package.dependencies]
-cffi = {version = ">=1.17.1", markers = "platform_python_implementation == \"CPython\" and sys_platform == \"win32\""}
-greenlet = {version = ">=3.2.2", markers = "platform_python_implementation == \"CPython\""}
-"zope.event" = "*"
-"zope.interface" = "*"
-
-[package.extras]
-dnspython = ["dnspython (>=1.16.0,<2.0) ; python_version < \"3.10\"", "idna ; python_version < \"3.10\""]
-docs = ["furo", "repoze.sphinx.autointerface", "sphinx", "sphinxcontrib-programoutput", "zope.schema"]
-monitor = ["psutil (>=6.0.0) ; sys_platform != \"win32\" or platform_python_implementation == \"CPython\""]
-recommended = ["cffi (>=1.17.1) ; platform_python_implementation == \"CPython\"", "dnspython (>=1.16.0,<2.0) ; python_version < \"3.10\"", "idna ; python_version < \"3.10\"", "psutil (>=6.0.0) ; sys_platform != \"win32\" or platform_python_implementation == \"CPython\""]
-test = ["cffi (>=1.17.1) ; platform_python_implementation == \"CPython\"", "coverage (>=5.0,<7.13) ; sys_platform != \"win32\"", "dnspython (>=1.16.0,<2.0) ; python_version < \"3.10\"", "idna ; python_version < \"3.10\"", "objgraph", "psutil (>=6.0.0) ; sys_platform != \"win32\" or platform_python_implementation == \"CPython\"", "requests"]
-
-[[package]]
 name = "greenlet"
 version = "3.5.1"
 description = "Lightweight in-process concurrent programming"
 optional = false
 python-versions = ">=3.10"
-groups = ["docs", "test"]
+groups = ["docs"]
+markers = "platform_machine == \"aarch64\" or platform_machine == \"ppc64le\" or platform_machine == \"x86_64\" or platform_machine == \"amd64\" or platform_machine == \"AMD64\" or platform_machine == \"win32\" or platform_machine == \"WIN32\""
 files = [
     {file = "greenlet-3.5.1-cp310-cp310-macosx_11_0_universal2.whl", hash = "sha256:7eacb17a9d41538a2bc4912eba5ef13823c83cb69e4d141d0813debe7163187f"},
     {file = "greenlet-3.5.1-cp310-cp310-manylinux_2_24_aarch64.manylinux_2_28_aarch64.whl", hash = "sha256:e5cc9606aa5f4e0bde0d3bd502b44f743864c3ffa5cfa1011b1e30f5aa02366f"},
@@ -1423,27 +1353,10 @@ files = [
     {file = "greenlet-3.5.1-cp315-cp315t-win_arm64.whl", hash = "sha256:5028648bf2253ec4745add746129d3904121fa7fe871a76bed23c5720573ce0a"},
     {file = "greenlet-3.5.1.tar.gz", hash = "sha256:5a56aeb7d5d9cc4b3a735efb5095bd4b4f6f0e4f93e5ca876d0e2315137b7829"},
 ]
-markers = {docs = "platform_machine == \"aarch64\" or platform_machine == \"ppc64le\" or platform_machine == \"x86_64\" or platform_machine == \"amd64\" or platform_machine == \"AMD64\" or platform_machine == \"win32\" or platform_machine == \"WIN32\"", test = "platform_python_implementation == \"CPython\""}
 
 [package.extras]
 docs = ["Sphinx", "furo"]
 test = ["objgraph", "psutil", "setuptools"]
-
-[[package]]
-name = "grequests"
-version = "0.7.0"
-description = "Requests + Gevent"
-optional = false
-python-versions = "*"
-groups = ["test"]
-files = [
-    {file = "grequests-0.7.0-py2.py3-none-any.whl", hash = "sha256:4733edfcece027de25ae8eff86a87f563d7e829fdacbf3ce8b3aeea507694287"},
-    {file = "grequests-0.7.0.tar.gz", hash = "sha256:5c33f14268df5b8fa1107d8537815be6febbad6ec560524d6a404b7778cf6ba6"},
-]
-
-[package.dependencies]
-gevent = "*"
-requests = "*"
 
 [[package]]
 name = "h11"
@@ -4010,12 +3923,12 @@ version = "3.0"
 description = "C parser in Python"
 optional = false
 python-versions = ">=3.10"
-groups = ["docs", "test"]
+groups = ["docs"]
+markers = "implementation_name != \"PyPy\""
 files = [
     {file = "pycparser-3.0-py3-none-any.whl", hash = "sha256:b727414169a36b7d524c1c3e31839a521725078d7b2ff038656844266160a992"},
     {file = "pycparser-3.0.tar.gz", hash = "sha256:600f49d217304a5902ac3c37e1281c9fe94e4d0489de643a9504c5cdfdfc6b29"},
 ]
-markers = {docs = "implementation_name != \"PyPy\"", test = "sys_platform == \"win32\" and platform_python_implementation == \"CPython\" and implementation_name != \"PyPy\""}
 
 [[package]]
 name = "pyflakes"
@@ -4497,6 +4410,24 @@ urllib3 = ">=1.26,<3"
 [package.extras]
 socks = ["PySocks (>=1.5.6,!=1.5.7)"]
 use-chardet-on-py3 = ["chardet (>=3.0.2,<8)"]
+
+[[package]]
+name = "requests-futures"
+version = "1.0.2"
+description = "Asynchronous Python HTTP for Humans."
+optional = false
+python-versions = "*"
+groups = ["test"]
+files = [
+    {file = "requests_futures-1.0.2-py2.py3-none-any.whl", hash = "sha256:a3534af7c2bf670cd7aa730716e9e7d4386497554f87792be7514063b8912897"},
+    {file = "requests_futures-1.0.2.tar.gz", hash = "sha256:6b7eb57940336e800faebc3dab506360edec9478f7b22dc570858ad3aa7458da"},
+]
+
+[package.dependencies]
+requests = ">=1.2.0"
+
+[package.extras]
+dev = ["Werkzeug (>=3.0.6)", "black (>=24.3.0,<25.0.0)", "build (>=0.7.0)", "docutils (<=0.20.1)", "greenlet (<=2.0.2) ; python_version < \"3.12\"", "greenlet (>=3.0.0) ; python_version >= \"3.12.0rc0\"", "isort (>=5.11.4)", "pyflakes (>=2.2.0)", "pytest (>=6.2.5)", "pytest-cov (>=3.0.0)", "pytest-httpbin (>=2.0.0)", "readme-renderer[rst] (>=26.0)", "twine (>=3.4.2)"]
 
 [[package]]
 name = "rfc3339-validator"
@@ -5602,79 +5533,7 @@ enabler = ["pytest-enabler (>=3.4)"]
 test = ["big-O", "jaraco.functools", "jaraco.itertools", "jaraco.test", "more_itertools", "pytest (>=6,!=8.1.*)", "pytest-ignore-flaky"]
 type = ["pytest-mypy (>=1.0.1) ; platform_python_implementation != \"PyPy\""]
 
-[[package]]
-name = "zope-event"
-version = "6.2"
-description = "Very basic event publishing system"
-optional = false
-python-versions = ">=3.10"
-groups = ["test"]
-files = [
-    {file = "zope_event-6.2-py3-none-any.whl", hash = "sha256:5e755153ac4faf64c10a4b6dd3307680166a3edf65b38df22df592610f8fa874"},
-    {file = "zope_event-6.2.tar.gz", hash = "sha256:b97d5d6327067ee6b9dfcbdf606ade9ade70991e19c162e808ea39e5fcf0f8d3"},
-]
-
-[package.extras]
-docs = ["Sphinx"]
-test = ["zope.testrunner (>=6.4)"]
-
-[[package]]
-name = "zope-interface"
-version = "8.5"
-description = "Interfaces for Python"
-optional = false
-python-versions = ">=3.10"
-groups = ["test"]
-files = [
-    {file = "zope_interface-8.5-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:c0c8aa2bf8f3911ef37b87deb1bbe225a310e6eb6522a16d77f5d8330c4f6fbe"},
-    {file = "zope_interface-8.5-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:efe234a0fafb4b6b1602e9be9245b97c2bf06d67c07af5a4bc3c0438978b555c"},
-    {file = "zope_interface-8.5-cp310-cp310-manylinux1_i686.manylinux2014_i686.manylinux_2_17_i686.manylinux_2_5_i686.whl", hash = "sha256:dabeb6fe1228d411994f300811edc6866fff0cdcbc9cef98a78f05ea0da42e37"},
-    {file = "zope_interface-8.5-cp310-cp310-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:147a9442dcc2b7339ecdb1be2b3cdb098e90462e39425054053ebfb50d99125a"},
-    {file = "zope_interface-8.5-cp310-cp310-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:a17e681224267880707c9ec9e730ad9a1ad2d65c371256843efba6cf48711b58"},
-    {file = "zope_interface-8.5-cp310-cp310-win_amd64.whl", hash = "sha256:d178968a1a611df30549a717d1624cb38ca810347339e3e37b7baa6f6781a170"},
-    {file = "zope_interface-8.5-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:afc66ccaef2a3c0bef6ca02aad40d29a39276389dad16a8eac36f9f385e4d057"},
-    {file = "zope_interface-8.5-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:c28044972187245d7a309e4699319bfdbd2ffcbf7176d1d4ddf5adffb2dea80f"},
-    {file = "zope_interface-8.5-cp311-cp311-manylinux1_i686.manylinux2014_i686.manylinux_2_17_i686.manylinux_2_5_i686.whl", hash = "sha256:03bbecc7982af713d7499d4084bc03916413d17ffd45f89009348cc0c1d9e376"},
-    {file = "zope_interface-8.5-cp311-cp311-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:bf917009a4a7457c7290225a019f4a0aa706d96accd2cfdba2418d3bc1fcde2f"},
-    {file = "zope_interface-8.5-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:31cff25b2aaedb5267e6e77b1e9be6b0ec4f622032de8a069202b8ffacda7dc2"},
-    {file = "zope_interface-8.5-cp311-cp311-win_amd64.whl", hash = "sha256:17a3114bbdddb5e75e5784cdf318944636190cbbc72d357ef9fb1a8b0351f955"},
-    {file = "zope_interface-8.5-cp311-cp311-win_arm64.whl", hash = "sha256:aab6bb5bee10f38ea688b95ba054396b67f613552d2c8378be7fcb2d2fba7646"},
-    {file = "zope_interface-8.5-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:8e6ee90c2e6de7c37058d5fa41f123c8b13a312db8d1e0fb5840d7f4bcdff9c9"},
-    {file = "zope_interface-8.5-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:c1adc90d3576b3b4c4de4953e6002c37bef28b78d7fa54c1bbfd0c50f022fe7c"},
-    {file = "zope_interface-8.5-cp312-cp312-manylinux1_i686.manylinux2014_i686.manylinux_2_17_i686.manylinux_2_5_i686.whl", hash = "sha256:e6347b8d8d12c5eca6502450a92be30079b7acfade2c4f693efa0deb8871b06e"},
-    {file = "zope_interface-8.5-cp312-cp312-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:5e970dabea777a24b0b0bbf9dae3ab75ce8b2d8e948edf4875627034b21f3560"},
-    {file = "zope_interface-8.5-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:f0b48ccadaa9839e09ff81e969703cecb3f402c813bfe8b958652e699bea69f5"},
-    {file = "zope_interface-8.5-cp312-cp312-win_amd64.whl", hash = "sha256:e0e311f1277468c08fd59a2b41f71b43d25dff639789d364747acd1705c0df6e"},
-    {file = "zope_interface-8.5-cp312-cp312-win_arm64.whl", hash = "sha256:652b73107a04159ec6c020db6c1543d4f1e8f4d069bd2aac88a947820923517b"},
-    {file = "zope_interface-8.5-cp313-cp313-macosx_10_9_x86_64.whl", hash = "sha256:28e80457c134d1fa57a7d758004dece348654e1b1467ac22dcdc20fc1d127c52"},
-    {file = "zope_interface-8.5-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:09495ce9d559c06b70f2d4855b3e4f48a822a9ddc8be1d30c5b4e5be14ae1ace"},
-    {file = "zope_interface-8.5-cp313-cp313-manylinux1_i686.manylinux2014_i686.manylinux_2_17_i686.manylinux_2_5_i686.whl", hash = "sha256:7849ad8fa90763cc1087f4dda78ca3a233e950b3e08fac7079297c9cafbbd7bb"},
-    {file = "zope_interface-8.5-cp313-cp313-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:5578c9421ca409a1f39f153d6f7803e4cde01da592ec75a9ac5e1b777d18d33b"},
-    {file = "zope_interface-8.5-cp313-cp313-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:e1bd7d96b4ca5fa311f54c9eac16dce4886b428c1531dbe06067763ccdf123b4"},
-    {file = "zope_interface-8.5-cp313-cp313-win_amd64.whl", hash = "sha256:0c8123d2a4dfde2a613c7cb772605477724782c20bc2e0ad1d9435376a6a44a3"},
-    {file = "zope_interface-8.5-cp313-cp313-win_arm64.whl", hash = "sha256:6d02be14f3173c6c7288bc2fdf530090c01c3cf8764ad46c68024686f364278e"},
-    {file = "zope_interface-8.5-cp314-cp314-macosx_10_9_x86_64.whl", hash = "sha256:ffaecf013251a89d0de6feb49a46eba48ad8cbbf8a40aeb6045e459e7bec6784"},
-    {file = "zope_interface-8.5-cp314-cp314-macosx_11_0_arm64.whl", hash = "sha256:126fa9d1c52295ae076d4cf968634f0a1826afa408a20808b57ff72877b8f69f"},
-    {file = "zope_interface-8.5-cp314-cp314-manylinux1_i686.manylinux2014_i686.manylinux_2_17_i686.manylinux_2_5_i686.whl", hash = "sha256:3090e3a663d20194756a59a272e0c8508b889341e31d5894223331fe6b4f9b21"},
-    {file = "zope_interface-8.5-cp314-cp314-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:9342fb74e2afefdb081bf1df727d209ea56995c6e13f5a0540e6d7aff4beafb8"},
-    {file = "zope_interface-8.5-cp314-cp314-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:6c54725d818f1b57a7efb8b16528326e1f3c257b602b32393fd255c45af8799d"},
-    {file = "zope_interface-8.5-cp314-cp314-win_amd64.whl", hash = "sha256:29d74febbae1afeb6834c4ccbf42e242a673c860060f09e53142825270456140"},
-    {file = "zope_interface-8.5-cp314-cp314-win_arm64.whl", hash = "sha256:633c8c49396f38df030340797c533e9fe460d1b5d1e42d88e55e938e525f548c"},
-    {file = "zope_interface-8.5-cp314-cp314t-macosx_10_9_x86_64.whl", hash = "sha256:133999820fdbae513c36c03d6f29ef87317aaa3edef39112222b155083664714"},
-    {file = "zope_interface-8.5-cp314-cp314t-macosx_11_0_arm64.whl", hash = "sha256:8bd75c96966e573232f0599deaff717564828031c7f05563ccc1ac35c5ee0304"},
-    {file = "zope_interface-8.5-cp314-cp314t-manylinux1_i686.manylinux2014_i686.manylinux_2_17_i686.manylinux_2_5_i686.whl", hash = "sha256:14b0e9799351d4c34fe99afd67f0cdd76e55ba15c66a98699d5fc22ea8241e08"},
-    {file = "zope_interface-8.5-cp314-cp314t-manylinux1_x86_64.manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_5_x86_64.whl", hash = "sha256:0cd6a732ac84b94eb1ef9222a117347a27efd294ee16810ffdf7ecd307677ed5"},
-    {file = "zope_interface-8.5-cp314-cp314t-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:798b7c87d0e59a7d5d086d642208d0d8700ff0d55c4029134b3c479c3bfb110f"},
-    {file = "zope_interface-8.5-cp314-cp314t-win_amd64.whl", hash = "sha256:0fc3a9d45f114d27eaa1e53beeb144533689edca8a9f66505b1e8e8b3f075e42"},
-    {file = "zope_interface-8.5.tar.gz", hash = "sha256:7a3ba1c5877f0f3e3906b02ddf793abed2becc2948116414ce0e1dd820b68d6d"},
-]
-
-[package.extras]
-docs = ["Sphinx", "furo", "repoze.sphinx.autointerface"]
-test = ["coverage[toml]", "zope.event", "zope.testing"]
-testing = ["coverage[toml]", "zope.event", "zope.testing"]
-
 [metadata]
 lock-version = "2.1"
 python-versions = ">=3.11,<3.15"
-content-hash = "cd89803abc17df15b9af3918de9921443b669da3f458dbee5bbab9defe027337"
+content-hash = "5de426cc6dd11b4d1322f6044aea7993f133ff4ecac89eeb90dc038cfd7b7b79"

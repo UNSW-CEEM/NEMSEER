@@ -78,21 +78,27 @@ optional = true
 # pytest and pytest-cov for coverage
 pytest = "^9.0.3"
 pytest-cov = "^7.1.0"
-grequests = "^0.7.0"
 pytest-mock = "^3.15.1"
+requests-futures = "^1.0.2"
 
-# Config for pytest and pytest-cov
 [tool.pytest.ini_options]
+# Config for pytest and pytest-cov
 # path to tests for pytest
 testpaths = ["tests"]
 # addopts = add options
 # -ra means show extra test summary info for all except passed tests
 # --cov points pytest-cov to the src/ dir
 # --cov-branch runs branch coverage. See https://breadcrumbscollector.tech/how-to-use-code-coverage-in-python-with-pytest/
-# --cov-repot html dumps HTML and xml summaries of pytest-cov in the "tests" folder
+# --cov-report html dumps HTML and xml summaries of pytest-cov in the "tests" folder
 addopts = "-ra --cov=src/ --cov-branch --cov-report xml:tests/coverage.xml --cov-report html:tests/htmlcov"
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
+# Filter these incorrect warnings when testing. numpy tries to but pytest overrides
+# https://github.com/numpy/numpy/blob/0d2d6fff089cd9c6fc09099c8c29495e4ba67d36/numpy/__init__.py#L695-L698
+# https://github.com/Unidata/netcdf4-python/issues/1354
+filterwarnings = [
+    "ignore:numpy.ndarray size changed:RuntimeWarning",
 ]
 
 # Config isort to be compatible with black
