@@ -408,8 +408,8 @@ def get_unzipped_csv(url: str, raw_cache: Path) -> None:
         and (zfn := match(".*DATA/(.*).zip", url))
         and (fn := match("(.*).[cC][sS][vV]", csvfn.pop()))
         and (
-            fn.group(1) == zfn.group(1).replace("%2523", "#")
-        )  # AEMO have double escaped # in filenames when constructing URLs
+            fn.group(1) == zfn.group(1).replace("%23", "#")
+        )  # AEMO have escaped # in filenames when constructing URLs
     ):
         try:
             z.extractall(raw_cache)
@@ -498,7 +498,7 @@ class ForecastTypeDownloader:
         invalid_or_corrupted_stubfile = self.raw_cache / Path(INVALID_STUBS_FILE)
         for metadata in filename_data.keys():
             fname = filename_data[metadata]
-            fname_parquet = fname.replace("%2523", "#") + ".parquet"
+            fname_parquet = fname.replace("%23", "#") + ".parquet"
             (year, month, table, counter) = metadata
             if (self.raw_cache / Path(fname_parquet)).exists():
                 logger.info(

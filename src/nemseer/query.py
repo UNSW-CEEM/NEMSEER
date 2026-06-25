@@ -193,11 +193,11 @@ def _construct_sqlloader_filename_sections(
         s7 = "_"
     else:
         # Format of file name from August 2024 onwards
-        s0 = "PUBLIC_ARCHIVE%2523"
-        s4 = "%2523ALL" if all_data else ""
-        s5 = "%2523FILE"
+        s0 = "PUBLIC_ARCHIVE%23"
+        s4 = "%23ALL" if all_data else ""
+        s5 = "%23FILE"
         s6 = "01" if counter is None else f"{counter:0>2d}"
-        s7 = "%2523"
+        s7 = "%23"
     if forecast_type == "PREDISPATCH" and table != "MNSPBIDTRK":
         # Most filename separate forecast type and table name with _
         # except PREDISPATCH and not MNSPBIDTRK
@@ -411,7 +411,7 @@ class Query:
             self.run_start, self.run_end, self.forecast_type, self.tables
         ).values()
         check = [
-            (self.raw_cache / Path(fname.replace("%2523", "#") + ".parquet")).exists()
+            (self.raw_cache / Path(fname.replace("%23", "#") + ".parquet")).exists()
             for fname in fnames
         ]
         if all(check):

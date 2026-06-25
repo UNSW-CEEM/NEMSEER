@@ -51,7 +51,7 @@ def _map_files_to_table(
     """
     # metadata_to_filename is a dict with
     # key: tuple(year, month, table name, counter)
-    # value: str being filename that can be downloaded from nem incl escaped # = %2523
+    # value: str being filename that can be downloaded from nem incl escaped # = %23
     # a table can be repeated with a different value of counter each time if there is
     # more than one file to download
     metadata_to_filename = generate_sqlloader_filenames(
@@ -207,9 +207,7 @@ class DataCompiler:
                 )
             dfs = []
             for file in filtered_files:
-                filepath = self.raw_cache / Path(
-                    f"{file.replace('%2523', '#')}.parquet"
-                )
+                filepath = self.raw_cache / Path(f"{file.replace('%23', '#')}.parquet")
                 df = pd.read_parquet(filepath)
                 df = apply_run_and_forecasted_time_filters(
                     df,

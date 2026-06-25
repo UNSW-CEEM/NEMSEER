@@ -39,32 +39,32 @@ def test_standard_sqlloader_url():
     assert url == (
         "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
         "2024/MMSDM_2024_08/MMSDM_Historical_Data_SQLLoader/DATA/"
-        "PUBLIC_ARCHIVE%2523STPASA_REGIONSOLUTION%2523FILE01%2523202408010000.zip"
+        "PUBLIC_ARCHIVE%23STPASA_REGIONSOLUTION%23FILE01%23202408010000.zip"
     )
     url = _construct_sqlloader_forecastdata_url(2025, 3, "P5MIN", "CASESOLUTION")
     assert url == (
         "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
         "2025/MMSDM_2025_03/MMSDM_Historical_Data_SQLLoader/DATA/"
-        "PUBLIC_ARCHIVE%2523P5MIN_CASESOLUTION%2523FILE01%2523202503010000.zip"
+        "PUBLIC_ARCHIVE%23P5MIN_CASESOLUTION%23FILE01%23202503010000.zip"
     )
     url = _construct_sqlloader_forecastdata_url(2026, 1, "PREDISPATCH", "MNSPBIDTRK")
     assert url == (
         "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
         "2026/MMSDM_2026_01/MMSDM_Historical_Data_SQLLoader/DATA/"
-        "PUBLIC_ARCHIVE%2523PREDISPATCH_MNSPBIDTRK%2523FILE01%2523202601010000.zip"
+        "PUBLIC_ARCHIVE%23PREDISPATCH_MNSPBIDTRK%23FILE01%23202601010000.zip"
     )
     url = _construct_sqlloader_forecastdata_url(2026, 4, "PREDISPATCH", "REGIONSUM")
     assert url == (
         "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
         "2026/MMSDM_2026_04/MMSDM_Historical_Data_SQLLoader/PREDISP_ALL_DATA/"
-        "PUBLIC_ARCHIVE%2523PREDISPATCHREGIONSUM%2523ALL%2523FILE01%2523202604010000"
+        "PUBLIC_ARCHIVE%23PREDISPATCHREGIONSUM%23ALL%23FILE01%23202604010000"
         ".zip"
     )
     url = _construct_sqlloader_forecastdata_url(2026, 3, "PREDISPATCH", "OFFERTRK")
     assert url == (
         "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
         "2026/MMSDM_2026_03/MMSDM_Historical_Data_SQLLoader/DATA/"
-        "PUBLIC_ARCHIVE%2523PREDISPATCHOFFERTRK%2523FILE01%2523202603010000.zip"
+        "PUBLIC_ARCHIVE%23PREDISPATCHOFFERTRK%23FILE01%23202603010000.zip"
     )
 
 
@@ -391,7 +391,7 @@ class TestForecastTypeDownloader:
             (
                 2024,
                 8,
-                "PUBLIC_ARCHIVE%2523STPASA_CASESOLUTION%2523FILE01%2523202408010000",
+                "PUBLIC_ARCHIVE%23STPASA_CASESOLUTION%23FILE01%23202408010000",
             ),
         ),
     )

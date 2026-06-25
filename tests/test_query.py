@@ -52,7 +52,7 @@ def test_enumerate_files_for_month():
             8,
             "LOAD",
             None,
-        ): "PUBLIC_ARCHIVE%2523PREDISPATCHLOAD%2523ALL%2523FILE01%2523202408010000",
+        ): "PUBLIC_ARCHIVE%23PREDISPATCHLOAD%23ALL%23FILE01%23202408010000",
     }
     assert _enumerate_files_for_month(2024, 1, "P5MIN", "CONSTRAINTSOLUTION") == {
         (
@@ -86,19 +86,19 @@ def test_enumerate_files_for_month():
             8,
             "CONSTRAINTSOLUTION",
             1,
-        ): "PUBLIC_ARCHIVE%2523P5MIN_CONSTRAINTSOLUTION%2523FILE01%2523202408010000",
+        ): "PUBLIC_ARCHIVE%23P5MIN_CONSTRAINTSOLUTION%23FILE01%23202408010000",
         (
             2024,
             8,
             "CONSTRAINTSOLUTION",
             2,
-        ): "PUBLIC_ARCHIVE%2523P5MIN_CONSTRAINTSOLUTION%2523FILE02%2523202408010000",
+        ): "PUBLIC_ARCHIVE%23P5MIN_CONSTRAINTSOLUTION%23FILE02%23202408010000",
         (
             2024,
             8,
             "CONSTRAINTSOLUTION",
             3,
-        ): "PUBLIC_ARCHIVE%2523P5MIN_CONSTRAINTSOLUTION%2523FILE03%2523202408010000",
+        ): "PUBLIC_ARCHIVE%23P5MIN_CONSTRAINTSOLUTION%23FILE03%23202408010000",
     }
     assert _enumerate_files_for_month(2024, 1, "STPASA", "REGIONSOLUTION") == {
         (
@@ -114,7 +114,7 @@ def test_enumerate_files_for_month():
             8,
             "REGIONSOLUTION",
             None,
-        ): "PUBLIC_ARCHIVE%2523STPASA_REGIONSOLUTION%2523FILE01%2523202408010000"
+        ): "PUBLIC_ARCHIVE%23STPASA_REGIONSOLUTION%23FILE01%23202408010000"
     }
 
 
@@ -290,7 +290,7 @@ class TestQuery:
             ["CONSTRAINTSOLUTION"],
         ).values()
         test_fnames = [
-            f"PUBLIC_ARCHIVE%2523P5MIN_CONSTRAINTSOLUTION%2523FILE0{i}%2523202408010000"
+            f"PUBLIC_ARCHIVE%23P5MIN_CONSTRAINTSOLUTION%23FILE0{i}%23202408010000"
             for i in range(1, 4)
         ]
         assert set(fnames) == set(test_fnames)
