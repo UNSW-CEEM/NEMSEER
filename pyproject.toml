@@ -1,44 +1,44 @@
-[tool.poetry]
+[project]
 name = "nemseer"
 version = "1.0.7"
 description = "A package for downloading and handling forecasts for the National Electricity Market (NEM) from the Australian Energy Market Operator (AEMO)."
-authors = ["Abhijith Prakash"]
+authors = [{name="Abhijith Prakash"}]
 license = "GPL-3.0-or-later"
 readme = "README.md"
+requires-python = ">=3.11,<3.15"
 
 # Main dependencies for the package via poetry. Package users will need these dependencies.
-[tool.poetry.dependencies]
-python = ">=3.8,<3.12"
-attrs = "^21"
-beautifulsoup4 = "*"
-netCDF4 = "^1"
-numpy = "*"
-packaging = "^21.3"
-pandas = "*"
-psutil = "^5"
-pyarrow = "*"
-requests = "^2"
-tqdm = "^4"
-xarray = "*"
-
+dependencies = [
+    "attrs~=26.1.0",
+    "beautifulsoup4",
+    "netCDF4~=1.7.2",
+    "numpy (>=2.4.6,<3.0.0)",
+    "packaging~=26.2",
+    "pandas",
+    "psutil>=7.2.2",
+    "pyarrow",
+    "requests>=2.34.2,<3.0.0",
+    "tqdm>=4.67.3",
+    "xarray",
+]
 # Packages for developers for creating documentation
 [tool.poetry.group.docs]
 optional = true
 
 [tool.poetry.group.docs.dependencies]
 # MyST parser for Sphinx documentation with furo theme
-Sphinx = "^5"
+Sphinx = "^8"
 furo = "*"
 myst-parser = "*"
 sphinx-copybutton = "*"
 # The packages below are required for compiling example notebooks
-jupyter = "^1.0.0"
-notebook = "^6.4.12"
-myst-nb = "^0.16.0"
-matplotlib = "^3"
-plotly = "^5"
-kaleido = "0.2"
-hvplot = "^0.8"
+jupyter = "^1.1.1"
+notebook = "^7.5.6"
+myst-nb = "^1.4.0"
+matplotlib = "^3.10.9"
+plotly = "^6.7.0"
+kaleido = "^1.3.0"
+hvplot = "^0.12.2"
 nemosis = "^3"
 
 
@@ -60,14 +60,14 @@ optional = true
 # pre-commit: tool to configure and install pre-commit hooks
 flake8 = "*"
 mypy = "*"
-types-requests = "^2.28.4"
-types-beautifulsoup4 = "^4.11.4"
-types-python-dateutil = "^2.8.19"
-types-psutil = "^5.9.5"
-pandas-stubs = "^1.4.3.220724"
-types-tqdm = "^4.64.4"
-black = "^22.6.0"
-isort = "^5.10.1"
+types-requests = "^2"
+types-beautifulsoup4 = "*"
+types-python-dateutil = "^2"
+types-psutil = ">=7.2.2.20260518"
+pandas-stubs = "*"
+types-tqdm = "^4"
+black = "^26.5.1"
+isort = "^8.0.1"
 pre-commit = "*"
 
 # Packages for developers for testing
@@ -76,21 +76,30 @@ optional = true
 
 [tool.poetry.group.test.dependencies]
 # pytest and pytest-cov for coverage
-pytest = "^7"
-pytest-cov = "^4"
-grequests = "^0.6.0"
-pytest-mock = "^3.8.2"
+pytest = "^9.0.3"
+pytest-cov = "^7.1.0"
+pytest-mock = "^3.15.1"
+requests-futures = "^1.0.2"
 
-# Config for pytest and pytest-cov
 [tool.pytest.ini_options]
+# Config for pytest and pytest-cov
 # path to tests for pytest
 testpaths = ["tests"]
 # addopts = add options
 # -ra means show extra test summary info for all except passed tests
 # --cov points pytest-cov to the src/ dir
 # --cov-branch runs branch coverage. See https://breadcrumbscollector.tech/how-to-use-code-coverage-in-python-with-pytest/
-# --cov-repot html dumps HTML and xml summaries of pytest-cov in the "tests" folder
+# --cov-report html dumps HTML and xml summaries of pytest-cov in the "tests" folder
 addopts = "-ra --cov=src/ --cov-branch --cov-report xml:tests/coverage.xml --cov-report html:tests/htmlcov"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+]
+# Filter these incorrect warnings when testing. numpy tries to but pytest overrides
+# https://github.com/numpy/numpy/blob/0d2d6fff089cd9c6fc09099c8c29495e4ba67d36/numpy/__init__.py#L695-L698
+# https://github.com/Unidata/netcdf4-python/issues/1354
+filterwarnings = [
+    "ignore:numpy.ndarray size changed:RuntimeWarning",
+]
 
 # Config isort to be compatible with black
 [tool.isort]

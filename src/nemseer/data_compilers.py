@@ -1,5 +1,5 @@
 import logging
-import re
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 from typing import Callable, Dict, List, Union
@@ -9,8 +9,9 @@ import pyarrow as pa  # type: ignore
 import pyarrow.parquet as pq  # type: ignore
 import xarray as xr
 from attrs import define, field
+from pandas import DataFrame
 
-from .data import ENUMERATED_TABLES, INVALID_STUBS_FILE
+from .data import INVALID_STUBS_FILE
 from .data_handlers import apply_run_and_forecasted_time_filters, to_xarray
 from .forecast_type.validators import (
     validate_MTPASA_datetime_inputs,
@@ -19,7 +20,7 @@ from .forecast_type.validators import (
     validate_PREDISPATCH_datetime_inputs,
     validate_STPASA_datetime_inputs,
 )
-from .query import Query, _enumerate_tables, generate_sqlloader_filenames
+from .query import Query, generate_sqlloader_filenames
 
 logger = logging.getLogger(__name__)
 
@@ -40,38 +41,26 @@ def _map_files_to_table(
     E.g. '...PREDISPATCHLOAD1' and '...PREDISPATCHLOAD2' mapped to 'LOAD'
 
     Args:
-        forecast_start: Forecasts made at or after this datetime are queried.
-        forecast_end: Forecasts made before or at this datetime are queried.
+        run_start: Forecasts made at or after this datetime are queried.
+        run_end: Forecasts made before or at this datetime are queried.
         forecast_type: One of :data:`nemseer.forecast_types`
-        tables: Tables queried.
+        tables: Tables queried. Do not include counter numbers in table names
     Returns:
-        A dictionary mapping the queried table name to filenames associated with that
-        queried table.
+        A dictionary mapping the queried table name to a list of web filenames
+        associated with that queried table.
     """
+    # metadata_to_filename is a dict with
+    # key: tuple(year, month, table name, counter)
+    # value: str being filename that can be downloaded from nem incl escaped # = %23
+    # a table can be repeated with a different value of counter each time if there is
+    # more than one file to download
     metadata_to_filename = generate_sqlloader_filenames(
         run_start, run_end, forecast_type, tables
     )
-    if forecast_type in ENUMERATED_TABLES.keys():
-        enumerated_tables = [pair[0] for pair in ENUMERATED_TABLES[forecast_type]]
-    else:
-        enumerated_tables = []
-    table_file_map: Dict[str, List[str]] = {}
-    for table in tables:
-        filenames_to_map = list()
-        for metadata in metadata_to_filename.keys():
-            if metadata[2] == table:
-                filenames_to_map.append(metadata_to_filename[metadata])
-        if (enum_base := re.match(r"([A-Z]*)[0-9]", table)) and enum_base.group(
-            1
-        ) in enumerated_tables:
-            map_table_name = enum_base.group(1)
-            if map_table_name in table_file_map.keys():
-                table_file_map[map_table_name].extend(filenames_to_map)
-            else:
-                table_file_map[map_table_name] = filenames_to_map
-        else:
-            table_file_map[table] = filenames_to_map
-    return table_file_map
+    table_file_map = defaultdict(list)
+    for key, value in metadata_to_filename.items():
+        table_file_map[key[2]].append(value)
+    return dict(table_file_map)
 
 
 def _input_datetime_validation(instance, attribute, value) -> None:
@@ -140,16 +129,14 @@ class DataCompiler:
         tables = query.tables
         if query.processed_cache:
             if query.processed_queries:
+                # raw_tables will become a new object with a new id
                 raw_tables = list(set(tables) - set(query.processed_queries.keys()))
             else:
+                # raw_tables will have same id as tables and query.tables
                 raw_tables = tables
         else:
+            # raw_tables will have same id as tables and query.tables
             raw_tables = tables
-        for ftype in ENUMERATED_TABLES:
-            if query.forecast_type == ftype:
-                for table, enumerate_to in ENUMERATED_TABLES[ftype]:
-                    if table in raw_tables:
-                        tables = _enumerate_tables(tables, table, enumerate_to)
         return cls(
             query.run_start,
             query.run_end,
@@ -220,7 +207,7 @@ class DataCompiler:
                 )
             dfs = []
             for file in filtered_files:
-                filepath = self.raw_cache / Path(f"{file}.parquet")
+                filepath = self.raw_cache / Path(f"{file.replace('%23', '#')}.parquet")
                 df = pd.read_parquet(filepath)
                 df = apply_run_and_forecasted_time_filters(
                     df,
@@ -231,7 +218,7 @@ class DataCompiler:
                     self.forecast_type,
                 )
                 dfs.append(df.reset_index(drop=True))
-            concat_df = pd.concat(dfs)
+            concat_df: DataFrame = pd.concat(dfs)
             if any(concat_df.duplicated()):
                 logger.warning(
                     "Duplicate rows detected whilst concatenating data. "
@@ -343,26 +330,34 @@ class DataCompiler:
         if self.compiled_data is None:
             raise IOError("No compiled data to write to processed cache")
         data = self.compiled_data
-        xrbool = all([type(data) is xr.Dataset for data in self.compiled_data.values()])
-        dfbool = all(
-            [type(data) is pd.DataFrame for data in self.compiled_data.values()]
-        )
         for table in data.keys():
             if self.processed_queries and table in self.processed_queries.keys():
                 continue
             else:
                 fn = _build_query_filename(self, table)
                 self.metadata.update({"table": table})
-                dataset = data[table]
-                if xrbool:
+                data_table = data[table]
+                if isinstance(data_table, xr.Dataset):
+                    dataset: xr.Dataset = data_table
                     fn_path = self.processed_cache / Path(fn + ".nc")
-                    dataset.attrs = self.metadata  # type: ignore
+                    dataset.attrs = self.metadata
                     logger.info(f"Writing {table} to the processed cache as netCDF")
+                    # netcdf can't save CategoricalDtype columns
+                    # if using pandas>=3.0.0 or xarray>=2025.4.0 CategoricalDtype
+                    # columns throw an exception
+                    for name, var in dataset.variables.items():
+                        if isinstance(getattr(var, "dtype", None), pd.CategoricalDtype):
+                            logger.debug(
+                                f"writing netCDF - Variable {name} has dtype "
+                                f"{var.dtype} - converting to str"
+                            )
+                            dataset = dataset.assign({name: dataset[name].astype(str)})
                     dataset.to_netcdf(fn_path)  # type: ignore
-                elif dfbool:
+                elif isinstance(data_table, pd.DataFrame):
+                    df = data_table
                     fn_path = self.processed_cache / Path(fn + ".parquet")
                     pyarrow_table = _df_to_pyarrow_with_metadata(
-                        dataset, self.metadata  # type: ignore
+                        df, self.metadata  # type: ignore
                     )
                     logger.info(f"Writing {table} to the processed cache as parquet")
                     pq.write_table(pyarrow_table, fn_path)

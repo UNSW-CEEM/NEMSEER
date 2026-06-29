@@ -23,26 +23,26 @@ jobs:
 
       # Checkout the repo so the workflow can access it
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       # Set up Python
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.9'
+          python-version: '3.11'
 
       # Install the specified version of poetry
       - name: Get poetry
         uses: snok/install-poetry@v1
         with:
-          version: 1.4.0
+          version: 2.4.1
           virtualenvs-create: true
           virtualenvs-in-project: true
 
       # Load cached poetry env if it exists
       - name: Load cached venv
         id: cached-poetry-dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v5
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
@@ -76,33 +76,33 @@ jobs:
       fail-fast: true
       matrix:
         os: ["ubuntu-latest", "macos-latest"]
-        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        python-version: ["3.11", "3.12", "3.13", "3.14"]
     runs-on: ${{ matrix.os }}
     steps:
 
       # Checkout the repo so the workflow can access it
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       # Install the specified version of poetry
       - name: Get poetry
         uses: snok/install-poetry@v1
         with:
-          version: 1.4.0
+          version: 2.4.1
           virtualenvs-create: true
           virtualenvs-in-project: true
 
       # Load cached poetry env if it exists
       - name: Load cached venv
         id: cached-poetry-dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v5
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
 
       # Set up Python, with a cache for poetry deps
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: 'poetry'
@@ -117,7 +117,7 @@ jobs:
           poetry run pytest
 
       # Code coverage to codecov.io
-      - uses: codecov/codecov-action@v3
+      - uses: codecov/codecov-action@v7
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           files: tests/coverage.xml
@@ -134,26 +134,26 @@ jobs:
     steps:
       # Checkout the repo so the workflow can access it
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
 
       # Set up Python
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.9'
+          python-version: '3.11'
 
       # Install the specified version of poetry
       - name: Get poetry
         uses: snok/install-poetry@v1
         with:
-          version: 1.4.0
+          version: 2.4.1
           virtualenvs-create: true
           virtualenvs-in-project: true
 
       # Load cached poetry env if it exists
       - name: Load cached venv
         id: cached-poetry-dependencies
-        uses: actions/cache@v2
+        uses: actions/cache@v5
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}

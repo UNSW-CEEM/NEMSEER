@@ -31,7 +31,7 @@ def _parse_datetime_cols(df: pd.DataFrame) -> pd.DataFrame:
     dt_cols = DATETIME_COLS
     dt_cols_present = dt_cols.intersection(set(df.columns.tolist()))
     for col in dt_cols_present:
-        df.loc[:, col] = pd.to_datetime(df[col], format=DATETIME_FORMAT + ":%S")
+        df[col] = pd.to_datetime(df[col], format=DATETIME_FORMAT + ":%S")
     return df
 
 
@@ -55,7 +55,7 @@ def _parse_id_cols(df: pd.DataFrame) -> pd.DataFrame:
     }
     id_cols_present = id_cols.intersection(set(df.columns.tolist()))
     for col in id_cols_present:
-        df.loc[:, col] = df[col].astype("category")
+        df[col] = df[col].astype("category")
     return df
 
 
@@ -67,14 +67,15 @@ def _parse_predispatch_seq_no(df: pd.DataFrame) -> pd.DataFrame:
     Returns:
         :class:`pandas.DataFrame` with additional column `PREDISPATCH_RUN_DATETIME`
     """
-    df["PREDISPATCHSEQNO"] = df["PREDISPATCHSEQNO"].astype(int).astype(str)
-    parsed = df["PREDISPATCHSEQNO"].str.extract(r"^([0-9]{8})([0-9]{2})$")
+    df = df.copy()  # defragment
+    ser_pd_sn = df["PREDISPATCHSEQNO"].astype(int).astype(str)
+    parsed = ser_pd_sn.str.extract(r"^([0-9]{8})([0-9]{2})$")
     year_month_day = pd.to_datetime(parsed[0], format="%Y%m%d")
     hour_min = ((parsed[1].astype(int) - 1) * pd.Timedelta(minutes=30)).add(
         pd.Timedelta(hours=4, minutes=30)
     )
-    df["PREDISPATCH_RUN_DATETIME"] = year_month_day + hour_min  # type: ignore
-    return df
+    ser_pd_r_dt = year_month_day + hour_min
+    return df.assign(PREDISPATCHSEQNO=ser_pd_sn, PREDISPATCH_RUN_DATETIME=ser_pd_r_dt)
 
 
 def clean_forecast_csv(filepath_or_buffer: Union[str, Path]) -> pd.DataFrame:
@@ -101,9 +102,10 @@ def clean_forecast_csv(filepath_or_buffer: Union[str, Path]) -> pd.DataFrame:
     if "PREDISPATCHSEQNO" in df.columns:
         df = _parse_predispatch_seq_no(df)
     for col in [col for col in df.columns if df.dtypes[col] == "float64"]:
-        df[col] = pd.to_numeric(df[col], downcast="integer")
-    for col in [col for col in df.columns if df.dtypes[col] == "float64"]:
-        df[col] = pd.to_numeric(df[col], downcast="float")
+        if df[col].notna().all() and (df[col] % 1 == 0).all():
+            df[col] = df[col].astype("int64")
+        else:
+            df[col] = df[col].astype("float32")
     if any(dup_df := df.duplicated()):
         dup_rows = dup_df.loc[dup_df is True]
         logger.warning(

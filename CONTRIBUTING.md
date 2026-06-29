@@ -43,7 +43,7 @@ If you are proposing a feature:
 Ready to contribute? Here's how to set up `nemseer` for local development.
 
 1. Download a copy of `nemseer` locally.
-2. Install `poetry` `v1.4.0`
+2. Install `poetry` `v2.4.1`
 
     - The command below applies to UNIX systems (Mac/Linux)
 
@@ -88,10 +88,10 @@ Ready to contribute? Here's how to set up `nemseer` for local development.
       ```
     - Use the virtual env in your terminal by running `poetry shell`, or direct your favourite text editor to the poetry environment
 
-4. Install the `pre-commit` git hook scripts that `nemseer` uses by running the following code within your Poetry environment (e.g. after running `poetry shell`)
+4. Install the `pre-commit` git hook scripts that `nemseer` uses by running the following code within your Poetry environment
 
       ```console
-      $ pre-commit install
+      $ poetry self add poetry-pre-commit-plugin
       ```
 
 5. Use `git` (or similar) to create a branch for local development and make your changes:
@@ -125,8 +125,8 @@ We will implement the fix described [here](https://github.com/python-poetry/poet
 2. Find the `_run` method of class `Env`
 3. Comment out and add lines as demonstrated below (this is done in the last three line of the code block below)
 
-    ```python
-    def _run(self, cmd: list[str], **kwargs: Any) -> int | str:
+```python
+def _run(self, cmd: list[str], **kwargs: Any) -> int | str:
     """
     Run a command inside the Python environment.
     """
@@ -138,7 +138,7 @@ We will implement the fix described [here](https://github.com/python-poetry/poet
         #if self._is_windows:
         #    kwargs["shell"] = True
         kwargs["shell"] = False
-    ```
+```
 
 ## Code of Conduct
 

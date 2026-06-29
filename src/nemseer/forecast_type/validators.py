@@ -100,7 +100,7 @@ def validate_PREDISPATCH_datetime_inputs(
       Currently AEMO runs pre-dispatch every half hour, on the half hour for each
       30-minute period up to and including the last 30-minute period of the last trading
       day for which bid band prices have closed. As changes to bid band prices for the
-      next trading day close at 1230 hours EST, AEMO will at 1230 hours,
+      next trading day close at 1230 hours AEST, AEMO will at 1230 hours,
       publish pre-dispatch for all 30-minute periods up to the end of the
       next trading day.
 
@@ -126,7 +126,7 @@ def validate_PREDISPATCH_datetime_inputs(
         forecasted_start: Forecasts pertaining to times at or after this
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
-            datetime are retaned.
+            datetime are retained.
     Raises:
         ValueError: If any validation conditions are failed.
     """
@@ -214,7 +214,7 @@ def validate_STPASA_datetime_inputs(
     Check 1:
       Minute component of forecast datetimes is on an hourly basis (i.e. 0 minutes)
     Check 2:
-      Minute component of forecasted datetimes is on a 30 minute basis
+      Minute component of forecasted datetimes is on a 30-minute basis
     Check 3:
       :attr:`forecasted_start` is not equal to or earlier than the end of the
       last trading day for which bid band prices have closed
@@ -229,7 +229,7 @@ def validate_STPASA_datetime_inputs(
         forecasted_start: Forecasts pertaining to times at or after this
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
-            datetime are retaned.
+            datetime are retained.
     Raises:
         ValueError: If any validation conditions are failed.
     """
@@ -309,7 +309,7 @@ def validate_MTPASA_datetime_inputs(
         forecasted_start: Forecasts pertaining to times at or after this
             datetime are retained.
         forecasted_end: Forecasts pertaining to times before or at this
-            datetime are retaned.
+            datetime are retained.
     Raises:
         ValueError: If any validation conditions are failed.
     """

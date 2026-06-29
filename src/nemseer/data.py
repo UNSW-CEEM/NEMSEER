@@ -2,7 +2,9 @@
 #: See also :term:`forecast types`, and :term:`pre-dispatch` and :term:`PASA`.
 FORECAST_TYPES = ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA")
 
-MMSDM_ARCHIVE_URL = "http://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+MMSDM_ARCHIVE_URL = (
+    "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+)
 """Wholesale electricity data archive base URL"""
 
 #: Tables which should be directed to the PREDISP_ALL_DATA URL.
@@ -13,12 +15,24 @@ PREDISP_ALL_DATA = ("CONSTRAINT", "INTERCONNECTORRES", "PRICE", "LOAD", "REGIONS
 MTPASA_DUID_URL = "http://nemweb.com.au/Reports/Current/MTPASA_DUIDAvailability/"
 """MTPASA DUID Availability"""
 
-#: Enumerated tables for each forecast type
-#: First element of tuple is table name
-#: Second element of tuple is number which to enumerate table to
-ENUMERATED_TABLES = {
-    "P5MIN": [("CONSTRAINTSOLUTION", 4)],
-    "PREDISPATCH": [("CONSTRAINT", 2), ("LOAD", 2)],
+# Enumerated tables for each forecast type and in each date range
+# Key is tuple showing year and month when it first started to apply
+# Value is dict
+#   Key is forecast type
+#   Value is dict
+#     Key is table base name without counter only for tables where more than one
+#     Value is number of files which AEMO started producing in that month
+ENUMERATED_TABLES_BY_MONTH = {
+    (2024, 8): {
+        "P5MIN": {"CONSTRAINTSOLUTION": 3},
+        "PREDISPATCH": {
+            "CONSTRAINT": 2,
+        },
+    },
+    (0, 0): {
+        "P5MIN": {"CONSTRAINTSOLUTION": 4},
+        "PREDISPATCH": {"CONSTRAINT": 2, "LOAD": 2},
+    },
 }
 
 DEPRECATED_TABLES = {
@@ -143,7 +157,6 @@ USER_AGENTS = [
         + "D50u-D1-UHD/V1.5.16-UHD (Vizio, D50u-D1, Wireless))"
     ),
     "Wget/1.12 (linux-gnu)",
-    "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)",
     "Mozilla/5.0 (Windows NT 6.1; Trident/7.0; rv:11.0) like Gecko",
     (
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "

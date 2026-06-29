@@ -1,6 +1,8 @@
+import datetime
 import logging
 import pathlib
 import shutil
+import zoneinfo
 from copy import deepcopy
 from pathlib import Path
 from zipfile import BadZipFile
@@ -8,13 +10,14 @@ from zipfile import BadZipFile
 import pytest
 import requests
 
-from nemseer.data import INVALID_STUBS_FILE, MMSDM_ARCHIVE_URL
+from nemseer.data import INVALID_STUBS_FILE
 from nemseer.downloader import (
     ForecastTypeDownloader,
     _construct_sqlloader_forecastdata_url,
     get_sqlloader_forecast_tables,
     get_sqlloader_years_and_months,
     get_unzipped_csv,
+    get_wait_seconds,
 )
 from nemseer.query import Query, generate_sqlloader_filenames
 
@@ -22,12 +25,70 @@ from nemseer.query import Query, generate_sqlloader_filenames
 def test_standard_sqlloader_url():
     url = _construct_sqlloader_forecastdata_url(2021, 2, "STPASA", "REGIONSOLUTION")
     assert url == (
-        MMSDM_ARCHIVE_URL
+        "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
         + "2021/MMSDM_2021_02/MMSDM_Historical_Data_SQLLoader/DATA/"
         + "PUBLIC_DVD_STPASA_REGIONSOLUTION_202102010000.zip"
     )
+    url = _construct_sqlloader_forecastdata_url(2024, 7, "STPASA", "REGIONSOLUTION")
+    assert url == (
+        "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+        "2024/MMSDM_2024_07/MMSDM_Historical_Data_SQLLoader/DATA/"
+        "PUBLIC_DVD_STPASA_REGIONSOLUTION_202407010000.zip"
+    )
+    url = _construct_sqlloader_forecastdata_url(2024, 8, "STPASA", "REGIONSOLUTION")
+    assert url == (
+        "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+        "2024/MMSDM_2024_08/MMSDM_Historical_Data_SQLLoader/DATA/"
+        "PUBLIC_ARCHIVE%23STPASA_REGIONSOLUTION%23FILE01%23202408010000.zip"
+    )
+    url = _construct_sqlloader_forecastdata_url(2025, 3, "P5MIN", "CASESOLUTION")
+    assert url == (
+        "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+        "2025/MMSDM_2025_03/MMSDM_Historical_Data_SQLLoader/DATA/"
+        "PUBLIC_ARCHIVE%23P5MIN_CASESOLUTION%23FILE01%23202503010000.zip"
+    )
+    url = _construct_sqlloader_forecastdata_url(2026, 1, "PREDISPATCH", "MNSPBIDTRK")
+    assert url == (
+        "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+        "2026/MMSDM_2026_01/MMSDM_Historical_Data_SQLLoader/DATA/"
+        "PUBLIC_ARCHIVE%23PREDISPATCH_MNSPBIDTRK%23FILE01%23202601010000.zip"
+    )
+    url = _construct_sqlloader_forecastdata_url(2026, 4, "PREDISPATCH", "REGIONSUM")
+    assert url == (
+        "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+        "2026/MMSDM_2026_04/MMSDM_Historical_Data_SQLLoader/PREDISP_ALL_DATA/"
+        "PUBLIC_ARCHIVE%23PREDISPATCHREGIONSUM%23ALL%23FILE01%23202604010000"
+        ".zip"
+    )
+    url = _construct_sqlloader_forecastdata_url(2026, 3, "PREDISPATCH", "OFFERTRK")
+    assert url == (
+        "https://www.nemweb.com.au/Data_Archive/Wholesale_Electricity/MMSDM/"
+        "2026/MMSDM_2026_03/MMSDM_Historical_Data_SQLLoader/DATA/"
+        "PUBLIC_ARCHIVE%23PREDISPATCHOFFERTRK%23FILE01%23202603010000.zip"
+    )
 
 
+def test_get_wait_seconds():
+    class HeaderHolder:
+        headers = dict()
+
+    response = HeaderHolder()
+    assert get_wait_seconds(response, 3) == 8
+    response.headers["Retry-After"] = "1"
+    assert get_wait_seconds(response, 2) == 1
+    in_20s = datetime.datetime.now(zoneinfo.ZoneInfo("UTC")) + datetime.timedelta(
+        seconds=20
+    )
+    response.headers["Retry-After"] = in_20s.strftime("%a, %d %b %Y %H:%M:%S GMT")
+    assert get_wait_seconds(response, 5) == pytest.approx(20, abs=1)
+    in_30s = datetime.datetime.now(zoneinfo.ZoneInfo("UTC")) + datetime.timedelta(
+        seconds=30
+    )
+    response.headers["Retry-After"] = in_30s.strftime("%A, %d %b %Y %H:%M:%S %Z")
+    assert get_wait_seconds(response, 5) == pytest.approx(30, abs=1)
+
+
+@pytest.mark.slow
 def test_allmonths_available():
     years_months = get_sqlloader_years_and_months()
     test_index = int(len(years_months) / 2)
@@ -40,42 +101,83 @@ def test_tables_for_invalid_forecasttype(get_test_year_and_month):
         get_sqlloader_forecast_tables(*get_test_year_and_month, "FAIL")
 
 
-def test_table_fetch_for_p5min(get_test_year_and_month):
-    p5tables = get_sqlloader_forecast_tables(*get_test_year_and_month, "P5MIN")
-    assert set(p5tables) == set(
-        [
-            "CONSTRAINTSOLUTION",
-            "CASESOLUTION",
-            "REGIONSOLUTION",
-            "UNITSOLUTION",
-            "INTERCONNECTORSOLN",
-        ]
+@pytest.mark.parametrize(
+    ("year", "month", "extra_tables"),
+    (
+        (2015, 1, {"UNITSOLUTION"}),
+        (2020, 2, {"UNITSOLUTION"}),
+        (2024, 7, {"UNITSOLUTION", "SCENARIODEMAND", "SCENARIODEMANDTRK"}),
+        (
+            2024,
+            8,
+            {
+                "INTERSENSITIVITIES",
+                "PRICESENSITIVITIES",
+                "SCENARIODEMAND",
+                "SCENARIODEMANDTRK",
+                "LOCAL_PRICE",
+            },
+        ),
+        (
+            2025,
+            12,
+            {
+                "BLOCKEDCONSTRAINT",
+                "INTERSENSITIVITIES",
+                "PRICESENSITIVITIES",
+                "SCENARIODEMAND",
+                "SCENARIODEMANDTRK",
+                "FCAS_REQ_RUN",
+                "FCAS_REQ_CONSTRAINT",
+                "LOCAL_PRICE",
+            },
+        ),
+    ),
+)
+def test_table_fetch_for_p5min(year: int, month: int, extra_tables: set[str]):
+    base_tables = {
+        "CONSTRAINTSOLUTION",
+        "CASESOLUTION",
+        "REGIONSOLUTION",
+        "INTERCONNECTORSOLN",
+    }
+    expected_tables = base_tables | extra_tables
+    p5tables = get_sqlloader_forecast_tables(
+        year=year, month=month, forecast_type="P5MIN"
     )
+    assert set(p5tables) == expected_tables
 
 
-def test_table_fetch_for_pd(get_test_year_and_month):
-    pdtables = get_sqlloader_forecast_tables(*get_test_year_and_month, "PREDISPATCH")
-    assert set(pdtables) == set(
-        [
-            "CASESOLUTION",
-            "CONSTRAINT",
-            "CONSTRAINT_D",
-            "INTERCONNECTORRES",
-            "INTERCONNECTORRES_D",
-            "INTERCONNECTR_SENS_D",
-            "LOAD",
-            "LOAD_D",
-            "MNSPBIDTRK",
-            "OFFERTRK",
-            "PRICE",
-            "PRICESENSITIVITIE_D",
-            "PRICE_D",
-            "REGIONSUM",
-            "REGIONSUM_D",
-            "SCENARIODEMAND",
-            "SCENARIODEMANDTRK",
-        ]
+@pytest.mark.parametrize(
+    ("year", "month", "extra_tables"),
+    (
+        (2015, 1, set()),
+        (2020, 2, set()),
+        (2024, 7, set()),
+        (2024, 8, {"PRICESENSITIVITIES", "LOCAL_PRICE", "FCAS_REQ"}),
+        (2025, 12, {"BLOCKEDCONSTRAINT", "PRICESENSITIVITIES", "LOCAL_PRICE"}),
+    ),
+)
+def test_table_fetch_for_pd(year: int, month: int, extra_tables: set[str]):
+    base_tables = {
+        "CASESOLUTION",
+        "CONSTRAINT",
+        "INTERCONNECTORRES",
+        "LOAD",
+        "MNSPBIDTRK",
+        "OFFERTRK",
+        "PRICE",
+        "REGIONSUM",
+        "SCENARIODEMAND",
+        "SCENARIODEMANDTRK",
+    }
+    expected_tables = base_tables | extra_tables
+    pdtables = get_sqlloader_forecast_tables(
+        year=year, month=month, forecast_type="PREDISPATCH"
     )
+    # we don't care for tables that end in _D because they only exist prior to Aug 2024
+    set_pd_tables = set(t for t in pdtables if not t.endswith("_D"))
+    assert set_pd_tables == expected_tables
 
 
 class TestForecastTypeDownloader:
@@ -231,22 +333,8 @@ class TestForecastTypeDownloader:
         ftd_pd = ForecastTypeDownloader.from_Query(
             self.constraint_solution_query_pd(tmp_path, valid_download_datetimes)
         )
-        p5_to_check = set(
-            [
-                "CONSTRAINTSOLUTION1",
-                "CONSTRAINTSOLUTION2",
-                "CONSTRAINTSOLUTION3",
-                "CONSTRAINTSOLUTION4",
-            ]
-        )
-        pd_to_check = set(
-            [
-                "LOAD1",
-                "LOAD2",
-                "CONSTRAINT1",
-                "CONSTRAINT2",
-            ]
-        )
+        p5_to_check = {"CONSTRAINTSOLUTION"}
+        pd_to_check = {"LOAD", "CONSTRAINT"}
         assert p5_to_check.issubset(set(ftd_p5.tables))
         assert pd_to_check.issubset(set(ftd_pd.tables))
 
@@ -259,12 +347,17 @@ class TestForecastTypeDownloader:
             )
             get_unzipped_csv(bad_url, tmp_path)
 
+    @pytest.mark.slow
     def test_casesolution_download_and_to_parquet(
-        self, tmp_path, valid_download_datetimes
+        self, tmp_path, valid_download_datetimes_pre202408
     ):
+        """Test that CASESOLUTION can be retrieved for each of the five forecast types.
+
+        After Aug 2024 AEMO stopped publishing CASESOLUTION for MTPASA.
+        """
         for forecast_type in ("P5MIN", "PREDISPATCH", "PDPASA", "STPASA", "MTPASA"):
             query = self.casesolution_query(
-                tmp_path, forecast_type, valid_download_datetimes
+                tmp_path, forecast_type, valid_download_datetimes_pre202408
             )
             downloader = ForecastTypeDownloader.from_Query(query)
             downloader.download_csv()
@@ -277,20 +370,39 @@ class TestForecastTypeDownloader:
     def test_skip_existing_component_of_query(self, caplog, download_file_to_cache):
         query = download_file_to_cache
         new_query = deepcopy(query)
-        new_query.tables.append("CASESOLUTION")
-        downloader = ForecastTypeDownloader.from_Query(query)
+        new_query.tables.append("CASERESULT")
         caplog.set_level(logging.INFO)
+        downloader = ForecastTypeDownloader.from_Query(query)
+        downloader.download_csv()
+        downloader = ForecastTypeDownloader.from_Query(new_query)
         downloader.download_csv()
         assert any(
             [
                 record.msg
                 for record in caplog.get_records("call")
-                if "REGIONRESULT for 2/2021 in raw_cache" == record.msg
+                if "REGIONRESULT  for 2/2025 in raw_cache" == record.msg
             ]
         )
 
-    def test_skip_invalid_zip(self, caplog, tmp_path, valid_download_datetimes):
-        query = self.valid_casesolution(tmp_path, valid_download_datetimes)
+    @pytest.mark.parametrize(
+        ("year", "month", "expected"),
+        (
+            (2021, 2, "PUBLIC_DVD_STPASA_CASESOLUTION_202102010000"),
+            (
+                2024,
+                8,
+                "PUBLIC_ARCHIVE%23STPASA_CASESOLUTION%23FILE01%23202408010000",
+            ),
+        ),
+    )
+    def test_skip_invalid_zip(self, caplog, tmp_path, year, month, expected):
+        run_start = f"{year}/{month:0>2d}/01 00:00"
+        run_end = f"{year}/{month:0>2d}/05 00:00"
+        forecasted_start = f"{year}/{month:0>2d}/08 00:00"
+        forecasted_end = f"{year}/{month:0>2d}/08 23:55"
+        query = self.valid_casesolution(
+            tmp_path, (run_start, run_end, forecasted_start, forecasted_end)
+        )
         stubfile = query.raw_cache / INVALID_STUBS_FILE
         fnames = generate_sqlloader_filenames(
             query.run_start, query.run_end, query.forecast_type, query.tables
@@ -305,7 +417,7 @@ class TestForecastTypeDownloader:
             [
                 record.msg
                 for record in caplog.get_records("call")
-                if "PUBLIC_DVD_STPASA_CASESOLUTION_202102010000 previously found to be "
+                if f"{expected} previously found to be "
                 + "invalid/corrupted. Skipping download for this file."
                 in record.msg
             ]
@@ -325,8 +437,8 @@ class TestForecastTypeDownloader:
             [
                 record.msg
                 for record in caplog.get_records("call")
-                if "PUBLIC_DVD_STPASA_CASESOLUTION_202102010000.parquet already exists"
-                == record.msg
+                if "PUBLIC_ARCHIVE#STPASA_CASESOLUTION#FILE01#202502010000.parquet"
+                " already exists" == record.msg
             ]
         )
 
@@ -357,9 +469,14 @@ class TestForecastTypeDownloader:
             line = f.readline()
         assert not line == "PUBLIC_DVD_STPASA_CASESOLUTION_202102010000"
 
-    def test_predisp_handling(self, tmp_path, valid_download_datetimes):
-        predisp_all_query = self.predisp_all_query(tmp_path, valid_download_datetimes)
-        predisp_d_query = self.predisp_d_query(tmp_path, valid_download_datetimes)
+    def test_predisp_handling(self, tmp_path, valid_download_datetimes_pre202408):
+        # PRICE_D tables don't exist for post 202408 so only test with pre Aug 2024
+        predisp_all_query = self.predisp_all_query(
+            tmp_path, valid_download_datetimes_pre202408
+        )
+        predisp_d_query = self.predisp_d_query(
+            tmp_path, valid_download_datetimes_pre202408
+        )
         for query in (predisp_d_query, predisp_all_query):
             downloader = ForecastTypeDownloader.from_Query(query)
             downloader.download_csv()

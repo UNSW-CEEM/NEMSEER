@@ -2,6 +2,8 @@ from datetime import datetime, timedelta
 
 import pytest
 
+from nemseer.data import DATETIME_FORMAT
+from nemseer.forecast_type.forecasted_time_generators import generate_forecasted_times
 from nemseer.forecast_type.validators import (
     _determine_last_market_day_end_for_half_hourly,
     validate_MTPASA_datetime_inputs,
@@ -138,6 +140,144 @@ class TestPREDISPATCH_and_PASA_validators:
             validate_PDPASA_datetime_inputs(
                 run_start_2, run_end_2, forecasted_start_2, forecasted_end_2
             )
+
+    @pytest.mark.parametrize("year", (2020, 2023))
+    @pytest.mark.parametrize("month", (2, 12))
+    @pytest.mark.parametrize("day", (1, 28))
+    @pytest.mark.parametrize("hour", (0, 4, 5))
+    @pytest.mark.parametrize("minute", (0, 30))
+    def test_forecast_pdpasa_from_run(
+        self, year: int, month: int, day: int, hour: int, minute: int
+    ):
+        forecast_type = "PDPASA"
+        run_start = datetime(year, month, day, hour, minute)
+        run_end = run_start + timedelta(minutes=60)
+        run_start_str = run_start.strftime(DATETIME_FORMAT)
+        run_end_str = run_end.strftime(DATETIME_FORMAT)
+        str_forecasted_start, str_forecasted_end = generate_forecasted_times(
+            run_start_str, run_end_str, forecast_type
+        )
+        forecast_start = datetime.strptime(str_forecasted_start, DATETIME_FORMAT)
+        forecast_end = datetime.strptime(str_forecasted_end, DATETIME_FORMAT)
+        assert forecast_start >= run_start
+        assert forecast_end > run_end
+        validate_PDPASA_datetime_inputs(
+            run_start, run_end, forecast_start, forecast_end
+        )
+
+    @pytest.mark.parametrize("year", (2020, 2023))
+    @pytest.mark.parametrize("month", (2, 12))
+    @pytest.mark.parametrize("day", (1, 28))
+    @pytest.mark.parametrize("hour", (0, 4, 5))
+    @pytest.mark.parametrize("minute", (0, 30))
+    def test_forecast_mtpasa_from_run(
+        self, year: int, month: int, day: int, hour: int, minute: int
+    ):
+        forecast_type = "MTPASA"
+        run_start = datetime(year, month, day, hour, minute)
+        run_end = run_start + timedelta(minutes=60)
+        run_start_str = run_start.strftime(DATETIME_FORMAT)
+        run_end_str = run_end.strftime(DATETIME_FORMAT)
+        str_forecasted_start, str_forecasted_end = generate_forecasted_times(
+            run_start_str, run_end_str, forecast_type
+        )
+        forecast_start = datetime.strptime(str_forecasted_start, DATETIME_FORMAT)
+        forecast_end = datetime.strptime(str_forecasted_end, DATETIME_FORMAT)
+        assert forecast_start >= run_start
+        assert forecast_end > run_end
+        validate_MTPASA_datetime_inputs(
+            run_start, run_end, forecast_start, forecast_end
+        )
+
+    @pytest.mark.parametrize("year", (2020, 2023))
+    @pytest.mark.parametrize("month", (2, 12))
+    @pytest.mark.parametrize("day", (1, 28))
+    @pytest.mark.parametrize("hour", (0, 4, 5))
+    @pytest.mark.parametrize("minute", (0,))
+    def test_forecast_stpasa_from_run(
+        self, year: int, month: int, day: int, hour: int, minute: int
+    ):
+        # stpasa runs always on the hour
+        forecast_type = "STPASA"
+        run_start = datetime(year, month, day, hour, minute)
+        run_end = run_start + timedelta(minutes=60)
+        run_start_str = run_start.strftime(DATETIME_FORMAT)
+        run_end_str = run_end.strftime(DATETIME_FORMAT)
+        str_forecasted_start, str_forecasted_end = generate_forecasted_times(
+            run_start_str, run_end_str, forecast_type
+        )
+        forecast_start = datetime.strptime(str_forecasted_start, DATETIME_FORMAT)
+        forecast_end = datetime.strptime(str_forecasted_end, DATETIME_FORMAT)
+        assert forecast_start >= run_start
+        assert forecast_end > run_end
+        validate_STPASA_datetime_inputs(
+            run_start, run_end, forecast_start, forecast_end
+        )
+
+    @pytest.mark.parametrize("year", (2020, 2023))
+    @pytest.mark.parametrize("month", (2, 12))
+    @pytest.mark.parametrize("day", (1, 28))
+    @pytest.mark.parametrize("hour", (0, 4, 6))
+    @pytest.mark.parametrize("minute", (30,))
+    def test_forecast_stpasa_from_run_off_hour(
+        self, year: int, month: int, day: int, hour: int, minute: int
+    ):
+        # stpasa runs always on the hour so this should raise a ValueError
+        forecast_type = "STPASA"
+        run_start = datetime(year, month, day, hour, minute)
+        run_end = run_start + timedelta(minutes=60)
+        run_start_str = run_start.strftime(DATETIME_FORMAT)
+        run_end_str = run_end.strftime(DATETIME_FORMAT)
+        with pytest.raises(ValueError):
+            str_forecasted_start, str_forecasted_end = generate_forecasted_times(
+                run_start_str, run_end_str, forecast_type
+            )
+
+    @pytest.mark.parametrize("year", (2020, 2023))
+    @pytest.mark.parametrize("month", (2, 12))
+    @pytest.mark.parametrize("day", (1, 28))
+    @pytest.mark.parametrize("hour", (0, 4, 5))
+    @pytest.mark.parametrize("minute", (0, 30))
+    def test_forecast_predispatch_from_run(
+        self, year: int, month: int, day: int, hour: int, minute: int
+    ):
+        forecast_type = "PREDISPATCH"
+        run_start = datetime(year, month, day, hour, minute)
+        run_end = run_start + timedelta(minutes=60)
+        run_start_str = run_start.strftime(DATETIME_FORMAT)
+        run_end_str = run_end.strftime(DATETIME_FORMAT)
+        str_forecasted_start, str_forecasted_end = generate_forecasted_times(
+            run_start_str, run_end_str, forecast_type
+        )
+        forecast_start = datetime.strptime(str_forecasted_start, DATETIME_FORMAT)
+        forecast_end = datetime.strptime(str_forecasted_end, DATETIME_FORMAT)
+        assert forecast_start >= run_start
+        assert forecast_end > run_end
+        validate_PREDISPATCH_datetime_inputs(
+            run_start, run_end, forecast_start, forecast_end
+        )
+
+    @pytest.mark.parametrize("year", (2020, 2023))
+    @pytest.mark.parametrize("month", (2, 12))
+    @pytest.mark.parametrize("day", (1, 28))
+    @pytest.mark.parametrize("hour", (0, 4, 5))
+    @pytest.mark.parametrize("minute", (0, 30))
+    def test_forecast_p5min_from_run(
+        self, year: int, month: int, day: int, hour: int, minute: int
+    ):
+        forecast_type = "P5MIN"
+        run_start = datetime(year, month, day, hour, minute)
+        run_end = run_start + timedelta(minutes=60)
+        run_start_str = run_start.strftime(DATETIME_FORMAT)
+        run_end_str = run_end.strftime(DATETIME_FORMAT)
+        str_forecasted_start, str_forecasted_end = generate_forecasted_times(
+            run_start_str, run_end_str, forecast_type
+        )
+        forecast_start = datetime.strptime(str_forecasted_start, DATETIME_FORMAT)
+        forecast_end = datetime.strptime(str_forecasted_end, DATETIME_FORMAT)
+        assert forecast_start >= run_start
+        assert forecast_end > run_end
+        validate_P5MIN_datetime_inputs(run_start, run_end, forecast_start, forecast_end)
 
 
 class TestSTPASAvalidator:

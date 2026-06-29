@@ -1,32 +1,34 @@
 import random
 from datetime import datetime, timedelta
 
-import grequests  # type: ignore
 import pytest
 
-from nemseer.downloader import get_sqlloader_years_and_months
 from nemseer.forecast_type.run_time_generators import generate_runtimes
 from nemseer.nemseer import compile_data, download_raw_data
 from nemseer.query import Query
 
-assert grequests
-
 
 @pytest.fixture(scope="module")
 def get_test_year_and_month():
-    years_months = get_sqlloader_years_and_months()
-    test_index = int(len(years_months) / 2)
-    test_year = list(years_months.keys())[test_index]
-    test_month = years_months[test_year][5]
-    return (test_year, test_month)
+    return 2024, 8
 
 
 @pytest.fixture(scope="session")
 def valid_download_datetimes():
-    run_start = "2021/02/01 00:00"
-    run_end = "2021/02/05 00:00"
-    forecasted_start = "2021/02/08 00:00"
-    forecasted_end = "2021/02/08 23:55"
+    run_start = "2025/02/01 00:00"
+    run_end = "2025/02/05 00:00"
+    forecasted_start = "2025/02/08 00:00"
+    forecasted_end = "2025/02/08 23:55"
+    return run_start, run_end, forecasted_start, forecasted_end
+
+
+@pytest.fixture(scope="session")
+def valid_download_datetimes_pre202408():
+    # Some tests only make sense on data prior to Aug 2024
+    run_start = "2020/02/01 00:00"
+    run_end = "2020/02/05 00:00"
+    forecasted_start = "2020/02/08 00:00"
+    forecasted_end = "2020/02/08 23:55"
     return run_start, run_end, forecasted_start, forecasted_end
 
 
@@ -61,7 +63,7 @@ def download_file_to_cache(tmp_path_factory, valid_download_datetimes):
 def compile_data_to_processed_cache(tmp_path_factory):
     queries = {
         "STPASA": "INTERCONNECTORSOLN",
-        "PREDISPATCH": "REGIONSUM_D",
+        "PREDISPATCH": "REGIONSUM",
         "P5MIN": "CASESOLUTION",
     }
     forecasted_start = "2022/03/15 00:00"
@@ -92,7 +94,7 @@ def compile_data_to_processed_cache(tmp_path_factory):
             table,
             raw_cache=raw_cache,
             processed_cache=processed_cache,
-            data_format="df",
+            data_format="xr",
         )
         compile_data(
             run_start,
@@ -103,7 +105,7 @@ def compile_data_to_processed_cache(tmp_path_factory):
             table,
             raw_cache=raw_cache,
             processed_cache=processed_cache,
-            data_format="xr",
+            data_format="df",
         )
     return query_metadata
 
@@ -113,9 +115,12 @@ def _gen_datetime():
 
     From this gist: https://gist.github.com/rg3915/db907d7455a4949dbe69
     """
-    min_year = 2014
-    max_year = 2021
-    start = datetime(min_year, 1, 1, 00, 00, 00)
+    # Earliest runtime data on nemweb in correct format is 2015 (Jan)
+    # MTPASA tests go back 2 years 15 days so make earliest start Feb 2017 for tests
+    # This will give latest forecast time of Feb 2026 which works
+    min_year = 2017
+    max_year = 2025
+    start = datetime(min_year, 2, 1, 00, 00, 00)
     years = max_year - min_year + 1
     end = start + timedelta(days=365 * years)
     return start + (end - start) * random.random()
