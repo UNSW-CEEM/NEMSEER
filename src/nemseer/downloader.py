@@ -436,7 +436,7 @@ class ForecastTypeDownloader:
         invalid_or_corrupted_stubfile = self.raw_cache / Path(INVALID_STUBS_FILE)
         for metadata in filename_data.keys():
             fname = filename_data[metadata]
-            (year, month, table) = metadata
+            year, month, table = metadata
             if (self.raw_cache / Path(fname + ".parquet")).exists():
                 logger.info(f"{table} for {month}/{year} in raw_cache")
                 continue

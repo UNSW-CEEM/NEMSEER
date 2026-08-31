@@ -320,8 +320,8 @@ class DataCompiler:
             Returns
                 A filename constructed based on query details.
             """
-            (fs, fe) = (compiler.forecasted_start, compiler.forecasted_end)
-            (rs, re) = (compiler.run_start, compiler.run_end)
+            fs, fe = (compiler.forecasted_start, compiler.forecasted_end)
+            rs, re = (compiler.run_start, compiler.run_end)
             rs_re = (
                 f"{rs.year}{rs.month}{rs.day}{rs.hour}{rs.minute}"
                 + "_"

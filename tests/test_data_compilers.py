@@ -87,7 +87,7 @@ class TestDataCompiler:
                 forecasted_end = forecasted_start + timedelta(hours=end_delta_hours)
             forecasted_start = forecasted_start.strftime(DATETIME_FORMAT)
             forecasted_end = forecasted_end.strftime(DATETIME_FORMAT)
-            (str_start, str_end) = (forecasted_start, forecasted_end)
+            str_start, str_end = (forecasted_start, forecasted_end)
             run_start, run_end = generate_runtimes(str_start, str_end, forecast_type)
             query = Query.initialise(
                 run_start,
