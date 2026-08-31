@@ -119,7 +119,7 @@ def _generate_PDPASA_runtimes(
         Tuple of datetimes containing  the widest range of possible `forecasted` times
     """
 
-    (run_start, run_end) = _generate_PREDISPATCH_runtimes(
+    run_start, run_end = _generate_PREDISPATCH_runtimes(
         forecasted_start, forecasted_end
     )
     return (run_start, run_end)
@@ -227,7 +227,7 @@ def generate_runtimes(
         "MTPASA": _generate_MTPASA_runtimes,
     }
     generate_func = generate_map[forecast_type]
-    (run_start, run_end) = generate_func(
+    run_start, run_end = generate_func(
         _dt_converter(forecasted_start), _dt_converter(forecasted_end)
     )
     return (

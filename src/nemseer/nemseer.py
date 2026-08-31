@@ -91,7 +91,7 @@ def download_raw_data(
         if input_datetime_type not in ("run", "forecasted"):
             raise ValueError("Input datetime type must be 'run' or 'forecasted'")
         if input_datetime_type == "forecasted":
-            (other_start, other_end) = generate_runtimes(start, end, forecast_type)
+            other_start, other_end = generate_runtimes(start, end, forecast_type)
         else:
             other_start = start
             other_end = start

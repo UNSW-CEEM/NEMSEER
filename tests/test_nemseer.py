@@ -100,7 +100,7 @@ class TestCompileData:
         forecasted_start = forecasted_start.strftime(DATETIME_FORMAT)
         forecasted_end = forecasted_end.strftime(DATETIME_FORMAT)
 
-        (str_start, str_end) = (forecasted_start, forecasted_end)
+        str_start, str_end = (forecasted_start, forecasted_end)
         run_start, run_end = generate_runtimes(str_start, str_end, forecast_type)
         return run_start, run_end, forecasted_start, forecasted_end
 
@@ -110,7 +110,7 @@ class TestCompileData:
         fix_forecasted_dt,
         tmp_path,
     ):
-        (forecast_type, table) = ("STPASA", "REGIONSOLUTION")
+        forecast_type, table = ("STPASA", "REGIONSOLUTION")
         time_delta = timedelta(hours=72)
         (
             run_start,
@@ -152,7 +152,7 @@ class TestCompileData:
         def mock_pd_concat(dfs, axis=0):
             return pd.DataFrame({"a": [1, 2, 3], "b": [4, 5, 6]})
 
-        (forecast_type, table) = ("MTPASA", "RESERVELIMIT")
+        forecast_type, table = ("MTPASA", "RESERVELIMIT")
         time_delta = timedelta(hours=0)
         (
             run_start,
@@ -195,7 +195,7 @@ class TestCompileData:
         fix_forecasted_dt,
         tmp_path,
     ):
-        (forecast_type, table) = ("STPASA", "INTERCONNECTORSOLN")
+        forecast_type, table = ("STPASA", "INTERCONNECTORSOLN")
         time_delta = timedelta(hours=12, minutes=30)
         (
             run_start,
@@ -220,7 +220,7 @@ class TestCompileData:
     def test_duplicated_rows_warning(
         self, gen_datetime, fix_forecasted_dt, tmp_path, caplog
     ):
-        (forecast_type, table) = ("MTPASA", "RESERVELIMIT")
+        forecast_type, table = ("MTPASA", "RESERVELIMIT")
         time_delta = timedelta(days=1)
         (
             run_start,
@@ -276,12 +276,12 @@ class TestCompileData:
         self, compile_data_to_processed_cache, caplog
     ):
         query_metadata = compile_data_to_processed_cache["STPASA"]
-        (run_start, run_end) = (query_metadata["run_start"], query_metadata["run_end"])
-        (forecasted_start, forecasted_end) = (
+        run_start, run_end = (query_metadata["run_start"], query_metadata["run_end"])
+        forecasted_start, forecasted_end = (
             query_metadata["forecasted_start"],
             query_metadata["forecasted_end"],
         )
-        (forecast_type, table) = (
+        forecast_type, table = (
             query_metadata["forecast_type"],
             query_metadata["tables"],
         )
@@ -388,7 +388,7 @@ class TestCompileData:
     ):
         forecast_type = "P5MIN"
         query_metadata = compile_data_to_processed_cache[forecast_type]
-        (run_start, run_end) = (query_metadata["run_start"], query_metadata["run_end"])
+        run_start, run_end = (query_metadata["run_start"], query_metadata["run_end"])
         table = query_metadata["tables"]
         caplog.set_level(logging.INFO)
         data_map = compile_data(
@@ -451,7 +451,7 @@ class TestToXarray:
         fix_forecasted_dt,
         tmp_path,
     ):
-        (forecast_type, table) = ("STPASA", "INTERCONNECTORSOLN")
+        forecast_type, table = ("STPASA", "INTERCONNECTORSOLN")
         time_delta = timedelta(hours=12, minutes=30)
         (
             run_start,
