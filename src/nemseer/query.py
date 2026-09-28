@@ -130,7 +130,7 @@ def _construct_sqlloader_filename(
     Returns:
         Filename string without file type
     """
-    (stryear, strmonth) = (str(year), str(month).rjust(2, "0"))
+    stryear, strmonth = (str(year), str(month).rjust(2, "0"))
     if forecast_type == "PREDISPATCH" and table != "MNSPBIDTRK":
         prefix = f"PUBLIC_DVD_{forecast_type}{table}"
     else:
@@ -200,7 +200,7 @@ def generate_sqlloader_filenames(
                     tables = _enumerate_tables(tables, table, enumerate_to)
     for table in tables:
         for date in intervening_dates:
-            (year, month) = (date.year, date.month)
+            year, month = (date.year, date.month)
             fname = _construct_sqlloader_filename(year, month, forecast_type, table)
             filename_data[(year, month, table)] = fname
     return filename_data

@@ -158,7 +158,7 @@ def apply_run_and_forecasted_time_filters(
     Returns:
         DataFrame with appropriate datetime filtering applied.
     """
-    (runtime_col, forecasted_col) = (
+    runtime_col, forecasted_col = (
         RUNTIME_COL[forecast_type],
         FORECASTED_COL[forecast_type],
     )
